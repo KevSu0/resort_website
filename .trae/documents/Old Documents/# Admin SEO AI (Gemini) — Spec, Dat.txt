@@ -1,0 +1,452 @@
+# Admin SEO AI (Gemini) — Spec, Data Model, and Implementation Plan
+
+## 1) Goal & Scope
+
+Add a **two-level AI feature** in Admin that integrates **Google Gemini** to:
+
+* **Level A — System Prompt Manager:** Maintain a versioned, property-aware **System Prompt** that reflects the latest resort updates (amenities, pricing model, house rules, events, experiences, photos, location highlights, USP, policies, seasonal offers).
+* **Level B — Generate Website Content:** Use the active System Prompt + selected site content to generate **SEO-optimized, structured updates** for specific pages/sections. Output lands in **Drafts** with a clear **Diff Viewer** and explicit **Apply** step (no silent overwrites).
+
+### Success Criteria
+
+* Zero direct overwrites: all AI changes start as **Draft**.
+* Clear mapping of AI suggestions to **exact content fields**.
+* Version history and rollback for **System Prompt** and **Applied Changes**.
+* Page-level **SEO pack** generation: `<title>`, meta description, H1–H3, body blocks, internal links, image alt text, FAQ Q\&A, JSON‑LD.
+
+---
+
+## 2) Roles & Permissions
+
+* **Owner/Admin:** Can edit System Prompt, run generation jobs, approve/apply drafts.
+* **Editor:** Can run generation jobs, comment, request changes; cannot change System Prompt or apply to production.
+* **Viewer:** Read-only to System Prompt history and Drafts.
+
+Auth enforced via existing Firebase rules + role claims.
+
+---
+
+## 3) Information Architecture & Content Registry
+
+To ensure the model “knows where the data is,” define a **Content Registry** that maps every page and editable block to a stable key. Example:
+
+```json
+{
+  "pages": {
+    "home": {
+      "doc": "pages/home",
+      "fields": {
+        "meta.title": "string",
+        "meta.description": "string",
+        "hero.title": "string",
+        "hero.subtitle": "string",
+        "sections.experiences.heading": "string",
+        "sections.experiences.items[].title": "string",
+        "sections.experiences.items[].description": "string",
+        "sections.gallery.heading": "string",
+        "faq.items[].q": "string",
+        "faq.items[].a": "string",
+        "schema.jsonld": "object"
+      }
+    },
+    "accommodations": {
+      "doc": "pages/accommodations",
+      "fields": {
+        "meta.title": "string",
+        "meta.description": "string",
+        "intro.heading": "string",
+        "intro.body": "richtext",
+        "rooms[].name": "string",
+        "rooms[].short": "string",
+        "rooms[].long": "richtext",
+        "rooms[].amenities[]": "string",
+        "rooms[].images[].alt": "string",
+        "faq.items[].q": "string",
+        "faq.items[].a": "string",
+        "schema.jsonld": "object"
+      }
+    },
+    "experiences": { "doc": "pages/experiences", "fields": { "meta.title": "string", "meta.description": "string", "list[].title": "string", "list[].body": "richtext", "list[].images[].alt": "string", "schema.jsonld": "object" }},
+    "about": { "doc": "pages/about", "fields": { "meta.title": "string", "meta.description": "string", "body": "richtext", "schema.jsonld": "object" }},
+    "policies": { "doc": "pages/policies", "fields": { "cancellation": "richtext", "houseRules": "richtext", "checkin": "string", "checkout": "string" }},
+    "request-stay": { "doc": "pages/request-stay", "fields": { "intro": "richtext", "form.copy": "string" }},
+    "blog": { "doc": "pages/blog", "fields": { "posts[]": "object" }}
+  }
+}
+```
+
+This registry lives in Firestore (`/seo_ai/content_registry`) and is supplied to the model at generation time so it returns **structured JSON** keyed by these field paths.
+
+---
+
+## 4) Data Model (Firestore)
+
+```
+/seo_ai/system_prompts/{versionId}
+  prompt: string
+  version: number
+  createdBy: uid
+  createdAt: timestamp
+  derivedFromContentHash: string  // SHA256 of the snapshot used to craft this version
+  notes: string
+  isActive: boolean
+
+/seo_ai/content_jobs/{jobId}
+  createdBy: uid
+  createdAt: timestamp
+  status: enum(draft|approved|applied|failed|canceled)
+  targetPaths: string[]   // e.g., ["pages/home", "pages/accommodations"]
+  promptVersion: number   // frozen snapshot used
+  siteSnapshotRef: string // storage path of the JSON snapshot passed to the model
+  model: string           // e.g., gemini-1.5-pro-latest
+  inputs: { focusKeywords: string[], audience: string, tone: string, locale: string }
+  outputs: {
+    diffs: JsonPatch[]    // RFC6902 patches per doc
+    seoPack: {
+      sitemapHints?: string[]
+      internalLinks?: { from: string, to: string, anchor: string }[]
+    }
+    warnings: string[]
+  }
+  apply: {
+    appliedBy?: uid
+    appliedAt?: timestamp
+    docWriteResults?: { doc: string, updatedFields: string[] }[]
+  }
+
+/seo_ai/change_log/{changeId}
+  jobId: string
+  doc: string
+  before: object
+  after: object
+  appliedBy: uid
+  appliedAt: timestamp
+```
+
+> **Note:** We store the **site snapshot** (only the targeted docs) in Cloud Storage and give the model a read-only JSON payload to ground generation.
+
+---
+
+## 5) Admin UI — New “AI SEO” Section
+
+### Tabs
+
+1. **System Prompt**
+
+   * Rich editor (markdown), token counter, diff vs. previous, **Activate Version** button.
+   * Quick inserts: property USPs, updated amenities, dates for seasonal offers.
+   * Validation: required sections (Brand voice, Property facts, Local SEO entities, Prohibited claims, Tone, Target audience).
+   * Actions: Save Draft → Activate (deactivates prior version). View history & rollback.
+
+2. **Generate Content**
+
+   * **Scope picker:** checkboxes for pages/sections using Content Registry.
+   * **SEO inputs:** focus keywords (max 5), target queries (PAA style), audience, tone (e.g., warm, nature‑immersive), locale (en‑IN), max length for meta.
+   * **Context box:** free‑text “What changed?” (e.g., “Added stargazing deck; monsoon offer 15% off weekdays”).
+   * **Run Generation** → Shows **Draft Results** with:
+
+     * **Diff Viewer** (per doc/field, side‑by‑side)
+     * **SEO Pack** cards (Title/Meta, H1–H3, FAQs, JSON‑LD)
+     * **Quality checks** (readability, keyword stuffing, duplicate meta, missing alt)
+     * Buttons: **Apply to Site**, **Edit Manually**, **Discard**
+
+---
+
+## 6) Prompting Strategy
+
+### 6.1 System Prompt (template)
+
+```
+You are an SEO content strategist for a boutique treehouse resort in Wayanad, India.
+
+OBJECTIVES
+- Improve organic visibility for target queries without keyword stuffing.
+- Keep content truthful, aligned with the live property facts and policies.
+- Write in a warm, nature-immersive voice with concise, scannable sections.
+
+HARD CONSTRAINTS
+- Only update fields requested via the supplied Content Registry.
+- Keep headings hierarchy valid (one H1 per page; H2/H3 nested logically).
+- Respect maximum lengths: title ≤ 60 chars, meta description ≤ 155 chars.
+- Generate JSON-LD with schema.org types relevant to the page.
+- Avoid claims of availability or prices; this site uses enquiry-based booking.
+
+STYLE & TONE
+- Descriptive but grounded; avoid superlatives without proof.
+- British/Indian English spelling; use en-dashes and sentence case headings.
+
+LOCAL SEO ENTITIES
+- {insert: nearest landmarks, areas, coordinates}
+
+PROPERTY FACTS (canonical, do not invent)
+- {insert: amenities, room types, capacity, policies, check-in/out, USPs}
+
+PROHIBITED
+- No discounts unless provided in Context. No promises of wildlife sightings.
+
+OUTPUT FORMAT
+- Return a JSON object with `updates[]` (field patches) and `seoPack`.
+- Follow the provided Content Registry keys exactly.
+```
+
+### 6.2 Runtime User Prompt (per generation job)
+
+```
+CONTEXT CHANGES (from Admin):
+- {free-text summary}
+
+TARGETS:
+- {list of registry docs/fields}
+
+CURRENT CONTENT SNAPSHOT:
+- {JSON excerpt limited to targets}
+
+TASK:
+- Propose updated copy that improves clarity, uniqueness, and search intent coverage for the provided targets while preserving facts.
+- Provide `updates[]` as JSON Patch operations per target doc.
+- Provide `seoPack` with title/meta, headings, FAQ, internal links, JSON-LD.
+- Flag `warnings[]` where facts were unclear or insufficient.
+```
+
+---
+
+## 7) API & Backend (Cloud Functions for Firebase)
+
+### Endpoints (HTTPS callable)
+
+* `seoAi.updateSystemPrompt({ prompt, notes })` → creates new version, deactivates prior, returns `{ version }`.
+* `seoAi.generate({ targetPaths, promptVersion, context, inputs })` →
+
+  1. Reads target docs from Firestore, builds **site snapshot** JSON.
+  2. Calls Gemini with System Prompt (that version) + runtime prompt.
+  3. Validates model JSON against Zod schema.
+  4. Writes Draft job to `/seo_ai/content_jobs/{jobId}` with `status='draft'`.
+* `seoAi.applyJob({ jobId })` → Applies patches in a transaction, writes change log, invalidates caches, re-builds sitemap if meta changed.
+
+### Packages
+
+* `@google/generative-ai` (Node SDK)
+* `zod` for schema validation
+* `jsonpatch` for RFC6902 apply/validate
+
+### Secrets & Quotas
+
+* Store Gemini API key in **Secret Manager**; access via Functions runtime.
+* Rate limit: 1 job / 30s per user; 100 jobs/day per project (configurable).
+
+---
+
+## 8) Example Code Snippets
+
+### 8.1 Types & Schema (TypeScript)
+
+```ts
+// schemas.ts
+import { z } from 'zod';
+
+export const UpdateOp = z.object({
+  doc: z.string(),                 // e.g., 'pages/home'
+  patch: z.array(z.object({        // RFC6902
+    op: z.enum(['add','remove','replace','move','copy','test']),
+    path: z.string(),              // e.g., '/meta/title'
+    value: z.any().optional()
+  }))
+});
+
+export const SeoPack = z.object({
+  title: z.string().max(60),
+  metaDescription: z.string().max(155),
+  headings: z.array(z.object({ level: z.enum(['H1','H2','H3']), text: z.string() })),
+  faqs: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
+  internalLinks: z.array(z.object({ from: z.string(), to: z.string(), anchor: z.string() })).optional(),
+  jsonld: z.record(z.any()).optional(),
+});
+
+export const ModelResponse = z.object({
+  updates: z.array(UpdateOp),
+  seoPack: SeoPack.optional(),
+  warnings: z.array(z.string()).optional()
+});
+```
+
+### 8.2 Cloud Function — Generate
+
+```ts
+// functions/src/seoAiGenerate.ts
+import { onCall } from 'firebase-functions/v2/https';
+import { getFirestore } from 'firebase-admin/firestore';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ModelResponse } from './schemas';
+import * as jsonpatch from 'fast-json-patch';
+
+export const generate = onCall(async (req) => {
+  const { targetPaths, promptVersion, context, inputs } = req.data;
+  const db = getFirestore();
+
+  // 1) Load registry & snapshot
+  const registrySnap = await db.doc('seo_ai/content_registry/default').get();
+  const registry = registrySnap.data();
+  const snapshot: Record<string, any> = {};
+  for (const p of targetPaths) {
+    const doc = await db.doc(p).get();
+    if (!doc.exists) throw new Error(`Missing content doc: ${p}`);
+    snapshot[p] = doc.data();
+  }
+
+  // 2) Load active/selected system prompt
+  const sys = await db.collection('seo_ai/system_prompts')
+    .where('version', '==', promptVersion)
+    .limit(1).get();
+  if (sys.empty) throw new Error('System prompt not found');
+  const systemPrompt = sys.docs[0].data().prompt;
+
+  // 3) Call Gemini
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+
+  const userPrompt = {
+    context,
+    inputs,
+    registry,    // trims to target paths client-side
+    snapshot
+  };
+
+  const res = await model.generateContent([
+    { role: 'user', parts: [{ text: JSON.stringify(userPrompt) }] },
+    { role: 'model', parts: [{ text: 'Return strict JSON matching the schema.' }] }
+  ], { systemInstruction: systemPrompt });
+
+  const text = res.response.text();
+  const parsed = ModelResponse.parse(JSON.parse(text));
+
+  // 4) Save draft job
+  const jobRef = db.collection('seo_ai/content_jobs').doc();
+  await jobRef.set({
+    status: 'draft',
+    createdAt: new Date(),
+    targetPaths,
+    promptVersion,
+    inputs,
+    outputs: parsed,
+  });
+
+  return { jobId: jobRef.id };
+});
+```
+
+### 8.3 Cloud Function — Apply Job
+
+```ts
+// functions/src/seoAiApply.ts
+import { onCall } from 'firebase-functions/v2/https';
+import { getFirestore } from 'firebase-admin/firestore';
+import * as jsonpatch from 'fast-json-patch';
+
+export const applyJob = onCall(async (req) => {
+  const { jobId } = req.data;
+  const db = getFirestore();
+  const jobRef = db.doc(`seo_ai/content_jobs/${jobId}`);
+  const jobSnap = await jobRef.get();
+  if (!jobSnap.exists) throw new Error('Job not found');
+  const job = jobSnap.data()!;
+
+  if (job.status !== 'draft' && job.status !== 'approved') {
+    throw new Error('Job not in applicable state');
+  }
+
+  const batch = db.batch();
+  const writeResults: any[] = [];
+
+  for (const update of job.outputs.updates) {
+    const docRef = db.doc(update.doc);
+    const docSnap = await docRef.get();
+    const before = docSnap.data() || {};
+    const after = jsonpatch.applyPatch(JSON.parse(JSON.stringify(before)), update.patch, /*validate*/ true).newDocument;
+    batch.set(docRef, after, { merge: false });
+    writeResults.push({ doc: update.doc, updatedFields: update.patch.map((p: any) => p.path) });
+  }
+
+  await batch.commit();
+
+  await jobRef.update({
+    status: 'applied',
+    apply: { appliedAt: new Date(), docWriteResults: writeResults }
+  });
+
+  return { ok: true, writeResults };
+});
+```
+
+---
+
+## 9) Admin UI — Component Notes (React)
+
+* **SystemPromptEditor.tsx**
+
+  * Markdown editor, diff viewer, token estimate (approx. 4 chars/token).
+  * Buttons: Save Draft, Activate.
+* **GenerationForm.tsx**
+
+  * Multi-select tree for registry targets, keyword chips, tone select, audience select, locale, context textarea.
+  * Calls `seoAi.generate`; then route to `JobDraftView`.
+* **JobDraftView\.tsx**
+
+  * Group by doc; show JSON Patch as human diffs; inline editors for final tweaks.
+  * “Apply to Site” calls `seoAi.applyJob`.
+
+---
+
+## 10) Validation & Guardrails
+
+* **Schema validation** on all model responses (reject non‑conforming JSON).
+* **Fact grounding**: model only sees the snapshot for targets; discourage hallucinations.
+* **Length constraints** enforced post‑gen (truncate meta if needed with ellipsis logic that preserves words).
+* **Banned claims** checker for superlatives, pricing/availability promises.
+* **Manual approval** required before Apply.
+
+---
+
+## 11) QA & Test Cases
+
+* Unit: schema parsing, patch application, registry lookups, meta length rules.
+* Integration: end‑to‑end job flow (generate → draft → edit → apply), permission gates.
+* Content: INP/LCP unaffected by meta-only changes; JSON‑LD valid via schema.org validator.
+* Security: only Admin/Owner can change System Prompt; Editors cannot Apply.
+
+---
+
+## 12) Rollout Plan
+
+1. **Phase 1:** Ship System Prompt Manager + Generate for meta + headings on Home/Accommodations.
+2. **Phase 2:** Extend to Experiences/Blog; add internal link suggestions and FAQ.
+3. **Phase 3:** Auto‑ping sitemap + Search Console when meta/schema changes.
+
+---
+
+## 13) Copy Blocks (Examples for Model Output)
+
+* Home `<title>`: "Wayanad Treehouse Resort — Nature-Immersive Stays in Kerala"
+* Meta: "Elevated stays amid Wayanad’s forests. Enquiry‑based booking, cozy treehouses, stargazing deck, and guided nature walks."
+* H1: "Nature-Immersive Treehouse Stays in Wayanad"
+* FAQ: Q: "Do you offer online booking?" A: "We operate on an enquiry basis. Use ‘Request a Stay’ to check dates and get a personalised quote."
+
+---
+
+## 14) Security & Compliance
+
+* Keys in Secret Manager; not shipped to client.
+* Server-side Gemini calls only; Cloud Function IAM restricts invokers.
+* Audit logs for prompt edits and applied patches.
+* Content guideline file checked by CI to prevent prohibited claims.
+
+---
+
+## 15) Developer Checklist
+
+* [ ] Create `/seo_ai/system_prompts`, `/seo_ai/content_jobs`, `/seo_ai/content_registry`.
+* [ ] Seed registry for Home, Accommodations, Experiences, About, Policies, Request‑Stay, Blog.
+* [ ] Deploy `seoAi.updateSystemPrompt`, `seoAi.generate`, `seoAi.applyJob` functions.
+* [ ] Build Admin UI tabs; wire role gating.
+* [ ] Add JSON‑LD generators for each page type.
+* [ ] Add sitemap rebuild + GSC ping (Phase 3).
+* [ ] Write unit/integration tests; add emulator workflows.
