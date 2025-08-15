@@ -1,5 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -108,18 +108,6 @@ export default class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
-}
-
-// Functional error boundary hook for specific use cases
-export function useErrorHandler() {
-  return (error: Error, errorInfo?: ErrorInfo) => {
-    console.error('Error caught by error handler:', error, errorInfo);
-    
-    // In a real app, you might want to report this to an error tracking service
-    if (process.env.NODE_ENV === 'production') {
-      // Example: reportError(error, errorInfo);
-    }
-  };
 }
 
 // Simple error fallback component

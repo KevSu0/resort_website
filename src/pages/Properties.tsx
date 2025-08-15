@@ -1,9 +1,9 @@
 import React from 'react';
 import { useLoaderData } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { Section, Grid } from '../components/Layout';
-import PropertyCard, { PropertyGrid } from '../components/PropertyCard';
-import { AdvancedSearchBar } from '../components/SearchBar';
+import { Section } from '../components/Layout';
+import { PropertyGrid } from '../components/PropertyCard';
+import SearchBar from '../components/SearchBar';
 import type { Property, SearchFilters } from '../types';
 
 interface PropertiesPageData {
@@ -13,7 +13,7 @@ interface PropertiesPageData {
 }
 
 export default function Properties() {
-  const { properties, totalCount, filters } = useLoaderData() as PropertiesPageData;
+  const { properties, totalCount } = useLoaderData() as PropertiesPageData;
 
   const handleSearch = (newFilters: SearchFilters) => {
     // This would typically update the URL and trigger a new data load
@@ -33,7 +33,7 @@ export default function Properties() {
         </div>
         
         <div className="max-w-4xl mx-auto mb-8">
-          <AdvancedSearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch} />
         </div>
       </Section>
 

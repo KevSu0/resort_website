@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Save, Bell, Shield, Globe, Palette, Database, Mail, Key } from 'lucide-react';
+import { Save, Bell, Shield, Globe, Palette, Database } from 'lucide-react';
 import Layout from '../../components/Layout';
-import { Card, Grid } from '../../components/Layout';
+import { Card } from '../../components/Layout';
 
 export default function AdminSettings() {
   const [activeTab, setActiveTab] = useState('general');
@@ -26,7 +26,7 @@ export default function AdminSettings() {
     backupFrequency: 'daily'
   });
 
-  const handleSettingChange = (key: string, value: any) => {
+  const handleSettingChange = (key: string, value: string | number | boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 

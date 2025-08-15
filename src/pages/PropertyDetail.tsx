@@ -3,23 +3,22 @@ import { useLoaderData, Link } from 'react-router-dom';
 import { MapPin, Star, Users, Wifi, Car, Coffee, Waves, Calendar, ArrowLeft } from 'lucide-react';
 import Layout from '../components/Layout';
 import { Section, Card, Grid } from '../components/Layout';
-import type { Property } from '../types';
 
-interface PropertyDetailData {
-  property: Property;
-  relatedProperties: Property[];
-}
+import { PropertyLoaderData } from '../router/loaders';
 
 export default function PropertyDetail() {
-  const { property, relatedProperties } = useLoaderData() as PropertyDetailData;
+  const { property, city, stayTypes } = useLoaderData() as PropertyLoaderData;
 
-  const amenityIcons: Record<string, any> = {
+  const amenityIcons: Record<string, React.ComponentType<{ className: string }>> = {
     'WiFi': Wifi,
     'Pool': Waves,
     'Parking': Car,
     'Restaurant': Coffee,
     'Spa': Star
   };
+
+  const allImages = stayTypes.flatMap(st => st.details.images);
+  const allAmenities = stayTypes.flatMap(st => st.details.amenities);
 
   return (
     <Layout>
@@ -30,8 +29,8 @@ export default function PropertyDetail() {
           <span>/</span>
           <Link to="/properties" className="hover:text-blue-600">Properties</Link>
           <span>/</span>
-          <Link to={`/city/${property.location.city.toLowerCase()}`} className="hover:text-blue-600">
-            {property.location.city}
+          <Link to={`/locations/${city.slug}`} className="hover:text-blue-600">
+            {city.name}
           </Link>
           <span>/</span>
           <span className="text-gray-900">{property.name}</span>
@@ -57,19 +56,8 @@ export default function PropertyDetail() {
               <div className="flex items-center space-x-4 text-gray-600">
                 <div className="flex items-center">
                   <MapPin className="w-4 h-4 mr-1" />
-                  <span>{property.location.city}, {property.location.country}</span>
+                  <span>{city.name}, {city.country}</span>
                 </div>
-                <div className="flex items-center">
-                  <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
-                  <span>{property.rating.average} ({property.rating.count} reviews)</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-4 md:mt-0 text-right">
-              <div className="text-3xl font-bold text-gray-900">
-                ${property.pricing.basePrice}
-                <span className="text-lg font-normal text-gray-600">/{property.pricing.period}</span>
               </div>
             </div>
           </div>
@@ -77,7 +65,7 @@ export default function PropertyDetail() {
 
         {/* Property Images */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {property.images.map((image, index) => (
+          {allImages.map((image, index) => (
             <div key={index} className={`${index === 0 ? 'md:col-span-2 lg:row-span-2' : ''} relative overflow-hidden rounded-lg`}>
               <img 
                 src={image} 
@@ -98,7 +86,7 @@ export default function PropertyDetail() {
             <Card className="p-6 mb-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">About This Property</h2>
               <p className="text-gray-600 leading-relaxed">
-                {property.description}
+                {property.branding.description}
               </p>
             </Card>
 
@@ -106,7 +94,7 @@ export default function PropertyDetail() {
             <Card className="p-6 mb-6">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Amenities</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {property.amenities.map((amenity) => {
+                {allAmenities.map((amenity) => {
                   const Icon = amenityIcons[amenity] || Star;
                   return (
                     <div key={amenity} className="flex items-center space-x-2">
@@ -125,7 +113,7 @@ export default function PropertyDetail() {
                 <div className="text-center text-gray-500">
                   <MapPin className="w-12 h-12 mx-auto mb-2" />
                   <p>Interactive map would be displayed here</p>
-                  <p className="text-sm">{property.location.city}, {property.location.country}</p>
+                  <p className="text-sm">{city.name}, {city.country}</p>
                 </div>
               </div>
             </Card>
@@ -134,19 +122,6 @@ export default function PropertyDetail() {
           {/* Booking Sidebar */}
           <div className="lg:col-span-1">
             <Card className="p-6 sticky top-6">
-              <div className="text-center mb-6">
-                <div className="text-3xl font-bold text-gray-900">
-                  ${property.pricing.basePrice}
-                  <span className="text-lg font-normal text-gray-600">/{property.pricing.period}</span>
-                </div>
-                <div className="flex items-center justify-center mt-2">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                  <span className="text-sm text-gray-600">
-                    {property.rating.average} ({property.rating.count} reviews)
-                  </span>
-                </div>
-              </div>
-
               <form className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -200,53 +175,6 @@ export default function PropertyDetail() {
           </div>
         </Grid>
       </Section>
-
-      {/* Related Properties */}
-      {relatedProperties.length > 0 && (
-        <Section className="bg-gray-50">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Similar Properties
-            </h2>
-            <p className="text-lg text-gray-600">
-              You might also like these accommodations
-            </p>
-          </div>
-          
-          <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {relatedProperties.slice(0, 3).map((relatedProperty) => (
-              <Card key={relatedProperty.id} className="overflow-hidden">
-                <img 
-                  src={relatedProperty.images[0]} 
-                  alt={relatedProperty.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">{relatedProperty.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {relatedProperty.location.city}, {relatedProperty.location.country}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                      <span className="text-sm">{relatedProperty.rating.average}</span>
-                    </div>
-                    <div className="font-semibold">
-                      ${relatedProperty.pricing.basePrice}/{relatedProperty.pricing.period}
-                    </div>
-                  </div>
-                  <Link 
-                    to={`/property/${relatedProperty.slug}`}
-                    className="mt-3 block w-full text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </Card>
-            ))}
-          </Grid>
-        </Section>
-      )}
     </Layout>
   );
 }

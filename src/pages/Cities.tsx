@@ -2,7 +2,7 @@ import React from 'react';
 import { useLoaderData } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Section } from '../components/Layout';
-import { CityGrid } from '../components/CityCard';
+import { CityGrid } from '../components/CityGrid';
 import SearchBar from '../components/SearchBar';
 import type { City, SearchFilters } from '../types';
 
@@ -13,7 +13,7 @@ interface CitiesPageData {
 }
 
 export default function Cities() {
-  const { cities, totalCount, filters } = useLoaderData() as CitiesPageData;
+  const { cities, totalCount } = useLoaderData() as CitiesPageData;
 
   const handleSearch = (newFilters: SearchFilters) => {
     console.log('Search filters:', newFilters);

@@ -1,7 +1,7 @@
 import React from 'react';
-import { BarChart3, Users, MapPin, Calendar, TrendingUp, DollarSign, Star, MessageSquare } from 'lucide-react';
+import { Users, DollarSign, Calendar } from 'lucide-react';
 import Layout from '../../components/Layout';
-import { Section, Card, Grid } from '../../components/Layout';
+import { Card } from '../../components/Layout';
 
 export default function Dashboard() {
   const stats = [

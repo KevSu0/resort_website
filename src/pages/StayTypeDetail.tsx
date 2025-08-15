@@ -1,21 +1,21 @@
 import React from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
-import { MapPin, Star, Users, Calendar, ArrowLeft, Filter } from 'lucide-react';
+import { Users, Calendar, ArrowLeft, Star, Filter } from 'lucide-react';
 import Layout from '../components/Layout';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
-import { PropertyCard } from '../components/PropertyCard';
-import { AdvancedSearchBar } from '../components/SearchBar';
-import type { StayType, Property } from '../types';
+import { PropertyGrid } from '../components/PropertyGrid';
+import SearchBar from '../components/SearchBar';
+import type { StayType, Property, SearchFilters } from '../types';
 
 interface StayTypeDetailData {
   stayType: StayType;
   properties: Property[];
-  totalProperties: number;
-  relatedStayTypes: StayType[];
 }
 
 export default function StayTypeDetail() {
-  const { stayType, properties, totalProperties, relatedStayTypes } = useLoaderData() as StayTypeDetailData;
+  const { stayType, properties } = useLoaderData() as StayTypeDetailData;
+  const totalProperties = properties.length;
+  const mainImage = stayType.details.images[0];
 
   return (
     <Layout>
@@ -26,13 +26,13 @@ export default function StayTypeDetail() {
           <span>/</span>
           <Link to="/stay-types" className="hover:text-blue-600">Stay Types</Link>
           <span>/</span>
-          <span className="text-gray-900">{stayType.name}</span>
+          <span className="text-gray-900">{stayType.type_name}</span>
         </div>
       </Section>
 
       {/* Stay Type Hero */}
       <HeroSection 
-        backgroundImage={stayType.image}
+        backgroundImage={mainImage}
         className="relative h-96 flex items-center justify-center"
       >
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -46,20 +46,16 @@ export default function StayTypeDetail() {
           </Link>
           
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            {stayType.name}
+            {stayType.type_name}
           </h1>
           <div className="flex items-center justify-center space-x-4 text-lg">
             <div className="flex items-center">
               <Users className="w-5 h-5 mr-2" />
               <span>{totalProperties} Properties</span>
             </div>
-            <div className="flex items-center">
-              <Star className="w-5 h-5 mr-2 text-yellow-400 fill-current" />
-              <span>4.5+ Average Rating</span>
-            </div>
           </div>
           <p className="mt-4 text-xl max-w-3xl mx-auto">
-            {stayType.description}
+            {stayType.details.description}
           </p>
         </div>
       </HeroSection>
@@ -67,8 +63,8 @@ export default function StayTypeDetail() {
       {/* Search Section */}
       <Section className="bg-white border-b">
         <div className="max-w-4xl mx-auto">
-          <AdvancedSearchBar 
-            onSearch={(filters) => {
+          <SearchBar
+            onSearch={(filters: SearchFilters) => {
               console.log('Search filters:', filters);
               // Handle search logic here
             }}
@@ -80,7 +76,7 @@ export default function StayTypeDetail() {
       <Section>
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            What Makes {stayType.name} Special
+            What Makes {stayType.type_name} Special
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Discover the unique features and amenities that define this accommodation type
@@ -123,10 +119,10 @@ export default function StayTypeDetail() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {stayType.name} Properties
+              {stayType.type_name} Properties
             </h2>
             <p className="text-lg text-gray-600">
-              {totalProperties} {stayType.name.toLowerCase()} available
+              {totalProperties} {stayType.type_name.toLowerCase()} available
             </p>
           </div>
           
@@ -146,11 +142,7 @@ export default function StayTypeDetail() {
         </div>
 
         {/* Properties Grid */}
-        <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {properties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </Grid>
+        <PropertyGrid properties={properties} />
 
         {/* Load More */}
         {properties.length < totalProperties && (
@@ -160,118 +152,6 @@ export default function StayTypeDetail() {
             </button>
           </div>
         )}
-      </Section>
-
-      {/* Popular Destinations for this Stay Type */}
-      <Section>
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Popular Destinations for {stayType.name}
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover the most sought-after locations for this type of accommodation
-          </p>
-        </div>
-
-        <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { name: 'Bali', properties: Math.floor(totalProperties * 0.3), image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20bali%20resort%20destination%20tropical%20paradise&image_size=landscape_4_3' },
-            { name: 'Maldives', properties: Math.floor(totalProperties * 0.25), image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=maldives%20luxury%20resort%20overwater%20bungalows&image_size=landscape_4_3' },
-            { name: 'Thailand', properties: Math.floor(totalProperties * 0.25), image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=thailand%20beach%20resort%20tropical%20luxury&image_size=landscape_4_3' },
-            { name: 'Greece', properties: Math.floor(totalProperties * 0.2), image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=greece%20santorini%20luxury%20hotel%20mediterranean&image_size=landscape_4_3' }
-          ].map((destination) => (
-            <Card key={destination.name} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <img 
-                src={destination.image} 
-                alt={destination.name}
-                className="w-full h-32 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-1">{destination.name}</h3>
-                <p className="text-sm text-gray-600">{destination.properties} properties</p>
-                <Link 
-                  to={`/city/${destination.name.toLowerCase()}`}
-                  className="mt-2 block text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
-                >
-                  Explore
-                </Link>
-              </div>
-            </Card>
-          ))}
-        </Grid>
-      </Section>
-
-      {/* Related Stay Types */}
-      {relatedStayTypes.length > 0 && (
-        <Section className="bg-gray-50">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Similar Stay Types
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              You might also be interested in these accommodation types
-            </p>
-          </div>
-          
-          <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {relatedStayTypes.slice(0, 3).map((relatedStayType) => (
-              <Card key={relatedStayType.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <img 
-                  src={relatedStayType.image} 
-                  alt={relatedStayType.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {relatedStayType.name}
-                  </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">
-                    {relatedStayType.description}
-                  </p>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm text-gray-500">
-                      {relatedStayType.propertyCount} properties
-                    </span>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                      <span className="text-sm">4.5+</span>
-                    </div>
-                  </div>
-                  <Link 
-                    to={`/stay-type/${relatedStayType.slug}`}
-                    className="block w-full text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    Explore {relatedStayType.name}
-                  </Link>
-                </div>
-              </Card>
-            ))}
-          </Grid>
-        </Section>
-      )}
-
-      {/* Call to Action */}
-      <Section className="bg-blue-600 text-white">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Book Your {stayType.name}?
-          </h2>
-          <p className="text-xl mb-6">
-            Browse our selection of {totalProperties} {stayType.name.toLowerCase()} and find your perfect accommodation
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-3 bg-white text-blue-600 rounded-md hover:bg-gray-100 transition-colors font-medium">
-              <Calendar className="w-4 h-4 mr-2 inline" />
-              Book Now
-            </button>
-            <Link 
-              to="/contact"
-              className="px-8 py-3 border border-white text-white rounded-md hover:bg-white hover:text-blue-600 transition-colors font-medium"
-            >
-              Get Recommendations
-            </Link>
-          </div>
-        </div>
       </Section>
     </Layout>
   );
