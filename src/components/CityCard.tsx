@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Building, Users, Star, ArrowRight } from 'lucide-react';
+import { MapPin, Star, Building, ArrowRight } from 'lucide-react';
 import { City } from '../types';
 
 interface CityCardProps {
@@ -17,57 +17,17 @@ export default function CityCard({
   className = ''
 }: CityCardProps) {
   const {
-    id,
     name,
     slug,
     country,
-    description,
-    images,
-    propertyCount,
-    averageRating,
-    popularStayTypes,
-    isActive
+    state,
+    property_ids
   } = city;
 
-  if (!isActive) return null;
+  const cityUrl = `/locations/${slug}`;
+  const mainImage = `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`${name} ${country} cityscape beautiful destination travel`)}&image_size=landscape_16_9`;
 
-  const cityUrl = `/cities/${slug}`;
-  const mainImage = images?.[0] || `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`${name} ${country} cityscape beautiful destination travel`)}&image_size=landscape_16_9`;
-
-  const renderStayTypes = () => {
-    if (!popularStayTypes?.length) return null;
-    
-    const displayTypes = variant === 'compact' ? popularStayTypes.slice(0, 2) : popularStayTypes.slice(0, 4);
-    
-    return (
-      <div className="flex flex-wrap gap-1 mt-2">
-        {displayTypes.map((stayType, index) => (
-          <span 
-            key={index}
-            className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
-          >
-            {stayType}
-          </span>
-        ))}
-        {popularStayTypes.length > displayTypes.length && (
-          <span className="text-xs text-gray-500 px-2 py-1">
-            +{popularStayTypes.length - displayTypes.length} more
-          </span>
-        )}
-      </div>
-    );
-  };
-
-  const renderRating = () => {
-    if (!averageRating) return null;
-    
-    return (
-      <div className="flex items-center space-x-1">
-        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-        <span className="text-sm font-medium text-gray-900">{averageRating.toFixed(1)}</span>
-      </div>
-    );
-  };
+  const propertyCount = property_ids.length;
 
   if (variant === 'compact') {
     return (
@@ -97,7 +57,6 @@ export default function CityCard({
                   <span>{propertyCount} properties</span>
                 </div>
               )}
-              {renderRating()}
             </div>
           </div>
         </div>
@@ -119,10 +78,6 @@ export default function CityCard({
         </div>
         
         <div className="relative p-8 h-80 flex flex-col justify-end text-white">
-          <div className="mb-4">
-            {renderRating()}
-          </div>
-          
           <Link to={cityUrl}>
             <h2 className="text-3xl font-bold mb-2 hover:text-blue-200 transition-colors">
               {name}
@@ -134,7 +89,7 @@ export default function CityCard({
             <span className="text-lg">{country}</span>
           </div>
           
-          <p className="text-white/90 mb-4 line-clamp-2">{description}</p>
+          <p className="text-white/90 mb-4 line-clamp-2">{city.seo_data.meta_description}</p>
           
           <div className="flex items-center justify-between">
             {showPropertyCount && propertyCount && (
@@ -168,11 +123,6 @@ export default function CityCard({
             className="w-full h-48 object-cover"
             loading="lazy"
           />
-          {averageRating && (
-            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-              {renderRating()}
-            </div>
-          )}
         </div>
       </Link>
       
@@ -185,15 +135,13 @@ export default function CityCard({
         
         <div className="flex items-center text-gray-600 mt-1">
           <MapPin className="w-4 h-4 mr-1" />
-          <span className="text-sm">{country}</span>
+          <span className="text-sm">{state}, {country}</span>
         </div>
         
-        <p className="text-gray-600 text-sm mt-2 line-clamp-2">{description}</p>
-        
-        {renderStayTypes()}
+        <p className="text-gray-600 text-sm mt-2 line-clamp-2">{city.seo_data.meta_description}</p>
         
         <div className="flex items-center justify-between mt-4">
-          {showPropertyCount && propertyCount && (
+          {showPropertyCount && propertyCount > 0 && (
             <div className="flex items-center text-gray-600">
               <Building className="w-4 h-4 mr-1" />
               <span className="text-sm">{propertyCount} properties</span>
@@ -210,82 +158,5 @@ export default function CityCard({
         </div>
       </div>
     </div>
-  );
-}
-
-// City grid component
-export function CityGrid({ 
-  cities, 
-  variant = 'default',
-  className = '' 
-}: { 
-  cities: City[]; 
-  variant?: 'default' | 'compact' | 'hero';
-  className?: string;
-}) {
-  if (!cities.length) {
-    return (
-      <div className="text-center py-12">
-        <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No cities found</h3>
-        <p className="text-gray-600">Try adjusting your search criteria.</p>
-      </div>
-    );
-  }
-
-  const gridClasses = {
-    default: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
-    compact: 'space-y-4',
-    hero: 'grid grid-cols-1 lg:grid-cols-2 gap-8'
-  };
-
-  return (
-    <div className={`${gridClasses[variant]} ${className}`}>
-      {cities.map((city) => (
-        <CityCard
-          key={city.id}
-          city={city}
-          variant={variant}
-        />
-      ))}
-    </div>
-  );
-}
-
-// Featured cities section
-export function FeaturedCities({ 
-  cities, 
-  title = 'Popular Destinations',
-  className = '' 
-}: { 
-  cities: City[];
-  title?: string;
-  className?: string;
-}) {
-  if (!cities.length) return null;
-
-  return (
-    <section className={`py-12 ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover amazing destinations with our curated selection of cities
-          </p>
-        </div>
-        
-        <CityGrid cities={cities} variant="default" />
-        
-        <div className="text-center mt-8">
-          <Link
-            to="/cities"
-            className="inline-flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            <span>View All Cities</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
-    </section>
   );
 }

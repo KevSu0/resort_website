@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Wifi, Car, Coffee, Users, Calendar, DollarSign } from 'lucide-react';
+import { MapPin, Star, Wifi, Car, Coffee, Users, Building } from 'lucide-react';
 import { Property } from '../types';
 
 interface PropertyCardProps {
@@ -10,13 +10,6 @@ interface PropertyCardProps {
   className?: string;
 }
 
-const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  wifi: Wifi,
-  parking: Car,
-  breakfast: Coffee,
-  // Add more amenity mappings as needed
-};
-
 export default function PropertyCard({ 
   property, 
   variant = 'default',
@@ -24,67 +17,21 @@ export default function PropertyCard({
   className = ''
 }: PropertyCardProps) {
   const {
-    id,
     name,
     slug,
-    description,
-    images,
     location,
-    amenities,
-    rating,
-    reviewCount,
-    priceRange,
-    capacity,
-    isActive
+    branding,
+    active
   } = property;
 
-  if (!isActive) return null;
+  if (!active) return null;
 
   const propertyUrl = `/properties/${slug}`;
-  const mainImage = images?.[0] || 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=luxury%20resort%20property%20exterior%20view%20modern%20architecture&image_size=landscape_16_9';
+  const mainImage = branding.logo_url || 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=luxury%20resort%20property%20exterior%20view%20modern%20architecture&image_size=landscape_16_9';
 
-  const renderAmenities = () => {
-    if (!amenities?.length) return null;
-    
-    const displayAmenities = variant === 'compact' ? amenities.slice(0, 3) : amenities.slice(0, 6);
-    
-    return (
-      <div className="flex flex-wrap gap-2 mt-2">
-        {displayAmenities.map((amenity, index) => {
-          const Icon = amenityIcons[amenity.toLowerCase()] || Coffee;
-          return (
-            <div 
-              key={index}
-              className="flex items-center space-x-1 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
-              title={amenity}
-            >
-              <Icon className="w-3 h-3" />
-              <span className="capitalize">{amenity}</span>
-            </div>
-          );
-        })}
-        {amenities.length > displayAmenities.length && (
-          <span className="text-xs text-gray-500 px-2 py-1">
-            +{amenities.length - displayAmenities.length} more
-          </span>
-        )}
-      </div>
-    );
-  };
-
-  const renderRating = () => {
-    if (!rating) return null;
-    
-    return (
-      <div className="flex items-center space-x-1">
-        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-        <span className="text-sm font-medium text-gray-900">{rating.toFixed(1)}</span>
-        {reviewCount && (
-          <span className="text-sm text-gray-500">({reviewCount} reviews)</span>
-        )}
-      </div>
-    );
-  };
+  // NOTE: Amenities, price, capacity, rating and review count are not available on the Property type.
+  // This information is on the StayType level, and would require fetching all stay types for each property.
+  // To avoid performance issues, this information has been removed from the card.
 
   if (variant === 'compact') {
     return (
@@ -105,15 +52,7 @@ export default function PropertyCard({
             <h3 className="font-semibold text-gray-900 text-sm line-clamp-1">{name}</h3>
             <div className="flex items-center text-xs text-gray-600 mt-1">
               <MapPin className="w-3 h-3 mr-1" />
-              <span className="line-clamp-1">{location.city}, {location.country}</span>
-            </div>
-            <div className="flex items-center justify-between mt-2">
-              {renderRating()}
-              {priceRange && (
-                <div className="text-sm font-medium text-blue-600">
-                  ${priceRange.min}+/night
-                </div>
-              )}
+              <span className="line-clamp-1">{location.address}</span>
             </div>
           </div>
         </div>
@@ -136,11 +75,6 @@ export default function PropertyCard({
               Featured
             </span>
           </div>
-          {rating && (
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-              {renderRating()}
-            </div>
-          )}
         </div>
         
         <div className="p-6">
@@ -152,32 +86,10 @@ export default function PropertyCard({
           
           <div className="flex items-center text-gray-600 mt-2">
             <MapPin className="w-4 h-4 mr-1" />
-            <span>{location.city}, {location.country}</span>
+            <span>{location.address}</span>
           </div>
           
-          <p className="text-gray-600 mt-3 line-clamp-2">{description}</p>
-          
-          {renderAmenities()}
-          
-          <div className="flex items-center justify-between mt-6">
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
-              {capacity && (
-                <div className="flex items-center space-x-1">
-                  <Users className="w-4 h-4" />
-                  <span>Up to {capacity} guests</span>
-                </div>
-              )}
-            </div>
-            
-            {priceRange && (
-              <div className="text-right">
-                <div className="text-2xl font-bold text-blue-600">
-                  ${priceRange.min}
-                </div>
-                <div className="text-sm text-gray-500">per night</div>
-              </div>
-            )}
-          </div>
+          <p className="text-gray-600 mt-3 line-clamp-2">{branding.description}</p>
           
           {showBookingButton && (
             <Link
@@ -203,11 +115,6 @@ export default function PropertyCard({
             className="w-full h-48 object-cover"
             loading="lazy"
           />
-          {rating && (
-            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-              {renderRating()}
-            </div>
-          )}
         </div>
       </Link>
       
@@ -220,32 +127,10 @@ export default function PropertyCard({
         
         <div className="flex items-center text-gray-600 mt-1">
           <MapPin className="w-4 h-4 mr-1" />
-          <span className="text-sm line-clamp-1">{location.city}, {location.country}</span>
+          <span className="text-sm line-clamp-1">{location.address}</span>
         </div>
         
-        <p className="text-gray-600 text-sm mt-2 line-clamp-2">{description}</p>
-        
-        {renderAmenities()}
-        
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            {capacity && (
-              <div className="flex items-center space-x-1">
-                <Users className="w-4 h-4" />
-                <span>{capacity}</span>
-              </div>
-            )}
-          </div>
-          
-          {priceRange && (
-            <div className="text-right">
-              <div className="font-semibold text-blue-600">
-                ${priceRange.min}+
-              </div>
-              <div className="text-xs text-gray-500">per night</div>
-            </div>
-          )}
-        </div>
+        <p className="text-gray-600 text-sm mt-2 line-clamp-2">{branding.description}</p>
         
         {showBookingButton && (
           <Link

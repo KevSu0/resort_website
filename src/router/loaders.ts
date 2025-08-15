@@ -1,6 +1,5 @@
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 import { propertyService, cityService, stayTypeService } from '../lib/firestore';
-import type { Property, City, StayType } from '../types';
 
 // Property loader - loads property data by slug
 export async function propertyLoader({ params }: LoaderFunctionArgs) {
@@ -116,14 +115,19 @@ export async function stayTypeLoader({ params }: LoaderFunctionArgs) {
   }
 }
 
+import { searchService } from '../lib/firestore';
+
 // Search loader - handles search queries
 export async function searchLoader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
+  const priceRangeString = url.searchParams.get('price') || '';
+  const priceRange = priceRangeString.split('-').map(Number) as [number, number] | undefined;
+
   const searchParams = {
     query: url.searchParams.get('q') || '',
     city: url.searchParams.get('city') || '',
-    capacity: url.searchParams.get('capacity') ? parseInt(url.searchParams.get('capacity')!) : undefined,
-    priceRange: url.searchParams.get('price') || '',
+    capacity: url.searchParams.get('capacity') ? parseInt(url.searchParams.get('capacity')!, 10) : undefined,
+    priceRange: priceRangeString ? priceRange : undefined,
     amenities: url.searchParams.getAll('amenities')
   };
   
@@ -133,11 +137,11 @@ export async function searchLoader({ request }: LoaderFunctionArgs) {
       return redirect('/');
     }
     
-    // Perform search (implementation would depend on your search strategy)
-    // For now, we'll return the search parameters
+    const results = await searchService.search(searchParams);
+
     return {
       searchParams,
-      results: [], // This would be populated by actual search logic
+      results,
       breadcrumbs: [
         { label: 'Home', path: '/' },
         { label: 'Search Results', path: '/search' }
@@ -149,19 +153,22 @@ export async function searchLoader({ request }: LoaderFunctionArgs) {
   }
 }
 
+import { getCurrentUser } from '../hooks/useAuth';
+
 // Admin loader - checks authentication and authorization
-export async function adminLoader({ request }: LoaderFunctionArgs) {
-  // This would integrate with Firebase Auth
-  // For now, we'll return a placeholder
+export async function adminLoader() {
   try {
-    // Check if user is authenticated and has admin role
-    // const user = await getCurrentUser();
-    // if (!user || user.role !== 'admin') {
-    //   throw redirect('/login');
-    // }
+    const user = await getCurrentUser();
+    if (!user) {
+      return redirect('/login');
+    }
+
+    if (user.role !== 'admin') {
+      return redirect('/');
+    }
     
     return {
-      user: null, // This would be the authenticated admin user
+      user,
       breadcrumbs: [
         { label: 'Home', path: '/' },
         { label: 'Admin Dashboard', path: '/admin' }
@@ -169,7 +176,7 @@ export async function adminLoader({ request }: LoaderFunctionArgs) {
     };
   } catch (error) {
     console.error('Error in admin loader:', error);
-    throw redirect('/login');
+    return redirect('/login');
   }
 }
 

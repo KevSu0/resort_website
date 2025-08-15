@@ -1,20 +1,21 @@
 import React from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
-import { MapPin, Star, Users, Calendar, ArrowLeft, Filter } from 'lucide-react';
+import { MapPin, Users, Calendar, ArrowLeft, Filter } from 'lucide-react';
 import Layout from '../components/Layout';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
-import { PropertyCard } from '../components/PropertyCard';
-import { AdvancedSearchBar } from '../components/SearchBar';
-import type { City, Property } from '../types';
+import { PropertyGrid } from '../components/PropertyGrid';
+import SearchBar from '../components/SearchBar';
+import type { City, Property, SearchFilters } from '../types';
 
 interface CityDetailData {
   city: City;
   properties: Property[];
-  totalProperties: number;
 }
 
 export default function CityDetail() {
-  const { city, properties, totalProperties } = useLoaderData() as CityDetailData;
+  const { city, properties } = useLoaderData() as CityDetailData;
+  const totalProperties = city.property_ids.length;
+  const mainImage = `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`${city.name} ${city.country} cityscape beautiful destination travel`)}&image_size=landscape_16_9`;
 
   return (
     <Layout>
@@ -31,7 +32,7 @@ export default function CityDetail() {
 
       {/* City Hero */}
       <HeroSection 
-        backgroundImage={city.image}
+        backgroundImage={mainImage}
         className="relative h-96 flex items-center justify-center"
       >
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -58,7 +59,7 @@ export default function CityDetail() {
             </div>
           </div>
           <p className="mt-4 text-xl max-w-2xl mx-auto">
-            {city.description}
+            {city.seo_data.meta_description}
           </p>
         </div>
       </HeroSection>
@@ -66,9 +67,8 @@ export default function CityDetail() {
       {/* Search Section */}
       <Section className="bg-white border-b">
         <div className="max-w-4xl mx-auto">
-          <AdvancedSearchBar 
-            defaultLocation={city.name}
-            onSearch={(filters) => {
+          <SearchBar
+            onSearch={(filters: SearchFilters) => {
               console.log('Search filters:', filters);
               // Handle search logic here
             }}
@@ -82,18 +82,6 @@ export default function CityDetail() {
           <Card className="p-6 text-center">
             <div className="text-3xl font-bold text-blue-600 mb-2">{totalProperties}</div>
             <div className="text-gray-600">Properties</div>
-          </Card>
-          <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">{city.propertyCount}</div>
-            <div className="text-gray-600">Available Now</div>
-          </Card>
-          <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">4.8</div>
-            <div className="text-gray-600">Average Rating</div>
-          </Card>
-          <Card className="p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">$120</div>
-            <div className="text-gray-600">Avg. Price/Night</div>
           </Card>
         </Grid>
       </Section>
@@ -126,11 +114,7 @@ export default function CityDetail() {
         </div>
 
         {/* Properties Grid */}
-        <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {properties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </Grid>
+        <PropertyGrid properties={properties} />
 
         {/* Load More */}
         {properties.length < totalProperties && (
@@ -151,7 +135,7 @@ export default function CityDetail() {
               About {city.name}
             </h3>
             <p className="text-gray-600 leading-relaxed mb-4">
-              {city.description}
+              {city.seo_data.meta_description}
             </p>
             <div className="space-y-2">
               <div className="flex items-center">
@@ -160,28 +144,8 @@ export default function CityDetail() {
               </div>
               <div className="flex items-center">
                 <Users className="w-4 h-4 text-gray-400 mr-2" />
-                <span className="text-sm text-gray-600">{city.propertyCount} properties available</span>
+                <span className="text-sm text-gray-600">{totalProperties} properties available</span>
               </div>
-            </div>
-          </Card>
-
-          {/* Popular Areas */}
-          <Card className="p-6">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">
-              Popular Areas
-            </h3>
-            <div className="space-y-3">
-              {[
-                { name: 'City Center', properties: Math.floor(city.propertyCount * 0.4) },
-                { name: 'Beachfront', properties: Math.floor(city.propertyCount * 0.3) },
-                { name: 'Historic District', properties: Math.floor(city.propertyCount * 0.2) },
-                { name: 'Business District', properties: Math.floor(city.propertyCount * 0.1) }
-              ].map((area) => (
-                <div key={area.name} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                  <span className="text-gray-700">{area.name}</span>
-                  <span className="text-sm text-gray-500">{area.properties} properties</span>
-                </div>
-              ))}
             </div>
           </Card>
         </Grid>

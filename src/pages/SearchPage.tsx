@@ -1,99 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLoaderData, Link, useSearchParams } from 'react-router-dom';
 import { Search, Filter, MapPin, Star, Grid3X3, List } from 'lucide-react';
 import Layout from '../components/Layout';
 import { Section, Card, Grid } from '../components/Layout';
-import PropertyCard from '../components/PropertyCard';
-import { AdvancedSearchBar } from '../components/SearchBar';
-import type { Property, SearchFilters } from '../types';
+import { PropertyGrid } from '../components/PropertyGrid';
+import SearchBar from '../components/SearchBar';
+import type { Property, SearchFilters, SearchResult } from '../types';
 
 export default function SearchPage() {
+  const { results } = useLoaderData() as { results: SearchResult };
   const [searchParams, setSearchParams] = useSearchParams();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('relevance');
 
-  // Get search parameters from URL
-  const location = searchParams.get('location') || '';
-  const checkIn = searchParams.get('checkIn') || '';
-  const checkOut = searchParams.get('checkOut') || '';
-  const guests = parseInt(searchParams.get('guests') || '2');
   const query = searchParams.get('q') || '';
-
-  // Mock search results
-  const mockProperties: Property[] = [
-    {
-      id: '1',
-      name: 'Ocean View Resort',
-      slug: 'ocean-view-resort',
-      description: 'Luxury beachfront resort with stunning ocean views',
-      shortDescription: 'Beachfront luxury resort',
-      images: ['https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=luxury%20beachfront%20resort%20ocean%20view%20sunset&image_size=landscape_16_9'],
-      price: 299,
-      rating: 4.8,
-      reviewCount: 124,
-      location: {
-        city: 'Miami Beach',
-        state: 'Florida',
-        country: 'USA',
-        coordinates: { lat: 25.7617, lng: -80.1918 }
-      },
-      amenities: ['Pool', 'Spa', 'Restaurant', 'WiFi', 'Parking'],
-      stayType: 'Resort',
-      propertyType: 'Resort',
-      maxGuests: 4,
-      bedrooms: 2,
-      bathrooms: 2,
-      featured: true,
-      available: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      name: 'Mountain Lodge Retreat',
-      slug: 'mountain-lodge-retreat',
-      description: 'Cozy mountain lodge perfect for nature lovers',
-      shortDescription: 'Mountain lodge retreat',
-      images: ['https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=mountain%20lodge%20cabin%20forest%20retreat%20cozy&image_size=landscape_16_9'],
-      price: 189,
-      rating: 4.6,
-      reviewCount: 89,
-      location: {
-        city: 'Aspen',
-        state: 'Colorado',
-        country: 'USA',
-        coordinates: { lat: 39.1911, lng: -106.8175 }
-      },
-      amenities: ['Fireplace', 'Kitchen', 'WiFi', 'Parking', 'Hot Tub'],
-      stayType: 'Lodge',
-      propertyType: 'Lodge',
-      maxGuests: 6,
-      bedrooms: 3,
-      bathrooms: 2,
-      featured: false,
-      available: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
-
-  useEffect(() => {
-    // Simulate search API call
-    setLoading(true);
-    setTimeout(() => {
-      setProperties(mockProperties);
-      setLoading(false);
-    }, 1000);
-  }, [searchParams]);
 
   const handleSearch = (filters: SearchFilters) => {
     const newParams = new URLSearchParams();
-    if (filters.location) newParams.set('location', filters.location);
-    if (filters.checkIn) newParams.set('checkIn', filters.checkIn);
-    if (filters.checkOut) newParams.set('checkOut', filters.checkOut);
-    if (filters.guests) newParams.set('guests', filters.guests.toString());
+    if (filters.city) newParams.set('city', filters.city);
+    if (filters.capacity) newParams.set('capacity', filters.capacity.toString());
+    if (filters.priceRange) newParams.set('price', filters.priceRange.join('-'));
+    if (filters.amenities) newParams.set('amenities', filters.amenities.join(','));
     setSearchParams(newParams);
   };
 
@@ -107,14 +34,8 @@ export default function SearchPage() {
       {/* Search Header */}
       <Section className="bg-gray-50 border-b">
         <div className="max-w-4xl mx-auto">
-          <AdvancedSearchBar 
+          <SearchBar
             onSearch={handleSearch}
-            defaultValues={{
-              location,
-              checkIn,
-              checkOut,
-              guests
-            }}
           />
         </div>
       </Section>
@@ -128,8 +49,7 @@ export default function SearchPage() {
               {query ? `Search Results for "${query}"` : 'Search Results'}
             </h1>
             <p className="text-gray-600">
-              {loading ? 'Searching...' : `${properties.length} properties found`}
-              {location && ` in ${location}`}
+              {`${results.total} properties found`}
             </p>
           </div>
           
@@ -171,29 +91,13 @@ export default function SearchPage() {
           </div>
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Searching for properties...</p>
-          </div>
-        )}
-
         {/* Search Results */}
-        {!loading && properties.length > 0 && (
-          <Grid className={viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'grid-cols-1 gap-4'}>
-            {properties.map((property) => (
-              <PropertyCard 
-                key={property.id} 
-                property={property} 
-                variant={viewMode === 'list' ? 'compact' : 'default'}
-              />
-            ))}
-          </Grid>
+        {results.properties.length > 0 && (
+          <PropertyGrid properties={results.properties} />
         )}
 
         {/* No Results */}
-        {!loading && properties.length === 0 && (
+        {results.properties.length === 0 && (
           <div className="text-center py-12">
             <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -212,7 +116,7 @@ export default function SearchPage() {
         )}
 
         {/* Pagination */}
-        {!loading && properties.length > 0 && (
+        {results.properties.length > 0 && (
           <div className="flex justify-center mt-12">
             <nav className="flex items-center space-x-2">
               <button className="px-3 py-2 text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>

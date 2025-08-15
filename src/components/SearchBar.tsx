@@ -29,16 +29,7 @@ export default function SearchBar({
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({
-    query: '',
-    location: '',
-    checkIn: '',
-    checkOut: '',
-    guests: 1,
-    propertyType: '',
-    priceRange: { min: 0, max: 10000 },
-    amenities: []
-  });
+  const [filters, setFilters] = useState<SearchFilters>({});
   
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +63,6 @@ export default function SearchBar({
   // Handle search input changes
   const handleInputChange = (value: string) => {
     setQuery(value);
-    setFilters(prev => ({ ...prev, query: value }));
     
     if (value.length > 2) {
       setIsLoading(true);
@@ -99,13 +89,13 @@ export default function SearchBar({
     // Navigate based on suggestion type
     switch (suggestion.type) {
       case 'property':
-        navigate(`/property/${suggestion.slug}`);
+        navigate(`/properties/${suggestion.slug}`);
         break;
       case 'city':
-        navigate(`/city/${suggestion.slug}`);
+        navigate(`/locations/${suggestion.slug}`);
         break;
       case 'stay-type':
-        navigate(`/stay-type/${suggestion.slug}`);
+        navigate(`/stay-types/${suggestion.slug}`);
         break;
     }
   };
@@ -120,11 +110,7 @@ export default function SearchBar({
     } else {
       // Navigate to search results page
       const searchParams = new URLSearchParams();
-      if (filters.query) searchParams.set('q', filters.query);
-      if (filters.location) searchParams.set('location', filters.location);
-      if (filters.checkIn) searchParams.set('checkin', filters.checkIn);
-      if (filters.checkOut) searchParams.set('checkout', filters.checkOut);
-      if (filters.guests > 1) searchParams.set('guests', filters.guests.toString());
+      if (query) searchParams.set('q', query);
       
       navigate(`/search?${searchParams.toString()}`);
     }
@@ -251,128 +237,5 @@ export default function SearchBar({
         </div>
       )}
     </div>
-  );
-}
-
-// Advanced Search Component
-export function AdvancedSearchBar({ onSearch, className = '' }: { onSearch?: (filters: SearchFilters) => void; className?: string }) {
-  const [filters, setFilters] = useState<SearchFilters>({
-    query: '',
-    location: '',
-    checkIn: '',
-    checkOut: '',
-    guests: 1,
-    propertyType: '',
-    priceRange: { min: 0, max: 10000 },
-    amenities: []
-  });
-
-  const navigate = useNavigate();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (onSearch) {
-      onSearch(filters);
-    } else {
-      const searchParams = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value && key !== 'priceRange' && key !== 'amenities') {
-          searchParams.set(key, value.toString());
-        }
-      });
-      
-      if (filters.priceRange.min > 0) searchParams.set('minPrice', filters.priceRange.min.toString());
-      if (filters.priceRange.max < 10000) searchParams.set('maxPrice', filters.priceRange.max.toString());
-      if (filters.amenities.length > 0) searchParams.set('amenities', filters.amenities.join(','));
-      
-      navigate(`/search?${searchParams.toString()}`);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className={`bg-white p-6 rounded-lg shadow-lg ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Location */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Location
-          </label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              value={filters.location}
-              onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-              placeholder="Where to?"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        {/* Check-in */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Check-in
-          </label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="date"
-              value={filters.checkIn}
-              onChange={(e) => setFilters(prev => ({ ...prev, checkIn: e.target.value }))}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        {/* Check-out */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Check-out
-          </label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="date"
-              value={filters.checkOut}
-              onChange={(e) => setFilters(prev => ({ ...prev, checkOut: e.target.value }))}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        {/* Guests */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Guests
-          </label>
-          <div className="relative">
-            <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <select
-              value={filters.guests}
-              onChange={(e) => setFilters(prev => ({ ...prev, guests: parseInt(e.target.value) }))}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                <option key={num} value={num}>
-                  {num} {num === 1 ? 'Guest' : 'Guests'}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 flex justify-center">
-        <button
-          type="submit"
-          className="px-8 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2"
-        >
-          <Search className="w-4 h-4" />
-          <span>Search</span>
-        </button>
-      </div>
-    </form>
   );
 }

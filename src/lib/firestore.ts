@@ -28,8 +28,30 @@ const COLLECTIONS = {
   RESORT_GROUP: 'resort_group',
   ENQUIRIES: 'enquiries',
   OFFERS: 'offers',
-  REFERRALS: 'referrals'
+  REFERRALS: 'referrals',
+  USERS: 'users'
 } as const;
+
+import { User } from '../types';
+
+// User Operations
+export const userService = {
+  async getById(id: string): Promise<User | null> {
+    try {
+      const docRef = doc(db, COLLECTIONS.USERS, id);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        return null;
+      }
+
+      return { uid: docSnap.id, ...docSnap.data() } as User;
+    } catch (error) {
+      console.error('Error fetching user by ID:', error);
+      return null;
+    }
+  }
+};
 
 // Property Operations
 export const propertyService = {
@@ -206,8 +228,27 @@ export const searchService = {
       }
       
       if (filters.capacity) {
-        // This would require a compound query with stay_types
-        // For now, we'll handle capacity filtering client-side
+        const stayTypesQuery = query(
+          collection(db, COLLECTIONS.STAY_TYPES),
+          where('capacity', '>=', filters.capacity)
+        );
+        const stayTypesSnapshot = await getDocs(stayTypesQuery);
+        const propertyIds = [
+          ...new Set(
+            stayTypesSnapshot.docs.map((doc) => doc.data().property_id)
+          ),
+        ];
+        if (propertyIds.length > 0) {
+          constraints.push(where('__name__', 'in', propertyIds));
+        } else {
+          // No stay types match capacity, so return no properties
+          return {
+            properties: [],
+            cities: [],
+            stayTypes: [],
+            total: 0,
+          };
+        }
       }
       
       const q = query(

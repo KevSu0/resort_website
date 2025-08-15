@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, Edit, Trash2, MapPin, Star, Users } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Star } from 'lucide-react';
 import Layout from '../../components/Layout';
 import { Card, Grid } from '../../components/Layout';
 

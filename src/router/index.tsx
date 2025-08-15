@@ -1,7 +1,6 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { createBrowserRouter } from 'react-router-dom';
+import { lazy } from 'react';
 import Layout from '../components/Layout';
-import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 // Lazy load pages for better performance
@@ -22,16 +21,10 @@ const AdminEnquiries = lazy(() => import('../pages/admin/Enquiries'));
 const AdminOffers = lazy(() => import('../pages/admin/Offers'));
 const AdminUsers = lazy(() => import('../pages/admin/Users'));
 const AdminSettings = lazy(() => import('../pages/admin/Settings'));
+const LoginPage = lazy(() => import('../pages/LoginPage'));
 
 // Route loaders for data fetching
-import { propertyLoader, cityLoader, stayTypeLoader } from './loaders';
-
-// Wrapper component for Suspense
-const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<LoadingSpinner />}>
-    {children}
-  </Suspense>
-);
+import { propertyLoader, cityLoader, stayTypeLoader, adminLoader } from './loaders';
 
 // Create router configuration
 const router = createBrowserRouter([
@@ -46,147 +39,87 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: (
-          <SuspenseWrapper>
-            <HomePage />
-          </SuspenseWrapper>
-        )
+        element: <HomePage />
       },
       {
         path: 'search',
-        element: (
-          <SuspenseWrapper>
-            <SearchPage />
-          </SuspenseWrapper>
-        )
+        element: <SearchPage />
       },
       {
         path: 'about',
-        element: (
-          <SuspenseWrapper>
-            <AboutPage />
-          </SuspenseWrapper>
-        )
+        element: <AboutPage />
       },
       {
         path: 'contact',
-        element: (
-          <SuspenseWrapper>
-            <ContactPage />
-          </SuspenseWrapper>
-        )
+        element: <ContactPage />
       },
       // Dynamic property routes
       {
         path: 'properties/:propertySlug',
-        element: (
-          <SuspenseWrapper>
-            <PropertyPage />
-          </SuspenseWrapper>
-        ),
+        element: <PropertyPage />,
         loader: propertyLoader,
         errorElement: <NotFoundPage />
       },
       {
         path: 'properties/:propertySlug/:stayType',
-        element: (
-          <SuspenseWrapper>
-            <StayTypePage />
-          </SuspenseWrapper>
-        ),
+        element: <StayTypePage />,
         loader: stayTypeLoader,
         errorElement: <NotFoundPage />
       },
       // Dynamic city routes
       {
         path: 'locations/:citySlug',
-        element: (
-          <SuspenseWrapper>
-            <CityPage />
-          </SuspenseWrapper>
-        ),
+        element: <CityPage />,
         loader: cityLoader,
         errorElement: <NotFoundPage />
+      },
+      {
+        path: 'login',
+        element: <LoginPage />
       },
       // Admin routes (protected)
       {
         path: 'admin',
+        loader: adminLoader,
         children: [
           {
             index: true,
-            element: (
-              <SuspenseWrapper>
-                <AdminDashboard />
-              </SuspenseWrapper>
-            )
+            element: <AdminDashboard />
           },
           {
             path: 'properties',
-            element: (
-              <SuspenseWrapper>
-                <AdminProperties />
-              </SuspenseWrapper>
-            )
+            element: <AdminProperties />
           },
           {
             path: 'cities',
-            element: (
-              <SuspenseWrapper>
-                <AdminCities />
-              </SuspenseWrapper>
-            )
+            element: <AdminCities />
           },
           {
             path: 'enquiries',
-            element: (
-              <SuspenseWrapper>
-                <AdminEnquiries />
-              </SuspenseWrapper>
-            )
+            element: <AdminEnquiries />
           },
           {
             path: 'offers',
-            element: (
-              <SuspenseWrapper>
-                <AdminOffers />
-              </SuspenseWrapper>
-            )
+            element: <AdminOffers />
           },
           {
             path: 'users',
-            element: (
-              <SuspenseWrapper>
-                <AdminUsers />
-              </SuspenseWrapper>
-            )
+            element: <AdminUsers />
           },
           {
             path: 'settings',
-            element: (
-              <SuspenseWrapper>
-                <AdminSettings />
-              </SuspenseWrapper>
-            )
+            element: <AdminSettings />
           }
         ]
       },
       // Catch-all route for 404
       {
         path: '*',
-        element: (
-          <SuspenseWrapper>
-            <NotFoundPage />
-          </SuspenseWrapper>
-        )
+        element: <NotFoundPage />
       }
     ]
   }
 ]);
-
-// Router Provider Component
-export default function AppRouter() {
-  return <RouterProvider router={router} />;
-}
 
 // Export router for testing and other uses
 export { router };
