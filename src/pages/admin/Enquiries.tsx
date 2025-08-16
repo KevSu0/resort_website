@@ -3,7 +3,7 @@ import { Mail, Phone, Calendar, MessageSquare } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { Card } from '../../components/Layout';
 import AdminSearchFilter from '../../components/AdminSearchFilter';
-import { enquiryService } from '../../lib/firestore';
+import { MockDataService } from '../../lib/mockData';
 import { Enquiry } from '../../types';
 import { toast } from '../../hooks/useToast';
 
@@ -16,7 +16,7 @@ export default function AdminEnquiries() {
   useEffect(() => {
     const fetchEnquiries = async () => {
       try {
-        const enquiryData = await enquiryService.getAll();
+        const enquiryData = await MockDataService.getEnquiries();
         setEnquiries(enquiryData);
       } catch (error) {
         console.error("Failed to fetch enquiries", error);
@@ -30,7 +30,7 @@ export default function AdminEnquiries() {
 
   const handleStatusChange = async (id: string, newStatus: Enquiry['status']) => {
     try {
-      await enquiryService.update(id, { status: newStatus });
+      await MockDataService.updateEnquiry(id, { status: newStatus });
       setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status: newStatus } : e));
       toast({ title: 'Success', description: 'Enquiry status updated.', variant: 'success' });
     } catch {

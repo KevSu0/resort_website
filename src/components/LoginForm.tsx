@@ -4,7 +4,6 @@ import { Card } from './Layout';
 
 interface LoginFormProps {
   onSubmit?: (data: LoginFormData) => void;
-  onSignUp?: (data: Omit<LoginFormData, 'rememberMe'>) => void;
   isLoading?: boolean;
   className?: string;
 }
@@ -15,7 +14,7 @@ interface LoginFormData {
   rememberMe: boolean;
 }
 
-export default function LoginForm({ onSubmit, onSignUp, isLoading = false, className = '' }: LoginFormProps) {
+export default function LoginForm({ onSubmit, isLoading = false, className = '' }: LoginFormProps) {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
