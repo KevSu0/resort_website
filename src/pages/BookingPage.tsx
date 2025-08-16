@@ -1,22 +1,24 @@
 import React from 'react';
-import { useLoaderData } from 'react-router-dom';
-import { Section } from '../components/Layout';
+import { useLoaderData, useParams } from 'react-router-dom';
+import { Section, PageContainer } from '../components/Layout';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { PropertyImageGallery } from '../components/PropertyImageGallery';
 import { BookingSidebar } from '../components/BookingSidebar';
-import { PropertyDescription } from '../components/PropertyDescription';
-import { PropertyAmenities } from '../components/PropertyAmenities';
-import { PropertyLocation } from '../components/PropertyLocation';
-import { PropertyInfoSidebar } from '../components/PropertyInfoSidebar';
+import { PropertyImageGallery } from '../components/PropertyImageGallery';
 import type { PropertyLoaderData } from '../router/loaders';
 import { enquiryService } from '../lib/firestore';
 import { toast } from '../hooks/useToast';
 
-export default function PropertyPage() {
-  const { property, city, stayTypes, breadcrumbs } = useLoaderData() as PropertyLoaderData;
+export default function BookingPage() {
+  const { property, city, stayTypes } = useLoaderData() as PropertyLoaderData;
+
+  const breadcrumbItems = [
+    { label: 'Home', path: '/' },
+    { label: 'Properties', path: '/properties' },
+    { label: property.name, path: `/properties/${property.slug}` },
+    { label: 'Book', path: `/properties/${property.slug}/book` },
+  ];
 
   const allImages = stayTypes.flatMap(st => st.details.images);
-  const allAmenities = stayTypes.flatMap(st => st.details.amenities);
 
   const startingPrice = stayTypes.reduce((min, st) => {
     return st.details.price_range.min < min ? st.details.price_range.min : min;
@@ -40,7 +42,7 @@ export default function PropertyPage() {
           check_in: bookingData.checkIn,
           check_out: bookingData.checkOut,
           guests: bookingData.guests,
-          message: 'New enquiry from website.',
+          message: 'New enquiry from booking page.',
         },
         status: 'new'
       });
@@ -59,30 +61,24 @@ export default function PropertyPage() {
   };
 
   return (
-    <>
-      <Breadcrumbs items={breadcrumbs} />
-
+    <PageContainer>
+      <Breadcrumbs items={breadcrumbItems} />
       <Section>
+        <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold">Book Your Stay at {property.name}</h1>
+            <p className="text-lg text-gray-600">Confirm your details to send an enquiry.</p>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <PropertyImageGallery images={allImages} propertyName={property.name} />
-          <BookingSidebar 
+            <div className="lg:col-span-2">
+                <PropertyImageGallery images={allImages} propertyName={property.name} />
+            </div>
+          <BookingSidebar
             pricePerNight={startingPrice}
             maxGuests={maxGuests}
             onBookingSubmit={handleBookingSubmit}
           />
         </div>
       </Section>
-
-      <Section>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <PropertyDescription description={property.branding.description} />
-            <PropertyAmenities amenities={allAmenities} />
-            <PropertyLocation location={property.location} city={city} />
-          </div>
-          <PropertyInfoSidebar property={property} />
-        </div>
-      </Section>
-    </>
+    </PageContainer>
   );
 }

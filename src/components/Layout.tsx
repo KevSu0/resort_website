@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Navigation from './Navigation';
 import Footer from './Footer';
 import ErrorBoundary from './ErrorBoundary';
+import { Toaster } from './ui/toast';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -36,6 +37,7 @@ export default function Layout({
           <Footer />
         </ErrorBoundary>
       )}
+      <Toaster />
     </div>
   );
 }

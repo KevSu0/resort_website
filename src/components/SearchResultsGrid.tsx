@@ -2,11 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { MapPin, Star, Wifi, Car, Coffee, Waves, Dumbbell, Utensils, Heart, Users, Calendar, Filter } from 'lucide-react';
 import { Card } from './Layout';
 import FilterPanel from './FilterPanel';
-import type { MockProperty } from '../lib/mockData';
+import type { Property } from '../types';
 import type { SearchFilters } from '../router/loaders';
 
 interface SearchResultsGridProps {
-  properties: MockProperty[];
+  properties: Property[];
   filters: SearchFilters;
   onFiltersChange: (filters: SearchFilters) => void;
   viewMode?: 'grid' | 'list';
@@ -15,7 +15,7 @@ interface SearchResultsGridProps {
 }
 
 interface PropertyCardProps {
-  property: MockProperty;
+  property: Property;
   viewMode: 'grid' | 'list';
 }
 
@@ -179,15 +179,13 @@ export default function SearchResultsGrid({
         const query = filters.query.toLowerCase();
         const matchesQuery = 
           property.name.toLowerCase().includes(query) ||
-          property.city.toLowerCase().includes(query) ||
-          property.description.toLowerCase().includes(query) ||
-          property.stayType.toLowerCase().includes(query);
+          property.branding.description.toLowerCase().includes(query);
         if (!matchesQuery) return false;
       }
 
       // Property type filter
       if (filters.propertyTypes && filters.propertyTypes.length > 0) {
-        const propertyType = property.stayType.toLowerCase();
+        const propertyType = property.stay_types.join(' ').toLowerCase();
         if (!filters.propertyTypes.some(type => propertyType.includes(type.toLowerCase()))) {
           return false;
         }

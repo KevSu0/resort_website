@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Wifi, Car, Coffee, Users, Building } from 'lucide-react';
+import { MapPin, Star, Wifi, Car, Coffee, Users, Building, Utensils, Wind } from 'lucide-react';
 import { Property } from '../types';
 
 interface PropertyCardProps {
@@ -9,6 +9,15 @@ interface PropertyCardProps {
   showBookingButton?: boolean;
   className?: string;
 }
+
+const amenityIcons: { [key: string]: React.ElementType } = {
+  'Wifi': Wifi,
+  'Parking': Car,
+  'Coffee': Coffee,
+  'Restaurant': Utensils,
+  'Air Conditioning': Wind,
+  'Default': Star
+};
 
 export default function PropertyCard({ 
   property, 
@@ -21,17 +30,17 @@ export default function PropertyCard({
     slug,
     location,
     branding,
-    active
+    active,
+    rating,
+    reviewCount,
+    amenities,
+    priceRange
   } = property;
 
   if (!active) return null;
 
   const propertyUrl = `/properties/${slug}`;
   const mainImage = branding.logo_url || 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=luxury%20resort%20property%20exterior%20view%20modern%20architecture&image_size=landscape_16_9';
-
-  // NOTE: Amenities, price, capacity, rating and review count are not available on the Property type.
-  // This information is on the StayType level, and would require fetching all stay types for each property.
-  // To avoid performance issues, this information has been removed from the card.
 
   if (variant === 'compact') {
     return (
@@ -115,6 +124,12 @@ export default function PropertyCard({
             className="w-full h-48 object-cover"
             loading="lazy"
           />
+          {rating && (
+            <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 text-xs font-semibold flex items-center">
+              <Star className="w-3 h-3 text-yellow-400 mr-1" />
+              {rating.toFixed(1)}
+            </div>
+          )}
         </div>
       </Link>
       
@@ -129,57 +144,38 @@ export default function PropertyCard({
           <MapPin className="w-4 h-4 mr-1" />
           <span className="text-sm line-clamp-1">{location.address}</span>
         </div>
-        
-        <p className="text-gray-600 text-sm mt-2 line-clamp-2">{branding.description}</p>
-        
-        {showBookingButton && (
-          <Link
-            to={`${propertyUrl}/book`}
-            className="w-full mt-3 bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors text-center block text-sm"
-          >
-            Book Now
-          </Link>
+
+        {amenities && amenities.length > 0 && (
+          <div className="mt-2 flex items-center space-x-2">
+            {amenities.slice(0, 4).map(amenity => {
+              const Icon = amenityIcons[amenity] || amenityIcons.Default;
+              return <Icon key={amenity} className="w-4 h-4 text-gray-500" title={amenity} />;
+            })}
+            {amenities.length > 4 && (
+              <span className="text-xs text-gray-500">+{amenities.length - 4} more</span>
+            )}
+          </div>
         )}
+
+        <div className="flex items-center justify-between mt-3">
+            {priceRange ? (
+                <p className="text-lg font-bold text-gray-900">
+                    ${priceRange.min}
+                    <span className="text-sm font-normal text-gray-600">/night</span>
+                </p>
+            ) : (
+                <div />
+            )}
+            {showBookingButton && (
+                <Link
+                    to={`${propertyUrl}/book`}
+                    className="bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors text-center block text-sm"
+                >
+                    Book Now
+                </Link>
+            )}
+        </div>
       </div>
-    </div>
-  );
-}
-
-// Property grid component
-export function PropertyGrid({ 
-  properties, 
-  variant = 'default',
-  className = '' 
-}: { 
-  properties: Property[]; 
-  variant?: 'default' | 'compact' | 'featured';
-  className?: string;
-}) {
-  if (!properties.length) {
-    return (
-      <div className="text-center py-12">
-        <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
-        <p className="text-gray-600">Try adjusting your search criteria.</p>
-      </div>
-    );
-  }
-
-  const gridClasses = {
-    default: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
-    compact: 'space-y-4',
-    featured: 'grid grid-cols-1 lg:grid-cols-2 gap-8'
-  };
-
-  return (
-    <div className={`${gridClasses[variant]} ${className}`}>
-      {properties.map((property) => (
-        <PropertyCard
-          key={property.id}
-          property={property}
-          variant={variant}
-        />
-      ))}
     </div>
   );
 }

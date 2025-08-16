@@ -24,6 +24,13 @@ export interface Property {
   active: boolean;
   featured: boolean;
   rating?: number;
+  reviewCount?: number;
+  amenities?: string[];
+  priceRange?: {
+    min: number;
+    max: number;
+    currency: string;
+  };
   created_at: Date;
   updated_at: Date;
 }
@@ -170,25 +177,6 @@ export interface Offer {
   updated_at: Date;
 }
 
-export interface PromotionalOffer {
-  id: string;
-  title: string;
-  description: string;
-  discount_percentage: number;
-  valid_from: Date | string;
-  valid_until: Date | string;
-  minimum_nights?: number;
-  promo_code?: string;
-  property_ids: string[];
-  applicable_properties?: string[];
-  conditions?: string[];
-  property_id?: string;
-  created_by?: string;
-  updated_at?: Date;
-  active: boolean;
-  is_featured?: boolean;
-}
-
 export interface Referral {
   id: string;
   referrer_id: string;
@@ -230,6 +218,7 @@ export interface FormSecurityConfig {
 
 // Search and Filter Types
 export interface SearchFilters {
+  query?: string;
   city?: string;
   stayType?: string;
   capacity?: number;
