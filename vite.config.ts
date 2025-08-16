@@ -38,6 +38,11 @@ export default defineConfig({
       }
     }
   },
+  server: {
+    watch: {
+      ignored: ['!**/node_modules/**', '**/.env'],
+    },
+  },
   plugins: [
     react(),
     traeBadgePlugin({

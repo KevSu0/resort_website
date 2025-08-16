@@ -9,32 +9,66 @@ import { PropertyAmenities } from '../components/PropertyAmenities';
 import { PropertyLocation } from '../components/PropertyLocation';
 import { PropertyInfoSidebar } from '../components/PropertyInfoSidebar';
 import type { PropertyLoaderData } from '../router/loaders';
+import { enquiryService } from '../lib/firestore';
+import { toast } from '../hooks/useToast';
 
 export default function PropertyPage() {
-  const { property, city, stayTypes } = useLoaderData() as PropertyLoaderData;
-
-  const breadcrumbItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Properties', path: '/properties' },
-    { label: property.name, path: `/properties/${property.slug}` },
-  ];
+  const { property, city, stayTypes, breadcrumbs } = useLoaderData() as PropertyLoaderData;
 
   const allImages = stayTypes.flatMap(st => st.details.images);
   const allAmenities = stayTypes.flatMap(st => st.details.amenities);
 
+  const startingPrice = stayTypes.reduce((min, st) => {
+    return st.details.price_range.min < min ? st.details.price_range.min : min;
+  }, Infinity);
+
+  const maxGuests = stayTypes.reduce((max, st) => {
+    return st.details.capacity > max ? st.details.capacity : max;
+  }, 0);
+
+  const handleBookingSubmit = async (bookingData: any) => {
+    try {
+      await enquiryService.create({
+        property_id: property.id,
+        property_name: property.name,
+        city: city?.name || '',
+        customer: {
+          name: 'Anonymous User', // Placeholder
+          email: 'anonymous@example.com', // Placeholder
+        },
+        booking_details: {
+          check_in: bookingData.checkIn,
+          check_out: bookingData.checkOut,
+          guests: bookingData.guests,
+          message: 'New enquiry from website.',
+        },
+        status: 'new'
+      });
+      toast({
+        title: 'Enquiry Sent!',
+        description: 'Thank you for your interest. We will get back to you shortly.',
+        variant: 'success'
+      });
+    } catch (error) {
+      toast({
+        title: 'Submission Failed',
+        description: 'There was an error sending your enquiry. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <>
-      <Breadcrumbs items={breadcrumbItems} />
+      <Breadcrumbs items={breadcrumbs} />
 
       <Section>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <PropertyImageGallery images={allImages} propertyName={property.name} />
           <BookingSidebar 
-            pricePerNight={299}
-            maxGuests={6}
-            onBookingSubmit={(bookingData) => {
-              console.log('Booking submitted:', bookingData);
-            }}
+            pricePerNight={startingPrice}
+            maxGuests={maxGuests}
+            onBookingSubmit={handleBookingSubmit}
           />
         </div>
       </Section>

@@ -1,9 +1,9 @@
 import React from 'react';
-import { PromotionalOffer } from '../types';
+import { Offer } from '../types';
 import { Calendar, Clock, Tag, ArrowRight } from 'lucide-react';
 
 interface PromotionalOffersProps {
-  offers: PromotionalOffer[];
+  offers: Offer[];
 }
 
 export function PromotionalOffers({ offers }: PromotionalOffersProps) {
@@ -40,13 +40,8 @@ export function PromotionalOffers({ offers }: PromotionalOffersProps) {
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                     <Tag className="w-4 h-4 mr-1" />
-                    {offer.discount_percentage}% OFF
+                    {offer.discount_value}% OFF
                   </span>
-                  {offer.is_featured && (
-                    <span className="text-xs font-semibold text-amber-600 bg-amber-100 px-2 py-1 rounded">
-                      FEATURED
-                    </span>
-                  )}
                 </div>
 
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -61,18 +56,9 @@ export function PromotionalOffers({ offers }: PromotionalOffersProps) {
                     <Calendar className="w-4 h-4 mr-2" />
                     Valid until {formatDate(offer.valid_until)}
                   </div>
-                  {offer.minimum_nights && (
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Clock className="w-4 h-4 mr-2" />
-                      Minimum {offer.minimum_nights} nights
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    Code: <span className="font-mono font-semibold text-gray-900">{offer.promo_code}</span>
-                  </div>
                   <button className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
                     Book Now
                     <ArrowRight className="w-4 h-4 ml-1" />

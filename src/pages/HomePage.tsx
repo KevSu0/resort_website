@@ -7,39 +7,30 @@ import { HomeCallToAction } from '../components/HomeCallToAction';
 import { PromotionalOffers } from '../components/PromotionalOffers';
 import { ReferralBanner } from '../components/ReferralBanner';
 import { MultiPropertySelector } from '../components/MultiPropertySelector';
-import { DataService, Property, ResortGroup, PromotionalOffer } from '../services/dataService';
-import { City, Offer } from '../types';
+import { resortGroupService, propertyService, offerService, cityService } from '../lib/firestore';
+import { Property, ResortGroup, Offer, City } from '../types';
 import { Helmet } from 'react-helmet-async';
 
 export default function HomePage() {
   const [resortGroup, setResortGroup] = useState<ResortGroup | null>(null);
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
   const [featuredCities, setFeaturedCities] = useState<City[]>([]);
-  const [activeOffers, setActiveOffers] = useState<PromotionalOffer[]>([]);
+  const [activeOffers, setActiveOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadHomePageData = async () => {
       try {
-        // Load resort group data
-        const groupData = await DataService.getResortGroup();
+        const [groupData, properties, cities, offers] = await Promise.all([
+          resortGroupService.get(),
+          propertyService.getFeatured(3),
+          cityService.getAll(),
+          offerService.getActive()
+        ]);
+
         setResortGroup(groupData);
-
-        // Load featured properties (first 3)
-        const properties = await DataService.getFeaturedProperties(3);
         setFeaturedProperties(properties);
-
-        // Load featured cities (mock data for now)
-        const mockCities: City[] = [
-          { id: '1', name: 'Bali', slug: 'bali', country: 'Indonesia', image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20bali%20tropical%20paradise%20beach%20resort%20destination&image_size=landscape_4_3' },
-          { id: '2', name: 'Maldives', slug: 'maldives', country: 'Maldives', image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=maldives%20overwater%20bungalows%20crystal%20clear%20water&image_size=landscape_4_3' },
-          { id: '3', name: 'Santorini', slug: 'santorini', country: 'Greece', image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=santorini%20white%20buildings%20blue%20domes%20sunset&image_size=landscape_4_3' },
-          { id: '4', name: 'Dubai', slug: 'dubai', country: 'UAE', image: 'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=dubai%20luxury%20skyline%20burj%20khalifa%20modern%20city&image_size=landscape_4_3' }
-        ];
-        setFeaturedCities(mockCities);
-
-        // Load active promotional offers
-        const offers = await DataService.getPromotionalOffers();
+        setFeaturedCities(cities);
         setActiveOffers(offers);
       } catch (error) {
         console.error('Error loading homepage data:', error);

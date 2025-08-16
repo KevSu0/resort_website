@@ -8,24 +8,24 @@ import MapView from '../components/MapView';
 import FacetedDiscovery from '../components/FacetedDiscovery';
 import { Card } from '../components/Layout';
 import type { SearchFilters } from '../router/loaders';
-import type { MockProperty } from '../lib/mockData';
-import { MockDataService } from '../lib/mockData';
+import type { Property } from '../types';
+import { propertyService } from '../lib/firestore';
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [properties, setProperties] = useState<MockProperty[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<MockProperty[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
-  const [selectedProperty, setSelectedProperty] = useState<MockProperty | undefined>();
+  const [selectedProperty, setSelectedProperty] = useState<Property | undefined>();
   const [useFacetedDiscovery, setUseFacetedDiscovery] = useState(true);
   
   // Load properties on component mount
   useEffect(() => {
     const loadProperties = async () => {
       try {
-        const propertiesData = await MockDataService.getProperties();
+        const propertiesData = await propertyService.getAll();
         setProperties(propertiesData);
       } catch (error) {
         console.error('Error loading properties:', error);
@@ -70,7 +70,7 @@ export default function SearchPage() {
     setViewMode(mode);
   };
 
-  const handlePropertySelect = (property: MockProperty) => {
+  const handlePropertySelect = (property: Property) => {
     setSelectedProperty(property);
     // Navigate to property detail page or show modal
     console.log('Selected property:', property);

@@ -154,9 +154,24 @@ export async function searchLoader({ request }: LoaderFunctionArgs) {
 }
 
 import { getCurrentUser } from '../hooks/useAuth';
+import { isDevelopmentMode } from '../lib/firebase';
 
 // Admin loader - checks authentication and authorization
 export async function adminLoader() {
+  if (isDevelopmentMode) {
+    const mockUser = {
+      uid: 'mock-admin-user',
+      email: 'admin@example.com',
+      role: 'admin',
+    };
+    return {
+      user: mockUser,
+      breadcrumbs: [
+        { label: 'Home', path: '/' },
+        { label: 'Admin Dashboard', path: '/admin' }
+      ]
+    };
+  }
   try {
     const user = await getCurrentUser();
     if (!user) {
