@@ -9,7 +9,7 @@ import { PropertyAmenities } from '../components/PropertyAmenities';
 import { PropertyLocation } from '../components/PropertyLocation';
 import { PropertyInfoSidebar } from '../components/PropertyInfoSidebar';
 import type { PropertyLoaderData } from '../router/loaders';
-import { enquiryService } from '../lib/firestore';
+import { MockDataService } from '../lib/mockData';
 import { toast } from '../hooks/useToast';
 
 interface BookingData {
@@ -34,7 +34,7 @@ export default function PropertyPage() {
 
   const handleBookingSubmit = async (bookingData: BookingData) => {
     try {
-      await enquiryService.create({
+      await MockDataService.createEnquiry({
         property_id: property.id,
         property_name: property.name,
         city: city?.name || '',

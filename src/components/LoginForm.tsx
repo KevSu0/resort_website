@@ -4,7 +4,6 @@ import { Card } from './Layout';
 
 interface LoginFormProps {
   onSubmit?: (data: LoginFormData) => void;
-  onSignUp?: (data: Omit<LoginFormData, 'rememberMe'>) => void;
   isLoading?: boolean;
   className?: string;
 }
@@ -15,7 +14,7 @@ interface LoginFormData {
   rememberMe: boolean;
 }
 
-export default function LoginForm({ onSubmit, onSignUp, isLoading = false, className = '' }: LoginFormProps) {
+export default function LoginForm({ onSubmit, isLoading = false, className = '' }: LoginFormProps) {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -73,7 +72,7 @@ export default function LoginForm({ onSubmit, onSignUp, isLoading = false, class
         <p className="text-gray-600">Sign in to your account</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form data-testid="login-form" onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
             Email Address
@@ -96,7 +95,7 @@ export default function LoginForm({ onSubmit, onSignUp, isLoading = false, class
             />
           </div>
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            <p data-testid="email-error" className="mt-1 text-sm text-red-600">{errors.email}</p>
           )}
         </div>
 
@@ -134,7 +133,7 @@ export default function LoginForm({ onSubmit, onSignUp, isLoading = false, class
             </button>
           </div>
           {errors.password && (
-            <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+            <p data-testid="password-error" className="mt-1 text-sm text-red-600">{errors.password}</p>
           )}
         </div>
 
@@ -166,20 +165,6 @@ export default function LoginForm({ onSubmit, onSignUp, isLoading = false, class
           {isLoading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
-
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          Don't have an account?{' '}
-          <button
-            type="button"
-            onClick={() => onSignUp?.(formData)}
-            className="text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50"
-            disabled={isLoading}
-          >
-            Sign up
-          </button>
-        </p>
-      </div>
     </Card>
   );
 }

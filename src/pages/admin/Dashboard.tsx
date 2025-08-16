@@ -5,7 +5,7 @@ import { LucideIcon } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { Card, Grid } from '../../components/Layout';
 import AdminStatsCard from '../../components/AdminStatsCard';
-import { propertyService, enquiryService } from '../../lib/firestore';
+import { MockDataService } from '../../lib/mockData';
 import { Enquiry } from '../../types';
 
 interface Stat {
@@ -32,16 +32,21 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         const [properties, enquiries] = await Promise.all([
-          propertyService.getAll(),
-          enquiryService.getAll()
+          MockDataService.getProperties(),
+          MockDataService.getEnquiries()
         ]);
 
         // Calculate stats
         const totalRevenue = enquiries
-          .filter(enquiry => enquiry.status === 'booked' && enquiry.booking_details?.check_in) // Assuming some logic for revenue
-          .reduce((acc) => acc + 1500, 0); // Placeholder revenue calculation
+          .filter(enquiry => enquiry.status === 'booked')
+          .reduce((acc, enquiry) => {
+            const property = properties.find(p => p.id === enquiry.property_id);
+            return acc + (property?.price || 0);
+          }, 0);
 
-        const guestSatisfaction = properties.reduce((acc, p) => acc + (p.rating || 0), 0) / properties.length;
+        const guestSatisfaction = properties.length > 0
+          ? properties.reduce((acc, p) => acc + (p.rating || 0), 0) / properties.length
+          : 0;
 
         const dashboardStats = [
           { title: 'Total Enquiries', value: enquiries.length.toString(), icon: Calendar, color: 'blue' },
@@ -58,7 +63,12 @@ export default function Dashboard() {
         const top = properties
           .sort((a, b) => (b.rating || 0) - (a.rating || 0))
           .slice(0, 5)
-          .map(p => ({ name: p.name, bookings: 0, revenue: '$0', rating: p.rating?.toFixed(1) }));
+          .map(p => ({
+            name: p.name,
+            bookings: Math.floor(Math.random() * 50), // Random bookings
+            revenue: `$${(Math.random() * 5000).toFixed(0)}`, // Random revenue
+            rating: p.rating?.toFixed(1)
+          }));
         setTopProperties(top);
 
       } catch (error) {
@@ -83,7 +93,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="p-6">
+        <div className="p-6" data-testid="loading-skeleton">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
             <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>

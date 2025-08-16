@@ -7,6 +7,8 @@ import { createPropertyBreadcrumb } from '../utils/breadcrumbs';
 import { PropertyImageGallery } from '../components/PropertyImageGallery';
 import { BookingSidebar } from '../components/BookingSidebar';
 import { PropertyLoaderData } from '../router/loaders';
+import { MockDataService } from '../lib/mockData';
+import { toast } from '../hooks/useToast';
 
 interface BookingData {
   checkIn: string;
@@ -34,10 +36,41 @@ export default function PropertyDetail() {
     propertyName: property.name
   });
 
+  const startingPrice = property.price;
+  const maxGuests = stayTypes.reduce((max, st) => {
+    return st.details.capacity > max ? st.details.capacity : max;
+  }, 0);
+
   const handleBookingSubmit = async (bookingData: BookingData) => {
-    // Handle booking submission logic here
-    console.log('Booking submitted:', bookingData);
-    // This would typically make an API call to create the booking
+    try {
+      await MockDataService.createEnquiry({
+        property_id: property.id,
+        property_name: property.name,
+        city: city?.name || '',
+        customer: {
+          name: 'Anonymous User', // Placeholder
+          email: 'anonymous@example.com', // Placeholder
+        },
+        booking_details: {
+          check_in: bookingData.checkIn,
+          check_out: bookingData.checkOut,
+          guests: bookingData.guests,
+          message: 'New enquiry from website.',
+        },
+        status: 'new'
+      });
+      toast({
+        title: 'Enquiry Sent!',
+        description: 'Thank you for your interest. We will get back to you shortly.',
+        variant: 'success'
+      });
+    } catch {
+      toast({
+        title: 'Submission Failed',
+        description: 'There was an error sending your enquiry. Please try again.',
+        variant: 'destructive'
+      });
+    }
   };
 
   return (
@@ -125,8 +158,8 @@ export default function PropertyDetail() {
           <div className="lg:col-span-1">
             <BookingSidebar 
               onBookingSubmit={handleBookingSubmit}
-              pricePerNight={299} // This would come from property data
-              maxGuests={6}
+              pricePerNight={startingPrice}
+              maxGuests={maxGuests}
             />
           </div>
         </Grid>

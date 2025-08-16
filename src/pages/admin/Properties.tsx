@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Edit, Trash2, Star, MapPin, Plus } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { Card, Grid } from '../../components/Layout';
 import AdminSearchFilter from '../../components/AdminSearchFilter';
-import { propertyService } from '../../lib/firestore';
+import { MockDataService } from '../../lib/mockData';
 import { Property } from '../../types';
 
 export default function AdminProperties() {
@@ -15,7 +16,7 @@ export default function AdminProperties() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const props = await propertyService.getAll();
+        const props = await MockDataService.getProperties();
         setProperties(props);
       } catch (error) {
         console.error("Failed to fetch properties", error);
@@ -49,13 +50,13 @@ export default function AdminProperties() {
             <h1 className="text-2xl font-bold text-gray-900">Properties Management</h1>
             <p className="text-gray-600 mt-1">Manage your resort properties and accommodations</p>
           </div>
-          <button 
-            onClick={() => console.log('Add property clicked')}
+          <Link
+            to="/admin/properties/new"
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Property
-          </button>
+          </Link>
         </div>
 
         <div className="max-w-7xl mx-auto">
@@ -97,10 +98,10 @@ export default function AdminProperties() {
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">{property.name}</h3>
                     <div className="flex items-center space-x-1">
-                      <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors">
+                      <Link to={`/admin/properties/${property.id}/edit`} className="p-1 text-gray-400 hover:text-blue-600 transition-colors">
                         <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                      </Link>
+                      <button onClick={() => console.log(`TODO: Delete property ${property.id}`)} className="p-1 text-gray-400 hover:text-red-600 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

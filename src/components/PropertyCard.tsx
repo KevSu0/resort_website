@@ -32,8 +32,9 @@ export default function PropertyCard({
     branding,
     active,
     rating,
+    reviewCount,
     amenities,
-    priceRange
+    price
   } = property;
 
   if (!active) return null;
@@ -127,6 +128,7 @@ export default function PropertyCard({
             <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 text-xs font-semibold flex items-center">
               <Star className="w-3 h-3 text-yellow-400 mr-1" />
               {rating.toFixed(1)}
+              {reviewCount && <span className="text-gray-600 font-normal ml-1">({reviewCount})</span>}
             </div>
           )}
         </div>
@@ -157,9 +159,9 @@ export default function PropertyCard({
         )}
 
         <div className="flex items-center justify-between mt-3">
-            {priceRange ? (
+            {price ? (
                 <p className="text-lg font-bold text-gray-900">
-                    ${priceRange.min}
+                    ${price}
                     <span className="text-sm font-normal text-gray-600">/night</span>
                 </p>
             ) : (

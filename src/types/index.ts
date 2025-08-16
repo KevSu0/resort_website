@@ -26,6 +26,7 @@ export interface Property {
   rating?: number;
   reviewCount?: number;
   amenities?: string[];
+  price?: number;
   priceRange?: {
     min: number;
     max: number;

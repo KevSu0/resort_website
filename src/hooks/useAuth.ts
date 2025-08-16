@@ -1,70 +1,54 @@
-import { useEffect, useState } from 'react';
-import {
-  onAuthStateChanged,
-  User,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut
-} from 'firebase/auth';
-import { auth } from '../lib/firebase';
-import { userService } from '../lib/firestore';
+import { create } from 'zustand';
+import { MockDataService } from '../lib/mockData';
+import type { User } from '../types';
 
-interface AuthUser extends User {
-  role?: string;
+interface AuthState {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
+const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  loading: true,
+  error: null,
+  signIn: async (email, password) => {
+    set({ loading: true, error: null });
+    try {
+      // In a real app, this would be a call to a Firebase auth endpoint.
+      // Here, we simulate it by checking against a mock user.
+      if (email === 'admin@luxury-resorts.com' && password === 'password') {
+        const mockAdmin = await MockDataService.getUserById('admin1');
+        if (mockAdmin) {
+          set({ user: mockAdmin, loading: false });
+          return;
+        }
+      }
+      throw new Error('Invalid email or password');
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'An unknown error occurred.';
+      set({ error, loading: false });
+      throw err;
+    }
+  },
+  signOut: async () => {
+    set({ user: null, loading: false });
+  },
+}));
+
+// Custom hook that provides a simplified interface to the store
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userData = await userService.getById(user.uid);
-        setUser({ ...user, role: userData?.role });
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  return { user, loading };
+  const { user, loading, error } = useAuthStore();
+  return { user, loading, error };
 }
 
-export async function signUp(email: string, password: string) {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  // You might want to create a user document in Firestore here as well
-  await userService.create({
-    uid: userCredential.user.uid,
-    email: userCredential.user.email,
-    role: 'guest', // Default role
-    last_login: new Date(),
-  });
-  return userCredential.user;
-}
+// Exporting signIn and signOut functions directly for use in components
+export const signIn = useAuthStore.getState().signIn;
+export const signOut = useAuthStore.getState().signOut;
 
-export async function signIn(email: string, password: string) {
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  return userCredential.user;
-}
-
-export async function signOut() {
-  await firebaseSignOut(auth);
-}
-
-export async function getCurrentUser(): Promise<AuthUser | null> {
-  return new Promise((resolve, reject) => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      unsubscribe();
-      if (user) {
-        const userData = await userService.getById(user.uid);
-        resolve({ ...user, role: userData?.role });
-      } else {
-        resolve(null);
-      }
-    }, reject);
-  });
+// This function can be used in loaders or other places outside of React components.
+export function getAuthState() {
+  return useAuthStore.getState();
 }
