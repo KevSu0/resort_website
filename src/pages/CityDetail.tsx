@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
-import { MapPin, Users, Calendar, ArrowLeft, Filter } from 'lucide-react';
-import Layout from '../components/Layout';
+import { MapPin, Users, ArrowLeft, Filter } from 'lucide-react';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
 import { PropertyGrid } from '../components/PropertyGrid';
 import SearchBar from '../components/SearchBar';
+import { Breadcrumb, createCityBreadcrumb } from '../components/Breadcrumb';
+import { SortDropdown } from '../components/SortDropdown';
+import { BookingCallToAction } from '../components/CallToAction';
 import type { City, Property, SearchFilters } from '../types';
 
 interface CityDetailData {
@@ -14,21 +16,18 @@ interface CityDetailData {
 
 export default function CityDetail() {
   const { city, properties } = useLoaderData() as CityDetailData;
+  const [sortBy, setSortBy] = useState('recommended');
   const totalProperties = city.property_ids.length;
   const mainImage = `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`${city.name} ${city.country} cityscape beautiful destination travel`)}&image_size=landscape_16_9`;
 
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    // Handle sort logic here
+  };
+
   return (
-    <Layout>
-      {/* Breadcrumb */}
-      <Section className="bg-gray-50 py-4">
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
-          <Link to="/" className="hover:text-blue-600">Home</Link>
-          <span>/</span>
-          <Link to="/cities" className="hover:text-blue-600">Cities</Link>
-          <span>/</span>
-          <span className="text-gray-900">{city.name}</span>
-        </div>
-      </Section>
+    <>
+      <Breadcrumb items={createCityBreadcrumb({ cityName: city.name })} />
 
       {/* City Hero */}
       <HeroSection 
@@ -103,13 +102,17 @@ export default function CityDetail() {
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </button>
-            <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="recommended">Recommended</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest</option>
-            </select>
+            <SortDropdown
+              options={[
+                { value: 'recommended', label: 'Recommended' },
+                { value: 'price-low', label: 'Price: Low to High' },
+                { value: 'price-high', label: 'Price: High to Low' },
+                { value: 'rating', label: 'Highest Rated' },
+                { value: 'newest', label: 'Newest' }
+              ]}
+              value={sortBy}
+              onChange={handleSortChange}
+            />
           </div>
         </div>
 
@@ -167,29 +170,7 @@ export default function CityDetail() {
         </Card>
       </Section>
 
-      {/* Call to Action */}
-      <Section className="bg-blue-600 text-white">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Book Your Stay in {city.name}?
-          </h2>
-          <p className="text-xl mb-6">
-            Browse our selection of {totalProperties} properties and find your perfect accommodation
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-3 bg-white text-blue-600 rounded-md hover:bg-gray-100 transition-colors font-medium">
-              <Calendar className="w-4 h-4 mr-2 inline" />
-              Book Now
-            </button>
-            <Link 
-              to="/contact"
-              className="px-8 py-3 border border-white text-white rounded-md hover:bg-white hover:text-blue-600 transition-colors font-medium"
-            >
-              Contact Us
-            </Link>
-          </div>
-        </div>
-      </Section>
-    </Layout>
+      <BookingCallToAction cityName={city.name} propertyCount={totalProperties} />
+    </>
   );
 }

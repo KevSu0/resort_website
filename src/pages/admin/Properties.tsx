@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Star } from 'lucide-react';
-import Layout from '../../components/Layout';
+import { Edit, Trash2, Star, MapPin, Plus } from 'lucide-react';
+import AdminLayout from '../../components/AdminLayout';
 import { Card, Grid } from '../../components/Layout';
+import AdminSearchFilter from '../../components/AdminSearchFilter';
 
 export default function AdminProperties() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -79,59 +80,41 @@ export default function AdminProperties() {
   });
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Properties Management</h1>
-                  <p className="text-gray-600">Manage your resort properties and accommodations</p>
-                </div>
-                <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Property
-                </button>
-              </div>
-            </div>
+    <AdminLayout>
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Properties Management</h1>
+            <p className="text-gray-600 mt-1">Manage your resort properties and accommodations</p>
           </div>
+          <button 
+            onClick={() => console.log('Add property clicked')}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Property
+          </button>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Filters */}
-          <Card className="p-6 mb-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Search properties..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center">
-                  <Filter className="w-4 h-4 text-gray-400 mr-2" />
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </Card>
+        <div className="max-w-7xl mx-auto">
+          <AdminSearchFilter
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search properties..."
+            filters={[
+              {
+                label: 'Status Filter',
+                value: filterStatus,
+                onChange: setFilterStatus,
+                options: [
+                  { value: 'all', label: 'All Status' },
+                  { value: 'active', label: 'Active' },
+                  { value: 'maintenance', label: 'Maintenance' },
+                  { value: 'inactive', label: 'Inactive' }
+                ]
+              }
+            ]}
+          />
 
           {/* Properties Grid */}
           <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -210,6 +193,6 @@ export default function AdminProperties() {
           )}
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

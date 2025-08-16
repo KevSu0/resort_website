@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, MessageSquare, Users, Calendar } from 'lucide-react';
-import Layout from '../components/Layout';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
+import ContactInfoCard from '../components/ContactInfoCard';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -40,7 +40,7 @@ export default function ContactPage() {
   };
 
   return (
-    <Layout>
+    <>
       {/* Hero Section */}
       <HeroSection className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="text-center">
@@ -66,47 +66,55 @@ export default function ContactPage() {
         </div>
         
         <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <Card className="text-center p-6 hover:shadow-lg transition-shadow">
-            <div className="p-3 bg-blue-100 rounded-full w-fit mx-auto mb-4">
-              <Phone className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Phone</h3>
-            <p className="text-gray-600 text-sm mb-2">Call us anytime</p>
-            <a href="tel:+1-800-RESORT" className="text-blue-600 hover:text-blue-700 font-medium">
-              +1 (800) RESORT
-            </a>
-          </Card>
+          <ContactInfoCard
+            icon={Phone}
+            title="Phone"
+            subtitle="Call us anytime"
+            content={
+              <a href="tel:+1-800-RESORT" className="text-blue-600 hover:text-blue-700 font-medium">
+                +1 (800) RESORT
+              </a>
+            }
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+          />
           
-          <Card className="text-center p-6 hover:shadow-lg transition-shadow">
-            <div className="p-3 bg-green-100 rounded-full w-fit mx-auto mb-4">
-              <Mail className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Email</h3>
-            <p className="text-gray-600 text-sm mb-2">Send us a message</p>
-            <a href="mailto:info@resortgroup.com" className="text-blue-600 hover:text-blue-700 font-medium">
-              info@resortgroup.com
-            </a>
-          </Card>
+          <ContactInfoCard
+            icon={Mail}
+            title="Email"
+            subtitle="Send us a message"
+            content={
+              <a href="mailto:info@resortgroup.com" className="text-blue-600 hover:text-blue-700 font-medium">
+                info@resortgroup.com
+              </a>
+            }
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
+          />
           
-          <Card className="text-center p-6 hover:shadow-lg transition-shadow">
-            <div className="p-3 bg-purple-100 rounded-full w-fit mx-auto mb-4">
-              <MessageSquare className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Live Chat</h3>
-            <p className="text-gray-600 text-sm mb-2">Chat with our team</p>
-            <button className="text-blue-600 hover:text-blue-700 font-medium">
-              Start Chat
-            </button>
-          </Card>
+          <ContactInfoCard
+            icon={MessageSquare}
+            title="Live Chat"
+            subtitle="Chat with our team"
+            content={
+              <button className="text-blue-600 hover:text-blue-700 font-medium">
+                Start Chat
+              </button>
+            }
+            iconBgColor="bg-purple-100"
+            iconColor="text-purple-600"
+          />
           
-          <Card className="text-center p-6 hover:shadow-lg transition-shadow">
-            <div className="p-3 bg-orange-100 rounded-full w-fit mx-auto mb-4">
-              <Clock className="w-6 h-6 text-orange-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Hours</h3>
-            <p className="text-gray-600 text-sm mb-2">We're available</p>
-            <p className="text-gray-900 font-medium text-sm">24/7 Support</p>
-          </Card>
+          <ContactInfoCard
+            icon={Clock}
+            title="Hours"
+            subtitle="We're available"
+            content={
+              <p className="text-gray-900 font-medium text-sm">24/7 Support</p>
+            }
+            iconBgColor="bg-orange-100"
+            iconColor="text-orange-600"
+          />
         </Grid>
       </Section>
 
@@ -385,6 +393,6 @@ export default function ContactPage() {
           </div>
         </div>
       </Section>
-    </Layout>
+    </>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, MapPin, Calendar, Users, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { SearchFilters } from '../types';
+import { propertyService, cityService, stayTypeService } from '../lib/firestore';
 
 interface SearchBarProps {
   variant?: 'default' | 'compact' | 'hero';
@@ -35,46 +36,94 @@ export default function SearchBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // Mock search suggestions - in real app, this would come from API
-  const mockSuggestions: SearchSuggestion[] = [
-    {
-      id: '1',
-      type: 'city',
-      name: 'Bali',
-      slug: 'bali',
-      description: '15 properties available'
-    },
-    {
-      id: '2',
-      type: 'property',
-      name: 'Ocean View Resort',
-      slug: 'ocean-view-resort',
-      description: 'Luxury beachfront resort'
-    },
-    {
-      id: '3',
-      type: 'stay-type',
-      name: 'Beach Resort',
-      slug: 'beach-resort',
-      description: '8 properties available'
+  // Fetch search suggestions from services
+  const fetchSuggestions = async (searchQuery: string): Promise<SearchSuggestion[]> => {
+    try {
+      const [properties, cities] = await Promise.all([
+        propertyService.getAll(),
+        cityService.getAll()
+      ]);
+      
+      const suggestions: SearchSuggestion[] = [];
+      const query = searchQuery.toLowerCase();
+      
+      // Add matching cities
+      cities
+        .filter(city => city.name.toLowerCase().includes(query))
+        .slice(0, 3)
+        .forEach(city => {
+          suggestions.push({
+            id: city.slug,
+            type: 'city',
+            name: city.name,
+            slug: city.slug,
+            description: `${properties.filter(p => p.city_slug === city.slug).length} properties available`
+          });
+        });
+      
+      // Add matching properties
+      properties
+        .filter(property => property.name.toLowerCase().includes(query))
+        .slice(0, 3)
+        .forEach(property => {
+          suggestions.push({
+            id: property.id,
+            type: 'property',
+            name: property.name,
+            slug: property.slug,
+            description: property.branding.description || 'Luxury resort property'
+          });
+        });
+      
+      // Get stay types for all properties and find matches
+      const stayTypePromises = properties.map(p => stayTypeService.getByProperty(p.id));
+      const stayTypesArrays = await Promise.all(stayTypePromises);
+      const allStayTypes = stayTypesArrays.flat();
+      
+      // Add matching stay types (unique by name)
+      const uniqueStayTypes = allStayTypes.reduce((acc, stayType) => {
+        if (!acc.find(st => st.type_name === stayType.type_name) && 
+            stayType.type_name.toLowerCase().includes(query)) {
+          acc.push(stayType);
+        }
+        return acc;
+      }, [] as typeof allStayTypes)
+      .slice(0, 2);
+      
+      uniqueStayTypes.forEach(stayType => {
+        const count = allStayTypes.filter(st => st.type_name === stayType.type_name).length;
+        suggestions.push({
+          id: stayType.id,
+          type: 'stay-type',
+          name: stayType.type_name,
+          slug: stayType.slug,
+          description: `${count} properties available`
+        });
+      });
+      
+      return suggestions.slice(0, 6); // Limit to 6 total suggestions
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+      return [];
     }
-  ];
+  };
 
   // Handle search input changes
-  const handleInputChange = (value: string) => {
+  const handleInputChange = async (value: string) => {
     setQuery(value);
     
     if (value.length > 2) {
       setIsLoading(true);
-      // Simulate API call delay
-      setTimeout(() => {
-        const filtered = mockSuggestions.filter(item => 
-          item.name.toLowerCase().includes(value.toLowerCase())
-        );
-        setSuggestions(filtered);
-        setIsLoading(false);
+      try {
+        const suggestions = await fetchSuggestions(value);
+        setSuggestions(suggestions);
         setIsOpen(true);
-      }, 300);
+      } catch (error) {
+        console.error('Error loading suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       setSuggestions([]);
       setIsOpen(false);

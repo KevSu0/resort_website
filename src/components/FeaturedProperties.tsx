@@ -1,42 +1,55 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ArrowRight } from 'lucide-react';
-import { Section, Grid } from './Layout';
-import PropertyCard from './PropertyCard';
+import { ArrowRight } from 'lucide-react';
+import { Section } from './Layout';
+import { PropertyGrid } from './PropertyGrid';
 import type { Property } from '../types';
 
 interface FeaturedPropertiesProps {
-  properties: Property[];
+  title?: string;
+  subtitle?: string;
+  properties?: Property[];
+  showViewAllButton?: boolean;
+  viewAllLink?: string;
+  viewAllText?: string;
+  variant?: 'default' | 'featured';
+  className?: string;
 }
 
-export function FeaturedProperties({ properties }: FeaturedPropertiesProps) {
+export function FeaturedProperties({
+  title = "Featured Properties",
+  subtitle = "Handpicked accommodations that offer exceptional experiences",
+  properties = [],
+  showViewAllButton = true,
+  viewAllLink = "/properties",
+  viewAllText = "View All Properties",
+  variant = "featured",
+  className = ""
+}: FeaturedPropertiesProps) {
   return (
-    <Section>
+    <Section className={className}>
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          Featured Properties
+          {title}
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Handpicked luxury accommodations that offer exceptional experiences
+          {subtitle}
         </p>
       </div>
-
-      <Grid className="grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        {properties.map((property) => (
-          <PropertyCard key={property.id} property={property} variant="featured" />
-        ))}
-      </Grid>
-
-      <div className="text-center">
-        <Link
-          to="/properties"
-          className="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-        >
-          <Search className="mr-2 w-4 h-4" />
-          Browse All Properties
-          <ArrowRight className="ml-2 w-4 h-4" />
-        </Link>
-      </div>
+      
+      <PropertyGrid properties={properties} variant={variant} />
+      
+      {showViewAllButton && (
+        <div className="text-center mt-12">
+          <Link
+            to={viewAllLink}
+            className="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            {viewAllText}
+            <ArrowRight className="ml-2 w-4 h-4" />
+          </Link>
+        </div>
+      )}
     </Section>
   );
 }

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Calendar, Percent, Eye, ToggleLeft, ToggleRight } from 'lucide-react';
-import Layout from '../../components/Layout';
+import { Edit, Trash2, Calendar, Percent, Eye, EyeOff, Plus, ToggleLeft, ToggleRight, DollarSign, TrendingUp, Users } from 'lucide-react';
+import AdminLayout from '../../components/AdminLayout';
 import { Card, Grid } from '../../components/Layout';
+import AdminStatsCard from '../../components/AdminStatsCard';
+import AdminSearchFilter from '../../components/AdminSearchFilter';
 
 export default function AdminOffers() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,101 +95,77 @@ export default function AdminOffers() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Offers & Promotions</h1>
-                  <p className="text-gray-600">Manage promotional campaigns and special deals</p>
-                </div>
-                <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Offer
-                </button>
-              </div>
-            </div>
+    <AdminLayout>
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Offers Management</h1>
+            <p className="text-gray-600 mt-1">Manage promotional offers and discounts</p>
           </div>
+          <button 
+            onClick={() => console.log('Create offer clicked')}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Offer
+          </button>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto">
           {/* Stats */}
-          <Grid className="grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Percent className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active Offers</p>
-                  <p className="text-2xl font-bold text-gray-900">{offers.filter(o => o.status === 'active').length}</p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Calendar className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Scheduled</p>
-                  <p className="text-2xl font-bold text-gray-900">{offers.filter(o => o.status === 'scheduled').length}</p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Eye className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Usage</p>
-                  <p className="text-2xl font-bold text-gray-900">{offers.reduce((sum, o) => sum + o.usageCount, 0)}</p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Percent className="w-6 h-6 text-orange-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Avg Discount</p>
-                  <p className="text-2xl font-bold text-gray-900">{Math.round(offers.reduce((sum, o) => sum + o.discount, 0) / offers.length)}%</p>
-                </div>
-              </div>
-            </Card>
-          </Grid>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <AdminStatsCard
+              icon={DollarSign}
+              title="Total Offers"
+              value="24"
+              change="+2 this month"
+              changeType="positive"
+              color="blue"
+            />
+            <AdminStatsCard
+              icon={TrendingUp}
+              title="Active Offers"
+              value="18"
+              change="75% active"
+              changeType="positive"
+              color="green"
+            />
+            <AdminStatsCard
+              icon={Users}
+              title="Total Redemptions"
+              value="1,247"
+              change="+15% this month"
+              changeType="positive"
+              color="purple"
+            />
+            <AdminStatsCard
+              icon={Calendar}
+              title="Expiring Soon"
+              value="3"
+              change="Within 7 days"
+              changeType="negative"
+              color="orange"
+            />
+          </div>
 
-          {/* Filters */}
-          <Card className="p-6 mb-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search offers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="expired">Expired</option>
-                <option value="paused">Paused</option>
-              </select>
-            </div>
-          </Card>
+          <AdminSearchFilter
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search offers..."
+            filters={[
+              {
+                label: "Filter by Status",
+                value: statusFilter,
+                onChange: setStatusFilter,
+                options: [
+                  { value: 'all', label: 'All Offers' },
+                  { value: 'active', label: 'Active' },
+                  { value: 'expired', label: 'Expired' },
+                  { value: 'draft', label: 'Draft' }
+                ]
+              }
+            ]}
+          />
 
           {/* Offers List */}
           <div className="space-y-4">
@@ -261,6 +239,6 @@ export default function AdminOffers() {
           </div>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

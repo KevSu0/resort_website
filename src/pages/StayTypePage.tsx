@@ -1,8 +1,8 @@
 import React from 'react';
-import { useLoaderData, Link } from 'react-router-dom';
-import { MapPin, Star, Users, Calendar, Filter, Wifi, Car, Coffee, Waves } from 'lucide-react';
-import Layout from '../components/Layout';
-import { Section, Card, Grid, HeroSection } from '../components/Layout';
+import { useLoaderData } from 'react-router-dom';
+import { MapPin, Users, Coffee, Waves, Filter } from 'lucide-react';
+import { Section, HeroSection } from '../components/Layout';
+import { Breadcrumb } from '../components/Breadcrumb';
 import { PropertyGrid } from '../components/PropertyGrid';
 import SearchBar from '../components/SearchBar';
 import type { StayTypeLoaderData, SearchFilters } from '../router/loaders';
@@ -29,21 +29,13 @@ export default function StayTypePage() {
   };
 
   return (
-    <Layout>
+    <>
       {/* Breadcrumbs */}
-      <Section className="py-4 border-b">
-        <nav className="flex items-center space-x-2 text-sm text-gray-600">
-          <Link to="/" className="hover:text-blue-600 transition-colors">
-            Home
-          </Link>
-          <span>/</span>
-          <Link to="/stay-types" className="hover:text-blue-600 transition-colors">
-            Stay Types
-          </Link>
-          <span>/</span>
-          <span className="text-gray-900 font-medium">{stayType.type_name}</span>
-        </nav>
-      </Section>
+      <Breadcrumb items={[
+        { label: 'Home', href: '/' },
+        { label: 'Stay Types', href: '/stay-types' },
+        { label: stayType.type_name, href: `/stay-types/${stayType.slug}`, isActive: true }
+      ]} />
 
       {/* Stay Type Hero */}
       <HeroSection 
@@ -89,6 +81,6 @@ export default function StayTypePage() {
         
         {/* <PropertyGrid properties={properties} /> */}
       </Section>
-    </Layout>
+    </>
   );
 }

@@ -15,25 +15,30 @@ export interface Property {
   stay_types: string[];
   branding: {
     logo_url?: string;
+    hero_image?: string;
     primary_color: string;
     secondary_color: string;
     description: string;
   };
   managers: { [userId: string]: boolean };
   active: boolean;
+  featured: boolean;
+  rating?: number;
   created_at: Date;
   updated_at: Date;
 }
 
 export interface City {
+  id: string;
   slug: string;
   name: string;
-  state: string;
+  state?: string;
   country: string;
-  property_ids: string[];
-  seo_data: SEOData;
-  created_at: Date;
-  updated_at: Date;
+  image?: string;
+  property_ids?: string[];
+  seo_data?: SEOData;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export interface StayType {
@@ -71,7 +76,31 @@ export interface ResortGroup {
   id: string;
   name: string;
   brand_description: string;
+  description?: string;
   property_ids: string[];
+  contact_email?: string;
+  website?: string;
+  logo?: string;
+  branding?: {
+    logo?: string;
+    logo_url?: string;
+    hero_image?: string;
+    primary_color?: string;
+    secondary_color?: string;
+  };
+  unique_selling_points?: string[];
+  tagline?: string;
+  total_destinations?: number;
+  total_properties?: number;
+  total_rooms?: number;
+  years_established?: number;
+  total_guests_served?: string;
+  awards_count?: number;
+  settings?: {
+    multi_property_enabled?: boolean;
+    referral_system_enabled?: boolean;
+    ai_seo_enabled?: boolean;
+  };
   created_at: Date;
   updated_at: Date;
 }
@@ -101,12 +130,26 @@ export interface Enquiry {
 }
 
 export interface User {
+  id: string;
   uid: string;
   email: string;
-  role: 'group_admin' | 'property_manager' | 'seo_manager' | 'content_editor' | 'city_manager';
+  name?: string;
+  role: 'group_admin' | 'property_manager' | 'seo_manager' | 'content_editor' | 'city_manager' | 'guest';
   property_access?: string[];
   city_access?: string[];
+  permissions?: {
+    properties?: string[];
+    cities?: string[];
+    can_manage_seo?: boolean;
+    can_edit_content?: boolean;
+    can_view_analytics?: boolean;
+  };
+  preferences?: {
+    currency?: string;
+    language?: string;
+  };
   created_at: Date;
+  updated_at?: Date;
   last_login: Date;
 }
 
@@ -117,12 +160,33 @@ export interface Offer {
   description: string;
   discount_type: 'percentage' | 'fixed_amount';
   discount_value: number;
-  valid_from: Date;
+  valid_from: Date | string;
   valid_until: Date;
   terms_conditions: string;
+  applicable_properties: string[];
   active: boolean;
   created_by: string;
   created_at: Date;
+  updated_at: Date;
+}
+
+export interface PromotionalOffer {
+  id: string;
+  title: string;
+  description: string;
+  discount_percentage: number;
+  valid_from: Date | string;
+  valid_until: Date | string;
+  minimum_nights?: number;
+  promo_code?: string;
+  property_ids: string[];
+  applicable_properties?: string[];
+  conditions?: string[];
+  property_id?: string;
+  created_by?: string;
+  updated_at?: Date;
+  active: boolean;
+  is_featured?: boolean;
 }
 
 export interface Referral {
@@ -131,9 +195,12 @@ export interface Referral {
   referee_email: string;
   referee_id?: string;
   property_id?: string;
+  referral_code: string;
   status: 'pending' | 'completed' | 'rewarded';
   reward_amount: number;
+  total_rewards: number;
   currency: string;
+  successful_referrals?: number;
   created_at: Date;
   completed_at?: Date;
 }

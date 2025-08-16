@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Save, Bell, Shield, Globe, Palette, Database } from 'lucide-react';
-import Layout from '../../components/Layout';
+import { Save, Bell, Shield, Globe, Database, Mail, Palette } from 'lucide-react';
+import AdminLayout from '../../components/AdminLayout';
 import { Card } from '../../components/Layout';
 
 export default function AdminSettings() {
@@ -45,30 +45,14 @@ export default function AdminSettings() {
   ];
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-                  <p className="text-gray-600">Manage system configuration and preferences</p>
-                </div>
-                <button 
-                  onClick={handleSave}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
+    <AdminLayout>
+      <div className="p-6">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">System Settings</h1>
+          <p className="text-gray-600 mt-1">Configure system preferences and settings</p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
             <div className="lg:w-64">
@@ -315,6 +299,6 @@ export default function AdminSettings() {
           </div>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

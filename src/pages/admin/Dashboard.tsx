@@ -1,7 +1,8 @@
 import React from 'react';
-import { Users, DollarSign, Calendar } from 'lucide-react';
-import Layout from '../../components/Layout';
-import { Card } from '../../components/Layout';
+import { Users, DollarSign, Calendar, MapPin, Star, BarChart3 } from 'lucide-react';
+import AdminLayout from '../../components/AdminLayout';
+import { Card, Grid } from '../../components/Layout';
+import AdminStatsCard from '../../components/AdminStatsCard';
 
 export default function Dashboard() {
   const stats = [
@@ -11,7 +12,7 @@ export default function Dashboard() {
       change: '+12.5%',
       changeType: 'positive' as const,
       icon: Calendar,
-      color: 'blue'
+      color: 'blue' as const
     },
     {
       title: 'Revenue',
@@ -19,7 +20,7 @@ export default function Dashboard() {
       change: '+8.2%',
       changeType: 'positive' as const,
       icon: DollarSign,
-      color: 'green'
+      color: 'green' as const
     },
     {
       title: 'Active Properties',
@@ -27,7 +28,7 @@ export default function Dashboard() {
       change: '+2',
       changeType: 'positive' as const,
       icon: MapPin,
-      color: 'purple'
+      color: 'purple' as const
     },
     {
       title: 'Guest Satisfaction',
@@ -35,7 +36,7 @@ export default function Dashboard() {
       change: '+0.1',
       changeType: 'positive' as const,
       icon: Star,
-      color: 'yellow'
+      color: 'yellow' as const
     }
   ];
 
@@ -98,58 +99,30 @@ export default function Dashboard() {
     }
   };
 
-  const getColorClasses = (color: string) => {
-    switch (color) {
-      case 'blue':
-        return 'bg-blue-100 text-blue-600';
-      case 'green':
-        return 'bg-green-100 text-green-600';
-      case 'purple':
-        return 'bg-purple-100 text-purple-600';
-      case 'yellow':
-        return 'bg-yellow-100 text-yellow-600';
-      default:
-        return 'bg-gray-100 text-gray-600';
-    }
-  };
+
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-6">
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Welcome back! Here's what's happening with your properties.</p>
-            </div>
-          </div>
+    <AdminLayout>
+      <div className="p-6">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your properties.</p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto">
           {/* Stats Grid */}
           <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {stats.map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <Card key={index} className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className={`text-sm ${
-                        stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.change} from last month
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-full ${getColorClasses(stat.color)}`}>
-                      <IconComponent className="w-6 h-6" />
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
+            {stats.map((stat, index) => (
+              <AdminStatsCard
+                key={index}
+                title={stat.title}
+                value={stat.value}
+                change={stat.change}
+                changeType={stat.changeType}
+                icon={stat.icon}
+                color={stat.color}
+              />
+            ))}
           </Grid>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -240,6 +213,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

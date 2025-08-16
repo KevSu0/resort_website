@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLoaderData } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { Section } from '../components/Layout';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PropertyImageGallery } from '../components/PropertyImageGallery';
@@ -24,13 +23,19 @@ export default function PropertyPage() {
   const allAmenities = stayTypes.flatMap(st => st.details.amenities);
 
   return (
-    <Layout>
+    <>
       <Breadcrumbs items={breadcrumbItems} />
 
       <Section>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <PropertyImageGallery images={allImages} propertyName={property.name} />
-          <BookingSidebar property={property} stayTypes={stayTypes} />
+          <BookingSidebar 
+            pricePerNight={299}
+            maxGuests={6}
+            onBookingSubmit={(bookingData) => {
+              console.log('Booking submitted:', bookingData);
+            }}
+          />
         </div>
       </Section>
 
@@ -44,6 +49,6 @@ export default function PropertyPage() {
           <PropertyInfoSidebar property={property} />
         </div>
       </Section>
-    </Layout>
+    </>
   );
 }

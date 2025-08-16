@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { Section } from '../components/Layout';
 import { CityGrid } from '../components/CityGrid';
 import SearchBar from '../components/SearchBar';
+import { ListingPageHeader } from '../components/PageHeader';
+import { SortDropdown } from '../components/SortDropdown';
+import { Pagination } from '../components/Pagination';
 import type { City, SearchFilters } from '../types';
 
 interface CitiesPageData {
@@ -14,31 +16,37 @@ interface CitiesPageData {
 
 export default function Cities() {
   const { cities, totalCount } = useLoaderData() as CitiesPageData;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('name');
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleSearch = (newFilters: SearchFilters) => {
-    console.log('Search filters:', newFilters);
+    // Search filters updated
   };
 
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    // Handle sort logic here
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Handle pagination logic here
+  };
+
+  const sortOptions = [
+    { value: 'name', label: 'Alphabetical' },
+    { value: 'properties', label: 'Most Properties' },
+    { value: 'popular', label: 'Most Popular' }
+  ];
+
   return (
-    <Layout>
-      <Section className="bg-gray-50">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Explore Cities
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover amazing destinations around the world
-          </p>
-        </div>
-        
-        <div className="max-w-2xl mx-auto mb-8">
-          <SearchBar 
-            variant="hero" 
-            placeholder="Search cities..."
-            onSearch={handleSearch}
-          />
-        </div>
-      </Section>
+    <>
+      <ListingPageHeader
+          title="Explore Cities"
+          subtitle="Discover amazing destinations around the world"
+        />
 
       <Section>
         <div className="flex justify-between items-center mb-8">
@@ -46,35 +54,21 @@ export default function Cities() {
             {totalCount} Cities Available
           </h2>
           
-          <div className="flex items-center space-x-4">
-            <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="name">Alphabetical</option>
-              <option value="properties">Most Properties</option>
-              <option value="popular">Most Popular</option>
-            </select>
-          </div>
+          <SortDropdown
+            options={sortOptions}
+            value={sortBy}
+            onChange={handleSortChange}
+          />
         </div>
         
         <CityGrid cities={cities} />
         
-        {/* Pagination */}
-        <div className="mt-12 flex justify-center">
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
-              Previous
-            </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
-              1
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              2
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              Next
-            </button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </Section>
-    </Layout>
+    </>
   );
 }

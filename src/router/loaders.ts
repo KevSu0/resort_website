@@ -180,6 +180,31 @@ export async function adminLoader() {
   }
 }
 
+// Enhanced Search filters type for faceted discovery
+export interface SearchFilters {
+  query?: string;
+  city?: string;
+  capacity?: number;
+  priceRange?: [number, number];
+  amenities?: string[];
+  propertyTypes?: string[]; // resort, hotel, villa, apartment
+  rating?: number; // minimum rating filter
+  distance?: number; // distance from city center in km
+  checkIn?: string; // ISO date string
+  checkOut?: string; // ISO date string
+  sortBy?: 'relevance' | 'price-low' | 'price-high' | 'rating' | 'distance' | 'newest';
+  location?: {
+    lat?: number;
+    lng?: number;
+    radius?: number; // search radius in km
+  };
+  features?: string[]; // spa, pool, gym, restaurant, etc.
+  accessibility?: boolean;
+  petFriendly?: boolean;
+  businessFriendly?: boolean;
+  familyFriendly?: boolean;
+}
+
 // Export loader types for TypeScript
 export type PropertyLoaderData = Awaited<ReturnType<typeof propertyLoader>>;
 export type CityLoaderData = Awaited<ReturnType<typeof cityLoader>>;

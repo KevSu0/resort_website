@@ -281,11 +281,16 @@ export const routeResolver: RouteResolver = {
         cityService.getAll()
       ]);
       
-      const entries = [
+      const entries: Array<{
+        url: string;
+        lastmod: string;
+        changefreq: 'daily' | 'weekly' | 'monthly';
+        priority: number;
+      }> = [
         {
           url: '/',
           lastmod: new Date().toISOString(),
-          changefreq: 'daily' as const,
+          changefreq: 'daily',
           priority: 1.0
         }
       ];
@@ -295,7 +300,7 @@ export const routeResolver: RouteResolver = {
         entries.push({
           url: `/properties/${property.slug}`,
           lastmod: property.updated_at.toISOString(),
-          changefreq: 'weekly' as const,
+          changefreq: 'weekly',
           priority: 0.8
         });
       });
@@ -305,7 +310,7 @@ export const routeResolver: RouteResolver = {
         entries.push({
           url: `/locations/${city.slug}`,
           lastmod: city.updated_at.toISOString(),
-          changefreq: 'weekly' as const,
+          changefreq: 'weekly',
           priority: 0.7
         });
       });

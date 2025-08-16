@@ -1,181 +1,192 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useLoaderData, Link, useSearchParams } from 'react-router-dom';
-import { Search, Filter, MapPin, Star, Grid3X3, List } from 'lucide-react';
-import Layout from '../components/Layout';
-import { Section, Card, Grid } from '../components/Layout';
-import { PropertyGrid } from '../components/PropertyGrid';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
-import type { Property, SearchFilters, SearchResult } from '../types';
+import FilterPanel from '../components/FilterPanel';
+import SearchResultsGrid from '../components/SearchResultsGrid';
+import SearchResultsList from '../components/SearchResultsList';
+import MapView from '../components/MapView';
+import FacetedDiscovery from '../components/FacetedDiscovery';
+import { Card } from '../components/Layout';
+import type { SearchFilters } from '../router/loaders';
+import type { MockProperty } from '../lib/mockData';
+import { MockDataService } from '../lib/mockData';
 
 export default function SearchPage() {
-  const { results } = useLoaderData() as { results: SearchResult };
   const [searchParams, setSearchParams] = useSearchParams();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState('relevance');
+  const [properties, setProperties] = useState<MockProperty[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<MockProperty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
+  const [selectedProperty, setSelectedProperty] = useState<MockProperty | undefined>();
+  const [useFacetedDiscovery, setUseFacetedDiscovery] = useState(true);
+  
+  // Load properties on component mount
+  useEffect(() => {
+    const loadProperties = async () => {
+      try {
+        const propertiesData = await MockDataService.getProperties();
+        setProperties(propertiesData);
+      } catch (error) {
+        console.error('Error loading properties:', error);
+      }
+    };
+    loadProperties();
+  }, []);
+  
+  const [filters, setFilters] = useState<SearchFilters>({});
 
-  const query = searchParams.get('q') || '';
-
-  const handleSearch = (filters: SearchFilters) => {
-    const newParams = new URLSearchParams();
-    if (filters.city) newParams.set('city', filters.city);
-    if (filters.capacity) newParams.set('capacity', filters.capacity.toString());
-    if (filters.priceRange) newParams.set('price', filters.priceRange.join('-'));
-    if (filters.amenities) newParams.set('amenities', filters.amenities.join(','));
-    setSearchParams(newParams);
+  const handleFiltersChange = (newFilters: SearchFilters) => {
+    setFilters(newFilters);
+    
+    // Update URL params
+    const params = new URLSearchParams();
+    if (newFilters.query) params.set('q', newFilters.query);
+    if (newFilters.city) params.set('city', newFilters.city);
+    if (newFilters.capacity) params.set('capacity', newFilters.capacity.toString());
+    if (newFilters.priceRange) {
+      params.set('minPrice', newFilters.priceRange[0].toString());
+      params.set('maxPrice', newFilters.priceRange[1].toString());
+    }
+    if (newFilters.amenities?.length) {
+      params.set('amenities', newFilters.amenities.join(','));
+    }
+    if (newFilters.propertyTypes?.length) {
+      params.set('types', newFilters.propertyTypes.join(','));
+    }
+    if (newFilters.rating) params.set('rating', newFilters.rating.toString());
+    if (newFilters.sortBy && newFilters.sortBy !== 'relevance') params.set('sortBy', newFilters.sortBy);
+    if (newFilters.checkIn) params.set('checkIn', newFilters.checkIn);
+    if (newFilters.checkOut) params.set('checkOut', newFilters.checkOut);
+    if (newFilters.accessibility) params.set('accessibility', 'true');
+    if (newFilters.petFriendly) params.set('petFriendly', 'true');
+    if (newFilters.businessFriendly) params.set('businessFriendly', 'true');
+    if (newFilters.familyFriendly) params.set('familyFriendly', 'true');
+    
+    setSearchParams(params);
   };
 
-  const handleSort = (value: string) => {
-    setSortBy(value);
-    // Implement sorting logic here
+  const handleViewModeChange = (mode: 'grid' | 'list' | 'map') => {
+    setViewMode(mode);
+  };
+
+  const handlePropertySelect = (property: MockProperty) => {
+    setSelectedProperty(property);
+    // Navigate to property detail page or show modal
+    console.log('Selected property:', property);
+  };
+
+  const handleSearch = (newFilters: SearchFilters) => {
+    setFilters({ ...filters, ...newFilters });
+  };
+
+  const renderResults = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading properties...</p>
+        </div>
+      );
+    }
+
+    switch (viewMode) {
+      case 'list':
+        return (
+          <SearchResultsList
+            properties={filteredProperties}
+            onPropertySelect={handlePropertySelect}
+          />
+        );
+      case 'map':
+        return (
+          <MapView
+            properties={filteredProperties}
+            selectedProperty={selectedProperty}
+            onPropertySelect={handlePropertySelect}
+            className="h-[600px]"
+          />
+        );
+      default:
+        return (
+          <SearchResultsGrid
+            properties={filteredProperties}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+          />
+        );
+    }
   };
 
   return (
-    <Layout>
+    <div className="min-h-screen bg-gray-50">
       {/* Search Header */}
-      <Section className="bg-gray-50 border-b">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <SearchBar
             onSearch={handleSearch}
+            className="mb-4"
           />
-        </div>
-      </Section>
-
-      {/* Search Results */}
-      <Section>
-        {/* Results Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              {query ? `Search Results for "${query}"` : 'Search Results'}
-            </h1>
-            <p className="text-gray-600">
-              {`${results.total} properties found`}
-            </p>
-          </div>
           
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            {/* View Mode Toggle */}
-            <div className="flex items-center border border-gray-300 rounded-lg p-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <Grid3X3 className="w-4 h-4" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586a1 1 0 01-.293.707l-2 2A1 1 0 0111 21v-6.586a1 1 0 00-.293-.707L4.293 7.293A1 1 0 014 6.586V4z" />
+                </svg>
+                Filters
               </button>
+              
               <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                onClick={() => setUseFacetedDiscovery(!useFacetedDiscovery)}
+                className={`px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
+                  useFacetedDiscovery
+                    ? 'bg-blue-600 text-white'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
               >
-                <List className="w-4 h-4" />
+                Enhanced Discovery
               </button>
+              
+              <span className="text-sm text-gray-600">
+                {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'} found
+              </span>
             </div>
-            
-            {/* Sort Dropdown */}
-            <select
-              value={sortBy}
-              onChange={(e) => handleSort(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="relevance">Sort by Relevance</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest First</option>
-            </select>
-            
-            {/* Filter Button */}
-            <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <Filter className="w-4 h-4 mr-2" />
-              Filters
-            </button>
           </div>
         </div>
+      </div>
 
-        {/* Search Results */}
-        {results.properties.length > 0 && (
-          <PropertyGrid properties={results.properties} />
-        )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex gap-6">
+          {/* Filters Sidebar */}
+          {showFilters && (
+            <div className="w-80 flex-shrink-0">
+              <Card className="sticky top-24">
+                {useFacetedDiscovery ? (
+                  <FacetedDiscovery
+                    properties={properties}
+                    onFiltersChange={handleFiltersChange}
+                    onViewModeChange={handleViewModeChange}
+                  />
+                ) : (
+                  <FilterPanel
+                     filters={filters}
+                     onFiltersChange={handleFiltersChange}
+                   />
+                )}
+              </Card>
+            </div>
+          )}
 
-        {/* No Results */}
-        {results.properties.length === 0 && (
-          <div className="text-center py-12">
-            <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No properties found
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Try adjusting your search criteria or browse our featured properties
-            </p>
-            <Link
-              to="/"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Browse Featured Properties
-            </Link>
+          {/* Results */}
+          <div className="flex-1">
+            {renderResults()}
           </div>
-        )}
-
-        {/* Pagination */}
-        {results.properties.length > 0 && (
-          <div className="flex justify-center mt-12">
-            <nav className="flex items-center space-x-2">
-              <button className="px-3 py-2 text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>
-                Previous
-              </button>
-              <button className="px-3 py-2 bg-blue-600 text-white rounded">
-                1
-              </button>
-              <button className="px-3 py-2 text-gray-700 hover:text-gray-900">
-                2
-              </button>
-              <button className="px-3 py-2 text-gray-700 hover:text-gray-900">
-                3
-              </button>
-              <button className="px-3 py-2 text-gray-700 hover:text-gray-900">
-                Next
-              </button>
-            </nav>
-          </div>
-        )}
-      </Section>
-
-      {/* Search Tips */}
-      <Section className="bg-gray-50">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Search Tips
-          </h2>
-          <p className="text-gray-600">
-            Get better results with these helpful search tips
-          </p>
         </div>
-        
-        <Grid className="grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="text-center p-6">
-            <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-4" />
-            <h3 className="font-semibold text-gray-900 mb-2">Be Specific with Location</h3>
-            <p className="text-sm text-gray-600">
-              Include city names, neighborhoods, or landmarks for more accurate results
-            </p>
-          </Card>
-          
-          <Card className="text-center p-6">
-            <Star className="w-8 h-8 text-yellow-500 mx-auto mb-4" />
-            <h3 className="font-semibold text-gray-900 mb-2">Use Filters</h3>
-            <p className="text-sm text-gray-600">
-              Narrow down results by price, rating, amenities, and property type
-            </p>
-          </Card>
-          
-          <Card className="text-center p-6">
-            <Search className="w-8 h-8 text-green-600 mx-auto mb-4" />
-            <h3 className="font-semibold text-gray-900 mb-2">Try Different Keywords</h3>
-            <p className="text-sm text-gray-600">
-              Use synonyms or related terms if you don't find what you're looking for
-            </p>
-          </Card>
-        </Grid>
-      </Section>
-    </Layout>
+      </div>
+    </div>
   );
 }

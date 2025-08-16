@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Search, Eye, MessageSquare, Phone, Mail, Calendar, Filter } from 'lucide-react';
-import Layout from '../../components/Layout';
-import { Card } from '../../components/Layout';
+import { Eye, Trash2, Mail, Phone, Calendar, MessageSquare } from 'lucide-react';
+import AdminLayout from '../../components/AdminLayout';
+import { Card, Grid } from '../../components/Layout';
+import AdminStatsCard from '../../components/AdminStatsCard';
+import AdminSearchFilter from '../../components/AdminSearchFilter';
 
 export default function AdminEnquiries() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterPriority, setFilterPriority] = useState('all');
 
   const enquiries = [
     {
@@ -80,64 +83,50 @@ export default function AdminEnquiries() {
     const matchesSearch = enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          enquiry.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || enquiry.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesStatus = filterStatus === 'all' || enquiry.status === filterStatus;
+    const matchesPriority = filterPriority === 'all' || enquiry.priority === filterPriority;
+    return matchesSearch && matchesStatus && matchesPriority;
   });
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Enquiries</h1>
-                  <p className="text-gray-600">Manage customer inquiries and requests</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                    {enquiries.filter(e => e.status === 'new').length} New
-                  </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                    {enquiries.filter(e => e.status === 'in-progress').length} In Progress
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+    <AdminLayout>
+      <div className="p-6">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Enquiries Management</h1>
+          <p className="text-gray-600 mt-1">Manage customer enquiries and support requests</p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Filters */}
-          <Card className="p-6 mb-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search enquiries..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-gray-400" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  <option value="new">New</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="resolved">Resolved</option>
-                </select>
-              </div>
-            </div>
-          </Card>
+        <div className="max-w-7xl mx-auto">
+          <AdminSearchFilter
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search enquiries..."
+            filters={[
+              {
+                label: 'Status Filter',
+                value: filterStatus,
+                onChange: setFilterStatus,
+                options: [
+                  { value: 'all', label: 'All Status' },
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'in-progress', label: 'In Progress' },
+                  { value: 'resolved', label: 'Resolved' },
+                  { value: 'closed', label: 'Closed' }
+                ]
+              },
+              {
+                label: 'Priority Filter',
+                value: filterPriority,
+                onChange: setFilterPriority,
+                options: [
+                  { value: 'all', label: 'All Priority' },
+                  { value: 'high', label: 'High' },
+                  { value: 'medium', label: 'Medium' },
+                  { value: 'low', label: 'Low' }
+                ]
+              }
+            ]}
+          />
 
           {/* Enquiries List */}
           <div className="space-y-4">
@@ -198,6 +187,6 @@ export default function AdminEnquiries() {
           </div>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

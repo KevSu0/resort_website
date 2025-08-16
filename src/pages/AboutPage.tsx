@@ -1,7 +1,9 @@
 import React from 'react';
 import { Award, Users, MapPin, Heart, Star, Shield, Leaf, Clock } from 'lucide-react';
-import Layout from '../components/Layout';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
+import StatsCard from '../components/StatsCard';
+import ValueCard from '../components/ValueCard';
+import TeamMemberCard from '../components/TeamMemberCard';
 
 export default function AboutPage() {
   const stats = [
@@ -71,7 +73,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <Layout>
+    <>
       {/* Hero Section */}
       <HeroSection className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="text-center">
@@ -118,19 +120,15 @@ export default function AboutPage() {
         </div>
         
         <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
-              <Card key={index} className="text-center p-6 hover:shadow-lg transition-shadow">
-                <div className="p-3 bg-blue-100 rounded-full w-fit mx-auto mb-4">
-                  <IconComponent className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <div className="font-semibold text-gray-900 mb-1">{stat.label}</div>
-                <div className="text-sm text-gray-600">{stat.description}</div>
-              </Card>
-            );
-          })}
+          {stats.map((stat, index) => (
+            <StatsCard
+              key={index}
+              icon={stat.icon}
+              label={stat.label}
+              value={stat.value}
+              description={stat.description}
+            />
+          ))}
         </Grid>
       </Section>
 
@@ -146,26 +144,14 @@ export default function AboutPage() {
         </div>
         
         <Grid className="grid-cols-1 md:grid-cols-2 gap-8">
-          {values.map((value, index) => {
-            const IconComponent = value.icon;
-            return (
-              <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start">
-                  <div className="p-3 bg-blue-100 rounded-lg mr-4 flex-shrink-0">
-                    <IconComponent className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                      {value.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {value.description}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+          {values.map((value, index) => (
+            <ValueCard
+              key={index}
+              icon={value.icon}
+              title={value.title}
+              description={value.description}
+            />
+          ))}
         </Grid>
       </Section>
 
@@ -182,20 +168,13 @@ export default function AboutPage() {
         
         <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {team.map((member, index) => (
-            <Card key={index} className="text-center p-6 hover:shadow-lg transition-shadow">
-              <div className="mb-4">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-24 h-24 rounded-full mx-auto object-cover"
-                />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                {member.name}
-              </h3>
-              <p className="text-blue-600 font-medium mb-3">{member.role}</p>
-              <p className="text-sm text-gray-600 leading-relaxed">{member.bio}</p>
-            </Card>
+            <TeamMemberCard
+              key={index}
+              name={member.name}
+              role={member.role}
+              image={member.image}
+              bio={member.bio}
+            />
           ))}
         </Grid>
       </Section>
@@ -307,6 +286,6 @@ export default function AboutPage() {
           </div>
         </div>
       </Section>
-    </Layout>
+    </>
   );
 }

@@ -24,7 +24,7 @@ const AdminSettings = lazy(() => import('../pages/admin/Settings'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 
 // Route loaders for data fetching
-import { propertyLoader, cityLoader, stayTypeLoader, adminLoader } from './loaders';
+import { propertyLoader, cityLoader, stayTypeLoader, searchLoader, adminLoader } from './loaders';
 
 // Create router configuration
 const router = createBrowserRouter([
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
         <Layout />
       </ErrorBoundary>
     ),
-    errorElement: <ErrorBoundary />,
+    errorElement: <ErrorBoundary><div>Something went wrong</div></ErrorBoundary>,
     children: [
       {
         index: true,
@@ -43,7 +43,8 @@ const router = createBrowserRouter([
       },
       {
         path: 'search',
-        element: <SearchPage />
+        element: <SearchPage />,
+        loader: searchLoader
       },
       {
         path: 'about',

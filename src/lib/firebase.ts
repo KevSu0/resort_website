@@ -22,33 +22,43 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+// Only initialize analytics in production with valid measurement ID
+export const analytics = typeof window !== 'undefined' && 
+  import.meta.env.PROD && 
+  import.meta.env.VITE_FIREBASE_MEASUREMENT_ID && 
+  import.meta.env.VITE_FIREBASE_MEASUREMENT_ID !== 'G-XXXXXXXXXX' 
+  ? getAnalytics(app) 
+  : null;
 
-// Connect to emulators in development
-if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_FIREBASE_EMULATORS === 'true') {
+// Connect to emulators in development (disabled - requires Java 11+)
+// Using mock data fallback instead for development
+if (false && import.meta.env.DEV && import.meta.env.VITE_ENABLE_FIREBASE_EMULATORS === 'true') {
   // Only connect to emulators if using demo project
   if (firebaseConfig.projectId === 'demo-project') {
     try {
       connectFirestoreEmulator(db, 'localhost', 8080);
-      console.log('Connected to Firestore emulator');
+      // Connected to Firestore emulator
     } catch (error) {
-      console.log('Firestore emulator connection failed or already connected:', error);
+      // Firestore emulator connection failed or already connected
     }
     
     try {
       connectAuthEmulator(auth, 'http://localhost:9099');
-      console.log('Connected to Auth emulator');
+      // Connected to Auth emulator
     } catch (error) {
-      console.log('Auth emulator connection failed or already connected:', error);
+      // Auth emulator connection failed or already connected
     }
     
     try {
       connectStorageEmulator(storage, 'localhost', 9199);
-      console.log('Connected to Storage emulator');
+      // Connected to Storage emulator
     } catch (error) {
-      console.log('Storage emulator connection failed or already connected:', error);
+      // Storage emulator connection failed or already connected
     }
   }
 }
+
+// Development mode flag for mock data
+export const isDevelopmentMode = import.meta.env.DEV && firebaseConfig.projectId === 'demo-project';
 
 export default app;

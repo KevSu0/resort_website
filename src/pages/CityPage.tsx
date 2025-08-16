@@ -1,8 +1,7 @@
 import React from 'react';
 import { useLoaderData } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { Section } from '../components/Layout';
-import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Breadcrumb, createCityBreadcrumb } from '../components/Breadcrumb';
 import { CityHero } from '../components/CityHero';
 import SearchBar from '../components/SearchBar';
 import { CityStats } from '../components/CityStats';
@@ -11,7 +10,6 @@ import { CityInformation } from '../components/CityInformation';
 import { CityMap } from '../components/CityMap';
 import { CityCallToAction } from '../components/CityCallToAction';
 import type { CityLoaderData } from '../router/loaders';
-
 import type { SearchFilters } from '../types';
 
 export default function CityPage() {
@@ -22,15 +20,9 @@ export default function CityPage() {
     // Handle search logic here
   };
 
-  const breadcrumbItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Cities', path: '/cities' },
-    { label: city.name, path: `/cities/${city.slug}` },
-  ];
-
   return (
-    <Layout>
-      <Breadcrumbs items={breadcrumbItems} />
+    <>
+      <Breadcrumb items={createCityBreadcrumb({ cityName: city.name })} />
       <CityHero city={city} />
 
       <Section className="bg-white border-b">
@@ -58,6 +50,6 @@ export default function CityPage() {
       <Section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <CityCallToAction city={city} />
       </Section>
-    </Layout>
+    </>
   );
 }

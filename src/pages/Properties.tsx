@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { Section } from '../components/Layout';
-import { PropertyGrid } from '../components/PropertyCard';
+import { PropertyGrid } from '../components/PropertyGrid';
 import SearchBar from '../components/SearchBar';
+import { ListingPageHeader } from '../components/PageHeader';
+import { SortDropdown, propertySortOptions } from '../components/SortDropdown';
+import { Pagination } from '../components/Pagination';
 import type { Property, SearchFilters } from '../types';
 
 interface PropertiesPageData {
@@ -14,68 +16,66 @@ interface PropertiesPageData {
 
 export default function Properties() {
   const { properties, totalCount } = useLoaderData() as PropertiesPageData;
+  const [sortBy, setSortBy] = useState('featured');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleSearch = (newFilters: SearchFilters) => {
     // This would typically update the URL and trigger a new data load
-    console.log('Search filters:', newFilters);
+    // Search filters updated
+    setCurrentPage(1); // Reset to first page on new search
+  };
+
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy);
+    // This would typically update the URL and trigger a new data load
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // This would typically update the URL and trigger a new data load
   };
 
   return (
-    <Layout>
-      <Section className="bg-gray-50">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            All Properties
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover our complete collection of premium accommodations
-          </p>
-        </div>
-        
-        <div className="max-w-4xl mx-auto mb-8">
+    <>
+      <ListingPageHeader
+        title="All Properties"
+        subtitle="Discover our complete collection of premium accommodations"
+      >
+        <div className="max-w-4xl mx-auto">
           <SearchBar onSearch={handleSearch} />
         </div>
-      </Section>
+      </ListingPageHeader>
 
       <Section>
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <h2 className="text-2xl font-semibold text-gray-900">
             {totalCount} Properties Found
           </h2>
           
           <div className="flex items-center space-x-4">
-            <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="featured">Featured</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
+            <SortDropdown
+              options={propertySortOptions}
+              value={sortBy}
+              onChange={handleSortChange}
+              label=""
+              className="min-w-[200px]"
+            />
           </div>
         </div>
         
         <PropertyGrid properties={properties} />
         
-        {/* Pagination would go here */}
-        <div className="mt-12 flex justify-center">
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
-              Previous
-            </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
-              1
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              2
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              3
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-              Next
-            </button>
-          </div>
-        </div>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            className="mt-12"
+          />
+        )}
       </Section>
-    </Layout>
+    </>
   );
 }

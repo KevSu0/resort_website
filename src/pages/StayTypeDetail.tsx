@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
-import { Users, Calendar, ArrowLeft, Star, Filter } from 'lucide-react';
-import Layout from '../components/Layout';
+import { Users, ArrowLeft, Filter } from 'lucide-react';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
 import { PropertyGrid } from '../components/PropertyGrid';
+import { Breadcrumb, createStayTypeBreadcrumb } from '../components/Breadcrumb';
+import { SortDropdown, propertySortOptions } from '../components/SortDropdown';
 import SearchBar from '../components/SearchBar';
 import type { StayType, Property, SearchFilters } from '../types';
 
@@ -14,21 +15,19 @@ interface StayTypeDetailData {
 
 export default function StayTypeDetail() {
   const { stayType, properties } = useLoaderData() as StayTypeDetailData;
+  const [sortBy, setSortBy] = useState('recommended');
   const totalProperties = properties.length;
   const mainImage = stayType.details.images[0];
 
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    console.log('Sort by:', value);
+    // Handle sorting logic here
+  };
+
   return (
-    <Layout>
-      {/* Breadcrumb */}
-      <Section className="bg-gray-50 py-4">
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
-          <Link to="/" className="hover:text-blue-600">Home</Link>
-          <span>/</span>
-          <Link to="/stay-types" className="hover:text-blue-600">Stay Types</Link>
-          <span>/</span>
-          <span className="text-gray-900">{stayType.type_name}</span>
-        </div>
-      </Section>
+    <>
+      <Breadcrumb items={createStayTypeBreadcrumb({ stayTypeName: stayType.type_name })} />
 
       {/* Stay Type Hero */}
       <HeroSection 
@@ -131,13 +130,11 @@ export default function StayTypeDetail() {
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </button>
-            <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="recommended">Recommended</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest</option>
-            </select>
+            <SortDropdown 
+              options={propertySortOptions}
+              value={sortBy} 
+              onChange={handleSortChange} 
+            />
           </div>
         </div>
 
@@ -153,6 +150,6 @@ export default function StayTypeDetail() {
           </div>
         )}
       </Section>
-    </Layout>
+    </>
   );
 }
