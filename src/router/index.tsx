@@ -21,10 +21,11 @@ const AdminEnquiries = lazy(() => import('../pages/admin/Enquiries'));
 const AdminOffers = lazy(() => import('../pages/admin/Offers'));
 const AdminUsers = lazy(() => import('../pages/admin/Users'));
 const AdminSettings = lazy(() => import('../pages/admin/Settings'));
+const AdminPropertyForm = lazy(() => import('../pages/admin/PropertyForm'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 
 // Route loaders for data fetching
-import { propertyLoader, cityLoader, stayTypeLoader, searchLoader, adminLoader } from './loaders';
+import { propertyLoader, cityLoader, stayTypeLoader, searchLoader, adminLoader, propertyAdminLoader } from './loaders';
 
 const BookingPage = lazy(() => import('../pages/BookingPage'));
 
@@ -98,6 +99,15 @@ const router = createBrowserRouter([
           {
             path: 'properties',
             element: <AdminProperties />
+          },
+          {
+            path: 'properties/new',
+            element: <AdminPropertyForm />
+          },
+          {
+            path: 'properties/:propertyId/edit',
+            element: <AdminPropertyForm />,
+            loader: propertyAdminLoader
           },
           {
             path: 'cities',

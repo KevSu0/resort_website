@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
-import { propertyService, cityService, stayTypeService } from '../lib/firestore';
+import { MockDataService } from '../lib/mockData';
 
 // Property loader - loads property data by slug
 export async function propertyLoader({ params }: LoaderFunctionArgs) {
@@ -10,7 +10,7 @@ export async function propertyLoader({ params }: LoaderFunctionArgs) {
   }
   
   try {
-    const property = await propertyService.getBySlug(propertySlug);
+    const property = await MockDataService.getProperty(propertySlug);
     
     if (!property) {
       throw new Response('Property not found', { status: 404 });
@@ -18,8 +18,8 @@ export async function propertyLoader({ params }: LoaderFunctionArgs) {
     
     // Load related data
     const [city, stayTypes] = await Promise.all([
-      cityService.getBySlug(property.city_slug),
-      stayTypeService.getByProperty(property.id)
+      MockDataService.getCityBySlug(property.city_slug),
+      MockDataService.getStayTypesByProperty(property.id)
     ]);
     
     return {
@@ -48,8 +48,8 @@ export async function cityLoader({ params }: LoaderFunctionArgs) {
   
   try {
     const [city, properties] = await Promise.all([
-      cityService.getBySlug(citySlug),
-      propertyService.getByCity(citySlug)
+      MockDataService.getCityBySlug(citySlug),
+      MockDataService.getPropertiesByCity(citySlug)
     ]);
     
     if (!city) {
@@ -80,7 +80,7 @@ export async function stayTypeLoader({ params }: LoaderFunctionArgs) {
   
   try {
     // First get the property
-    const property = await propertyService.getBySlug(propertySlug);
+    const property = await MockDataService.getProperty(propertySlug);
     
     if (!property) {
       throw new Response('Property not found', { status: 404 });
@@ -88,9 +88,9 @@ export async function stayTypeLoader({ params }: LoaderFunctionArgs) {
     
     // Then get the specific stay type
     const [stayTypeData, city, allStayTypes] = await Promise.all([
-      stayTypeService.getByPropertyAndType(property.id, stayType),
-      cityService.getBySlug(property.city_slug),
-      stayTypeService.getByProperty(property.id)
+      MockDataService.getStayTypeByPropertyAndType(property.id, stayType),
+      MockDataService.getCityBySlug(property.city_slug),
+      MockDataService.getStayTypesByProperty(property.id)
     ]);
     
     if (!stayTypeData) {
@@ -115,8 +115,6 @@ export async function stayTypeLoader({ params }: LoaderFunctionArgs) {
   }
 }
 
-import { searchService } from '../lib/firestore';
-
 // Search loader - handles search queries
 export async function searchLoader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -137,11 +135,11 @@ export async function searchLoader({ request }: LoaderFunctionArgs) {
       return redirect('/');
     }
     
-    const results = await searchService.search(searchParams);
+    const results = await MockDataService.searchProperties(searchParams.query);
 
     return {
       searchParams,
-      results,
+      results: { properties: results, total: results.length, cities: [], stayTypes: [] },
       breadcrumbs: [
         { label: 'Home', path: '/' },
         { label: 'Search Results', path: '/search' }
@@ -153,21 +151,21 @@ export async function searchLoader({ request }: LoaderFunctionArgs) {
   }
 }
 
-import { getCurrentUser } from '../hooks/useAuth';
+import { getAuthState } from '../hooks/useAuth';
 
 // Admin loader - checks authentication and authorization
 export async function adminLoader() {
   try {
-    const user = await getCurrentUser();
+    const { user } = getAuthState();
     if (!user) {
       return redirect('/login');
     }
 
     // For now, allow any authenticated user.
     // In a real app, you'd check for a specific role.
-    // if (user.role !== 'admin') {
-    //   return redirect('/');
-    // }
+    if (user.role !== 'group_admin') {
+      return redirect('/');
+    }
     
     return {
       user,
@@ -179,6 +177,23 @@ export async function adminLoader() {
   } catch (error) {
     console.error('Error in admin loader:', error);
     return redirect('/login');
+  }
+}
+
+export async function propertyAdminLoader({ params }: LoaderFunctionArgs) {
+  const { propertyId } = params;
+  if (!propertyId) {
+    return null;
+  }
+  try {
+    const property = await MockDataService.getPropertyById(propertyId);
+    if (!property) {
+      throw new Response('Property not found', { status: 404 });
+    }
+    return property;
+  } catch (error) {
+    console.error('Error loading property for admin:', error);
+    throw new Response('Failed to load property', { status: 500 });
   }
 }
 

@@ -5,7 +5,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { BookingSidebar } from '../components/BookingSidebar';
 import { PropertyImageGallery } from '../components/PropertyImageGallery';
 import type { PropertyLoaderData } from '../router/loaders';
-import { enquiryService } from '../lib/firestore';
+import { MockDataService } from '../lib/mockData';
 import { toast } from '../hooks/useToast';
 
 interface BookingData {
@@ -26,9 +26,7 @@ export default function BookingPage() {
 
   const allImages = stayTypes.flatMap(st => st.details.images);
 
-  const startingPrice = stayTypes.reduce((min, st) => {
-    return st.details.price_range.min < min ? st.details.price_range.min : min;
-  }, Infinity);
+  const startingPrice = property.price;
 
   const maxGuests = stayTypes.reduce((max, st) => {
     return st.details.capacity > max ? st.details.capacity : max;
@@ -36,7 +34,7 @@ export default function BookingPage() {
 
   const handleBookingSubmit = async (bookingData: BookingData) => {
     try {
-      await enquiryService.create({
+      await MockDataService.createEnquiry({
         property_id: property.id,
         property_name: property.name,
         city: city?.name || '',
