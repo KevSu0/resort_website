@@ -72,7 +72,7 @@ export default function LoginForm({ onSubmit, isLoading = false, className = '' 
         <p className="text-gray-600">Sign in to your account</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form data-testid="login-form" onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
             Email Address
@@ -95,7 +95,7 @@ export default function LoginForm({ onSubmit, isLoading = false, className = '' 
             />
           </div>
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            <p data-testid="email-error" className="mt-1 text-sm text-red-600">{errors.email}</p>
           )}
         </div>
 
@@ -133,7 +133,7 @@ export default function LoginForm({ onSubmit, isLoading = false, className = '' 
             </button>
           </div>
           {errors.password && (
-            <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+            <p data-testid="password-error" className="mt-1 text-sm text-red-600">{errors.password}</p>
           )}
         </div>
 

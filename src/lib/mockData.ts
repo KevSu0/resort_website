@@ -491,7 +491,16 @@ export class MockDataService {
     await this.delay(100);
     const propIndex = mockResortGroup.properties.findIndex(p => p.id === id);
     if (propIndex > -1) {
-        mockResortGroup.properties[propIndex] = { ...mockResortGroup.properties[propIndex], ...convertPropertyToMockProperty(updates as Property) };
+        const existingProperty = mockResortGroup.properties[propIndex];
+        const updatedMockProperty = {
+            ...existingProperty,
+            name: updates.name || existingProperty.name,
+            slug: updates.slug || existingProperty.slug,
+            price: updates.price || existingProperty.price,
+            description: updates.branding?.description || existingProperty.description,
+            active: updates.active !== undefined ? updates.active : existingProperty.active,
+        };
+        mockResortGroup.properties[propIndex] = updatedMockProperty;
         return true;
     }
     return false;
