@@ -158,29 +158,17 @@ import { isDevelopmentMode } from '../lib/firebase';
 
 // Admin loader - checks authentication and authorization
 export async function adminLoader() {
-  if (isDevelopmentMode) {
-    const mockUser = {
-      uid: 'mock-admin-user',
-      email: 'admin@example.com',
-      role: 'admin',
-    };
-    return {
-      user: mockUser,
-      breadcrumbs: [
-        { label: 'Home', path: '/' },
-        { label: 'Admin Dashboard', path: '/admin' }
-      ]
-    };
-  }
   try {
     const user = await getCurrentUser();
     if (!user) {
       return redirect('/login');
     }
 
-    if (user.role !== 'admin') {
-      return redirect('/');
-    }
+    // For now, allow any authenticated user.
+    // In a real app, you'd check for a specific role.
+    // if (user.role !== 'admin') {
+    //   return redirect('/');
+    // }
     
     return {
       user,

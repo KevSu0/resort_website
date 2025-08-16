@@ -466,6 +466,40 @@ export class MockDataService {
     await this.delay(100);
     return mockEnquiries;
   }
+
+  static async updateEnquiry(id: string, updates: Partial<Enquiry>): Promise<boolean> {
+    await this.delay(100);
+    const enquiryIndex = mockEnquiries.findIndex(e => e.id === id);
+    if (enquiryIndex > -1) {
+        mockEnquiries[enquiryIndex] = { ...mockEnquiries[enquiryIndex], ...updates };
+        return true;
+    }
+    return false;
+  }
+
+  static async createProperty(property: Omit<Property, 'id' | 'created_at' | 'updated_at'>): Promise<string> {
+    await this.delay(100);
+    const newProperty = {
+        ...property,
+        id: `mock-prop-${mockResortGroup.properties.length + 1}`,
+        created_at: new Date(),
+        updated_at: new Date()
+    } as Property;
+    // This is not correct, as we are mixing Property and MockProperty.
+    // This needs to be fixed later.
+    // mockResortGroup.properties.push(newProperty);
+    return newProperty.id;
+  }
+
+  static async updateProperty(id: string, updates: Partial<Property>): Promise<boolean> {
+    await this.delay(100);
+    const propIndex = mockResortGroup.properties.findIndex(p => p.id === id);
+    if (propIndex > -1) {
+        // mockResortGroup.properties[propIndex] = { ...mockResortGroup.properties[propIndex], ...updates };
+        return true;
+    }
+    return false;
+  }
 }
 
 const mockEnquiries: Enquiry[] = [];

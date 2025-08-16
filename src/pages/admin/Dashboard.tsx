@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Users, DollarSign, Calendar, MapPin, Star, BarChart3 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, DollarSign, Calendar, MapPin, Star, BarChart3, Plus } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { Card, Grid } from '../../components/Layout';
 import AdminStatsCard from '../../components/AdminStatsCard';
@@ -106,7 +107,12 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Recent Enquiries</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Recent Enquiries</h2>
+                <Link to="/admin/enquiries" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  View All
+                </Link>
+              </div>
               <div className="space-y-4">
                 {recentEnquiries.map((enquiry) => (
                   <div key={enquiry.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -123,7 +129,12 @@ export default function Dashboard() {
             </Card>
 
             <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Top Performing Properties</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Top Performing Properties</h2>
+                <Link to="/admin/properties" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  View All
+                </Link>
+              </div>
               <div className="space-y-4">
                 {topProperties.map((property, index) => (
                   <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -139,6 +150,28 @@ export default function Dashboard() {
               </div>
             </Card>
           </div>
+
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h2>
+            <Grid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link to="/admin/properties/new" className="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                <Plus className="w-5 h-5 text-blue-600 mr-3" />
+                <span className="font-medium text-blue-900">Add Property</span>
+              </Link>
+              <Link to="/admin/enquiries" className="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                <Calendar className="w-5 h-5 text-green-600 mr-3" />
+                <span className="font-medium text-green-900">View Enquiries</span>
+              </Link>
+              <Link to="/admin/users" className="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                <Users className="w-5 h-5 text-purple-600 mr-3" />
+                <span className="font-medium text-purple-900">Manage Users</span>
+              </Link>
+              <Link to="/admin/settings" className="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+                <Settings className="w-5 h-5 text-orange-600 mr-3" />
+                <span className="font-medium text-orange-900">Settings</span>
+              </Link>
+            </Grid>
+          </Card>
         </div>
       </div>
     </AdminLayout>

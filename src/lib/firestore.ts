@@ -189,6 +189,22 @@ export const enquiryService = {
       console.error('Error getting enquiries:', error);
       return [];
     }
+  },
+  update: async (id: string, updates: Partial<Enquiry>): Promise<boolean> => {
+    if (USE_MOCK_DATA) {
+      return MockDataService.updateEnquiry(id, updates);
+    }
+    try {
+      const docRef = doc(db, COLLECTIONS.ENQUIRIES, id);
+      await updateDoc(docRef, {
+        ...updates,
+        updated_at: new Date()
+      });
+      return true;
+    } catch (error) {
+      console.error('Error updating enquiry:', error);
+      return false;
+    }
   }
 };
 
@@ -307,6 +323,40 @@ export const propertyService = {
     } catch (error) {
       console.error('Error fetching featured properties:', error);
       return [];
+    }
+  },
+
+  async create(property: Omit<Property, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> {
+    if (USE_MOCK_DATA) {
+      return MockDataService.createProperty(property);
+    }
+    try {
+      const docRef = await addDoc(collection(db, COLLECTIONS.PROPERTIES), {
+        ...property,
+        created_at: new Date(),
+        updated_at: new Date()
+      });
+      return docRef.id;
+    } catch (error) {
+      console.error('Error creating property:', error);
+      return null;
+    }
+  },
+
+  async update(id: string, updates: Partial<Property>): Promise<boolean> {
+    if (USE_MOCK_DATA) {
+      return MockDataService.updateProperty(id, updates);
+    }
+    try {
+      const docRef = doc(db, COLLECTIONS.PROPERTIES, id);
+      await updateDoc(docRef, {
+        ...updates,
+        updated_at: new Date()
+      });
+      return true;
+    } catch (error) {
+      console.error('Error updating property:', error);
+      return false;
     }
   }
 };

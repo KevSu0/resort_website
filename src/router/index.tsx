@@ -26,6 +26,8 @@ const LoginPage = lazy(() => import('../pages/LoginPage'));
 // Route loaders for data fetching
 import { propertyLoader, cityLoader, stayTypeLoader, searchLoader, adminLoader } from './loaders';
 
+const BookingPage = lazy(() => import('../pages/BookingPage'));
+
 // Create router configuration
 const router = createBrowserRouter([
   {
@@ -58,6 +60,12 @@ const router = createBrowserRouter([
       {
         path: 'properties/:propertySlug',
         element: <PropertyPage />,
+        loader: propertyLoader,
+        errorElement: <NotFoundPage />
+      },
+      {
+        path: 'properties/:propertySlug/book',
+        element: <BookingPage />,
         loader: propertyLoader,
         errorElement: <NotFoundPage />
       },
