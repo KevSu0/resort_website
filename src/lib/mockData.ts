@@ -160,6 +160,7 @@ export const mockResortGroup: MockResortGroup = {
         'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=bali%20villa%20interior%20luxury%20bedroom%20ocean%20view&image_size=landscape_16_9'
       ],
       amenities: ['Private Pool', 'Ocean View', 'Butler Service', 'Spa', 'Restaurant'],
+      price: 500,
       priceRange: { min: 500, max: 1200, currency: 'USD' },
       location: {
         address: 'Seminyak Beach, Bali, Indonesia',
@@ -188,6 +189,7 @@ export const mockResortGroup: MockResortGroup = {
         'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=maldives%20water%20suite%20interior%20luxury%20ocean%20view&image_size=landscape_16_9'
       ],
       amenities: ['Glass Floor', 'Direct Lagoon Access', 'Snorkeling', 'Spa', 'Fine Dining'],
+      price: 800,
       priceRange: { min: 800, max: 2000, currency: 'USD' },
       location: {
         address: 'North Malé Atoll, Maldives',
@@ -216,6 +218,7 @@ export const mockResortGroup: MockResortGroup = {
         'https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=santorini%20suite%20interior%20luxury%20aegean%20sea%20view&image_size=landscape_16_9'
       ],
       amenities: ['Infinity Pool', 'Caldera View', 'Wine Cellar', 'Spa', 'Concierge'],
+      price: 600,
       priceRange: { min: 600, max: 1500, currency: 'USD' },
       location: {
         address: 'Oia, Santorini, Greece',
