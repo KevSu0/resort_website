@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, MapPin, Filter, X, ChevronDown, ChevronUp, Map, List, Grid3X3 } from 'lucide-react';
-import { Card } from './Layout';
-import type { MockProperty } from '../lib/mockData';
+import { Search, MapPin, Filter, ChevronDown, ChevronUp, Map, List, Grid3X3 } from 'lucide-react';
+import type { Property } from '../types';
 import type { SearchFilters } from '../router/loaders';
 
 interface FacetedDiscoveryProps {
-  properties: MockProperty[];
+  properties: Property[];
   onFiltersChange: (filters: SearchFilters) => void;
   onViewModeChange?: (mode: 'grid' | 'list' | 'map') => void;
   className?: string;
@@ -55,37 +54,37 @@ export default function FacetedDiscovery({
 
   // Generate dynamic facets based on available properties
   const facets = useMemo(() => {
-    const cityOptions = Array.from(new Set(properties.map(p => p.city)))
+    const cityOptions = Array.from(new Set(properties.map(p => p.location.address)))
       .map(city => ({
         value: city,
         label: city,
-        count: properties.filter(p => p.city === city).length
+        count: properties.filter(p => p.location.address === city).length
       }))
       .sort((a, b) => b.count - a.count);
 
-    const stayTypeOptions = Array.from(new Set(properties.map(p => p.stayType)))
+    const stayTypeOptions = Array.from(new Set(properties.flatMap(p => p.stay_types)))
       .map(type => ({
         value: type,
         label: type.charAt(0).toUpperCase() + type.slice(1),
-        count: properties.filter(p => p.stayType === type).length
+        count: properties.filter(p => p.stay_types.includes(type)).length
       }))
       .sort((a, b) => b.count - a.count);
 
     const amenityOptions = Array.from(
-      new Set(properties.flatMap(p => p.amenities))
+      new Set(properties.flatMap(p => p.amenities || []))
     )
       .map(amenity => ({
         value: amenity,
         label: amenity,
-        count: properties.filter(p => p.amenities.includes(amenity)).length
+        count: properties.filter(p => p.amenities?.includes(amenity)).length
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 15); // Show top 15 amenities
 
     const priceRange = properties.reduce(
       (acc, p) => ({
-        min: Math.min(acc.min, p.priceRange.min),
-        max: Math.max(acc.max, p.priceRange.max)
+        min: Math.min(acc.min, p.priceRange?.min || 0),
+        max: Math.max(acc.max, p.priceRange?.max || 0)
       }),
       { min: Infinity, max: 0 }
     );
@@ -122,11 +121,11 @@ export default function FacetedDiscovery({
         name: 'Minimum Rating',
         type: 'select' as const,
         options: [
-          { value: '1', label: '1+ Stars', count: properties.filter(p => p.rating >= 1).length },
-          { value: '2', label: '2+ Stars', count: properties.filter(p => p.rating >= 2).length },
-          { value: '3', label: '3+ Stars', count: properties.filter(p => p.rating >= 3).length },
-          { value: '4', label: '4+ Stars', count: properties.filter(p => p.rating >= 4).length },
-          { value: '5', label: '5 Stars', count: properties.filter(p => p.rating >= 5).length }
+          { value: '1', label: '1+ Stars', count: properties.filter(p => (p.rating || 0) >= 1).length },
+          { value: '2', label: '2+ Stars', count: properties.filter(p => (p.rating || 0) >= 2).length },
+          { value: '3', label: '3+ Stars', count: properties.filter(p => (p.rating || 0) >= 3).length },
+          { value: '4', label: '4+ Stars', count: properties.filter(p => (p.rating || 0) >= 4).length },
+          { value: '5', label: '5 Stars', count: properties.filter(p => (p.rating || 0) >= 5).length }
         ]
       }
     ];

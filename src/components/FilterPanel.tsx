@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Filter, X, MapPin, Calendar, Users, Star, Sliders, Wifi, Car, Coffee, Waves, Dumbbell, Utensils, Accessibility, Heart, Briefcase, Baby } from 'lucide-react';
+import { Filter, X, MapPin, Users, Star, Wifi, Car, Coffee, Waves, Dumbbell, Utensils, Accessibility, Heart, Briefcase, Baby } from 'lucide-react';
 import { Card } from './Layout';
 import type { SearchFilters } from '../router/loaders';
 
@@ -9,12 +9,6 @@ interface FilterPanelProps {
   onClose?: () => void;
   isOpen?: boolean;
   className?: string;
-}
-
-interface FilterSection {
-  id: string;
-  title: string;
-  isExpanded: boolean;
 }
 
 const PROPERTY_TYPES = [
@@ -183,7 +177,7 @@ export default function FilterPanel({
             </label>
             <select
               value={localFilters.sortBy || 'relevance'}
-              onChange={(e) => updateFilters({ sortBy: e.target.value as any })}
+              onChange={(e) => updateFilters({ sortBy: e.target.value as 'relevance' | 'price-low' | 'price-high' | 'rating' | 'distance' | 'newest' })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {SORT_OPTIONS.map(option => (

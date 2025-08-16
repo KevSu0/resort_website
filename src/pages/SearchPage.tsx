@@ -12,7 +12,7 @@ import type { Property } from '../types';
 import { propertyService } from '../lib/firestore';
 
 export default function SearchPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,12 +29,20 @@ export default function SearchPage() {
         setProperties(propertiesData);
       } catch (error) {
         console.error('Error loading properties:', error);
+      } finally {
+        setLoading(false);
       }
     };
     loadProperties();
   }, []);
-  
+
   const [filters, setFilters] = useState<SearchFilters>({});
+
+  useEffect(() => {
+    const filtered = properties;
+    // Apply filters here
+    setFilteredProperties(filtered);
+  }, [properties, filters]);
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);

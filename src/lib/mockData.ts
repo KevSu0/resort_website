@@ -1,4 +1,3 @@
-import { isDevelopmentMode } from './firebase';
 
 // Import types from the main types file
 import type { Property, ResortGroup, Offer, City, StayType, User, Referral, Enquiry } from '../types';
@@ -35,14 +34,6 @@ export interface MockResortGroup extends Omit<ResortGroup, 'brand_description' |
   };
 }
 
-export interface ReferralData {
-  id: string;
-  code: string;
-  userId: string;
-  referredUsers: string[];
-  totalRewards: number;
-  active: boolean;
-}
 
 // MOCK DATA
 const mockCities: City[] = [
@@ -276,13 +267,16 @@ export const mockOffers: Offer[] = [
   }
 ];
 
-export const mockReferralData: ReferralData = {
+export const mockReferral: Referral = {
   id: 'user-referral-001',
-  code: 'LUXURY2024',
-  userId: 'demo-user',
-  referredUsers: ['user-001', 'user-002'],
-  totalRewards: 150,
-  active: true
+  referral_code: 'LUXURY2024',
+  referrer_id: 'demo-user',
+  referee_email: 'test@test.com',
+  status: 'completed',
+  reward_amount: 150,
+  total_rewards: 150,
+  currency: 'USD',
+  created_at: new Date(),
 };
 
 const mockUsers: User[] = [
@@ -428,24 +422,25 @@ export class MockDataService {
   }
 
   // Referrals
-  static async createReferral(referral: Omit<Referral, 'id' | 'created_at' | 'updated_at'>): Promise<string> {
+  static async createReferral(): Promise<string> {
       await this.delay(100);
       return 'mock-referral-id';
   }
 
   static async getReferralByCode(code: string): Promise<Referral | null> {
       await this.delay(100);
-      if (mockReferralData.code === code) {
-          // @ts-expect-error - not a full referral object
-          return mockReferralData;
+      if (mockReferral.referral_code === code) {
+          return mockReferral;
       }
       return null;
   }
 
   static async getReferralsByUser(userId: string): Promise<Referral[]> {
       await this.delay(100);
-      // @ts-expect-error - not a full referral object
-      return [mockReferralData];
+      if (mockReferral.referrer_id === userId) {
+        return [mockReferral];
+      }
+      return [];
   }
 
   // Enquiries
@@ -485,9 +480,7 @@ export class MockDataService {
         created_at: new Date(),
         updated_at: new Date()
     } as Property;
-    // This is not correct, as we are mixing Property and MockProperty.
-    // This needs to be fixed later.
-    // mockResortGroup.properties.push(newProperty);
+    mockResortGroup.properties.push(convertPropertyToMockProperty(newProperty));
     return newProperty.id;
   }
 
@@ -495,7 +488,7 @@ export class MockDataService {
     await this.delay(100);
     const propIndex = mockResortGroup.properties.findIndex(p => p.id === id);
     if (propIndex > -1) {
-        // mockResortGroup.properties[propIndex] = { ...mockResortGroup.properties[propIndex], ...updates };
+        mockResortGroup.properties[propIndex] = { ...mockResortGroup.properties[propIndex], ...convertPropertyToMockProperty(updates as Property) };
         return true;
     }
     return false;
@@ -532,5 +525,24 @@ function convertMockPropertyToProperty(mock: MockProperty): Property {
     };
 }
 
-// Export flag for development mode
-export { isDevelopmentMode };
+function convertPropertyToMockProperty(property: Property): MockProperty {
+    return {
+        id: property.id,
+        slug: property.slug,
+        name: property.name,
+        city: '', // This needs to be resolved, as Property does not have city.
+        citySlug: property.city_slug,
+        stayType: property.stay_types[0],
+        stayTypeSlug: '', // This needs to be resolved.
+        description: property.branding.description,
+        shortDescription: property.branding.description.substring(0, 100),
+        images: [property.branding.hero_image || ''],
+        amenities: property.amenities || [],
+        priceRange: property.priceRange || { min: 0, max: 0, currency: 'USD' },
+        location: property.location,
+        rating: property.rating || 0,
+        reviewCount: property.reviewCount || 0,
+        featured: property.featured,
+        active: property.active
+    };
+}

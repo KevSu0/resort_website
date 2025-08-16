@@ -560,7 +560,7 @@ export const resortGroupService = {
 export const referralService = {
   create: async (referral: Omit<Referral, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
     if (USE_MOCK_DATA) {
-      return MockDataService.createReferral(referral);
+      return MockDataService.createReferral();
     }
     try {
       const docRef = await addDoc(collection(db, COLLECTIONS.REFERRALS), {

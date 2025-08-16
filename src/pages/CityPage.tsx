@@ -1,7 +1,8 @@
 import React from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { Section } from '../components/Layout';
-import { Breadcrumb, createCityBreadcrumb } from '../components/Breadcrumb';
+import { Breadcrumb } from '../components/Breadcrumb';
+import { createCityBreadcrumb } from '../utils/breadcrumbs';
 import { CityHero } from '../components/CityHero';
 import SearchBar from '../components/SearchBar';
 import { CityStats } from '../components/CityStats';

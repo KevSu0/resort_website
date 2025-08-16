@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
-import { getAnalytics } from 'firebase/analytics';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -22,37 +21,30 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-// Only initialize analytics in production with valid measurement ID
-export const analytics = typeof window !== 'undefined' && 
-  import.meta.env.PROD && 
-  import.meta.env.VITE_FIREBASE_MEASUREMENT_ID && 
-  import.meta.env.VITE_FIREBASE_MEASUREMENT_ID !== 'G-XXXXXXXXXX' 
-  ? getAnalytics(app) 
-  : null;
 
 // Connect to emulators in development (disabled - requires Java 11+)
 // Using mock data fallback instead for development
-if (false && import.meta.env.DEV && import.meta.env.VITE_ENABLE_FIREBASE_EMULATORS === 'true') {
+if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_FIREBASE_EMULATORS === 'true') {
   // Only connect to emulators if using demo project
   if (firebaseConfig.projectId === 'demo-project') {
     try {
       connectFirestoreEmulator(db, 'localhost', 8080);
       // Connected to Firestore emulator
-    } catch (error) {
+    } catch {
       // Firestore emulator connection failed or already connected
     }
     
     try {
       connectAuthEmulator(auth, 'http://localhost:9099');
       // Connected to Auth emulator
-    } catch (error) {
+    } catch {
       // Auth emulator connection failed or already connected
     }
     
     try {
       connectStorageEmulator(storage, 'localhost', 9199);
       // Connected to Storage emulator
-    } catch (error) {
+    } catch {
       // Storage emulator connection failed or already connected
     }
   }

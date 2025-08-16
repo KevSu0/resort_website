@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, AlertTriangle, XCircle, Info, X } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { useToast, ToastProps as ToastData, ToastVariant } from '../../hooks/useToast';
 import { AnimatePresence, motion } from 'framer-motion';
 import clsx from 'clsx';
@@ -19,7 +19,7 @@ const toastVariants: Record<ToastVariant, { icon: React.ElementType, className: 
   },
 };
 
-const Toast: React.FC<ToastData & { onDismiss: () => void }> = ({ id, title, description, variant = 'default', onDismiss }) => {
+const Toast: React.FC<ToastData & { onDismiss: () => void }> = ({ title, description, variant = 'default', onDismiss }) => {
   const { icon: Icon, className } = toastVariants[variant];
 
   return (
@@ -45,7 +45,7 @@ const Toast: React.FC<ToastData & { onDismiss: () => void }> = ({ id, title, des
   );
 };
 
-export const Toaster: React.FC = () => {
+export default function Toaster() {
   const { toasts, dismiss } = useToast();
 
   return (

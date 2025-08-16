@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, MapPin, Users, Award, Shield, Heart } from 'lucide-react';
+import { Star, MapPin, Users, Award, Shield } from 'lucide-react';
 import { Section, Card, Grid } from './Layout';
 import { ResortGroup } from '../types';
 
@@ -7,7 +7,7 @@ interface WhyChooseUsProps {
   resortGroup?: ResortGroup | null;
 }
 
-export function WhyChooseUs({ resortGroup }: WhyChooseUsProps) {
+export default function WhyChooseUs({ resortGroup }: WhyChooseUsProps) {
   // Dynamic features based on resort group or default
   const defaultFeatures = [
     {

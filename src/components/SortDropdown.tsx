@@ -14,7 +14,7 @@ interface SortDropdownProps {
   className?: string;
 }
 
-export function SortDropdown({
+export default function SortDropdown({
   options,
   value,
   onChange,
@@ -45,13 +45,3 @@ export function SortDropdown({
     </div>
   );
 }
-
-// Common sort options for properties
-export const propertySortOptions: SortOption[] = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'price-low', label: 'Price: Low to High' },
-  { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'rating', label: 'Highest Rated' },
-  { value: 'name', label: 'Name A-Z' },
-  { value: 'newest', label: 'Newest First' }
-];

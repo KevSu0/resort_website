@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLoaderData, useParams } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 import { Section, PageContainer } from '../components/Layout';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { BookingSidebar } from '../components/BookingSidebar';
@@ -7,6 +7,12 @@ import { PropertyImageGallery } from '../components/PropertyImageGallery';
 import type { PropertyLoaderData } from '../router/loaders';
 import { enquiryService } from '../lib/firestore';
 import { toast } from '../hooks/useToast';
+
+interface BookingData {
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+}
 
 export default function BookingPage() {
   const { property, city, stayTypes } = useLoaderData() as PropertyLoaderData;
@@ -28,7 +34,7 @@ export default function BookingPage() {
     return st.details.capacity > max ? st.details.capacity : max;
   }, 0);
 
-  const handleBookingSubmit = async (bookingData: any) => {
+  const handleBookingSubmit = async (bookingData: BookingData) => {
     try {
       await enquiryService.create({
         property_id: property.id,
@@ -51,7 +57,7 @@ export default function BookingPage() {
         description: 'Thank you for your interest. We will get back to you shortly.',
         variant: 'success'
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Submission Failed',
         description: 'There was an error sending your enquiry. Please try again.',

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { Section } from '../components/Layout';
 import { PropertyGrid } from '../components/PropertyGrid';
 import SearchBar from '../components/SearchBar';
 import { ListingPageHeader } from '../components/PageHeader';
-import { SortDropdown, propertySortOptions } from '../components/SortDropdown';
+import SortDropdown from '../components/SortDropdown';
+import { propertySortOptions } from '../utils/sorting';
 import { Pagination } from '../components/Pagination';
 import type { Property, SearchFilters } from '../types';
 
@@ -21,7 +22,7 @@ export default function Properties() {
   const itemsPerPage = 12;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleSearch = (newFilters: SearchFilters) => {
+  const handleSearch = () => {
     // This would typically update the URL and trigger a new data load
     // Search filters updated
     setCurrentPage(1); // Reset to first page on new search

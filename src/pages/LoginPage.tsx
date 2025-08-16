@@ -15,8 +15,9 @@ export default function LoginPage() {
       await signIn(data.email, data.password);
       toast({ title: 'Login Successful', description: 'Welcome back!', variant: 'success' });
       navigate('/admin');
-    } catch (error: any) {
-      toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      toast({ title: 'Login Failed', description: errorMessage, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -28,8 +29,9 @@ export default function LoginPage() {
     try {
       await signUp(data.email, data.password);
       toast({ title: 'Sign Up Successful', description: 'You can now log in.', variant: 'success' });
-    } catch (error: any) {
-      toast({ title: 'Sign Up Failed', description: error.message, variant: 'destructive' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      toast({ title: 'Sign Up Failed', description: errorMessage, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Edit, Trash2, Calendar, Percent, Eye, EyeOff, Plus, ToggleLeft, ToggleRight, DollarSign, TrendingUp, Users } from 'lucide-react';
+import { Edit, Trash2, Calendar, Plus, ToggleLeft, ToggleRight, DollarSign, TrendingUp, Users } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
-import { Card, Grid } from '../../components/Layout';
+import { Card } from '../../components/Layout';
 import AdminStatsCard from '../../components/AdminStatsCard';
 import AdminSearchFilter from '../../components/AdminSearchFilter';
 

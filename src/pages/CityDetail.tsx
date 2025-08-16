@@ -4,8 +4,8 @@ import { MapPin, Users, ArrowLeft, Filter } from 'lucide-react';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
 import { PropertyGrid } from '../components/PropertyGrid';
 import SearchBar from '../components/SearchBar';
-import { Breadcrumb, createCityBreadcrumb } from '../components/Breadcrumb';
-import { SortDropdown } from '../components/SortDropdown';
+import { Breadcrumb } from '../components/Breadcrumb';
+import SortDropdown from '../components/SortDropdown';
 import { BookingCallToAction } from '../components/CallToAction';
 import type { City, Property, SearchFilters } from '../types';
 
@@ -27,7 +27,7 @@ export default function CityDetail() {
 
   return (
     <>
-      <Breadcrumb items={createCityBreadcrumb({ cityName: city.name })} />
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Cities', href: '/cities' }, { label: city.name, isActive: true }]} />
 
       {/* City Hero */}
       <HeroSection 

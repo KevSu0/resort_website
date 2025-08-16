@@ -22,10 +22,8 @@ export function BookingSidebar({
   className = "",
   onBookingSubmit,
   pricePerNight,
-  currency = "USD",
   minGuests = 1,
-  maxGuests = 8,
-  unavailableDates = []
+  maxGuests = 8
 }: BookingSidebarProps) {
   const [formData, setFormData] = useState<BookingFormData>({
     checkIn: '',

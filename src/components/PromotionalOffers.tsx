@@ -1,6 +1,6 @@
 import React from 'react';
 import { Offer } from '../types';
-import { Calendar, Clock, Tag, ArrowRight } from 'lucide-react';
+import { Calendar, Tag, ArrowRight } from 'lucide-react';
 
 interface PromotionalOffersProps {
   offers: Offer[];

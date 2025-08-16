@@ -41,6 +41,7 @@ export async function signUp(email: string, password: string) {
     uid: userCredential.user.uid,
     email: userCredential.user.email,
     role: 'guest', // Default role
+    last_login: new Date(),
   });
   return userCredential.user;
 }

@@ -6,7 +6,18 @@ export interface NetworkStatus {
   connectionType: string;
 }
 
-export function useNetworkStatus(): NetworkStatus {
+interface NavigatorWithConnection extends Navigator {
+  connection?: {
+    effectiveType: string;
+    downlink: number;
+    addEventListener: (type: string, listener: EventListener) => void;
+    removeEventListener: (type: string, listener: EventListener) => void;
+  };
+  mozConnection?: unknown;
+  webkitConnection?: unknown;
+}
+
+export default function useNetworkStatus(): NetworkStatus {
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus>({
     isOnline: navigator.onLine,
     isSlowConnection: false,
@@ -15,9 +26,7 @@ export function useNetworkStatus(): NetworkStatus {
 
   useEffect(() => {
     const updateNetworkStatus = () => {
-      const connection = (navigator as any).connection || 
-                        (navigator as any).mozConnection || 
-                        (navigator as any).webkitConnection;
+      const connection = (navigator as NavigatorWithConnection).connection;
       
       const isSlowConnection = connection ? 
         (connection.effectiveType === 'slow-2g' || 
@@ -50,9 +59,7 @@ export function useNetworkStatus(): NetworkStatus {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    const connection = (navigator as any).connection || 
-                      (navigator as any).mozConnection || 
-                      (navigator as any).webkitConnection;
+    const connection = (navigator as NavigatorWithConnection).connection;
     
     if (connection) {
       connection.addEventListener('change', handleConnectionChange);

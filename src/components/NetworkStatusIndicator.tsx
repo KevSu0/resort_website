@@ -1,6 +1,6 @@
 import React from 'react';
-import { Wifi, WifiOff, AlertTriangle } from 'lucide-react';
-import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { WifiOff, AlertTriangle } from 'lucide-react';
+import useNetworkStatus from '@/hooks/useNetworkStatus';
 
 export function NetworkStatusIndicator() {
   const { isOnline, isSlowConnection } = useNetworkStatus();

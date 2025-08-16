@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { City } from '../types';
-import CityCard from './CityCard';
 import { CityGrid } from './CityGrid';
 
 // Featured cities section

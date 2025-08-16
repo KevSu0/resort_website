@@ -1,5 +1,4 @@
 import React from 'react';
-import { Star } from 'lucide-react';
 import { Card } from './Layout';
 import type { Property } from '../types';
 

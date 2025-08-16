@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, MapPin, Calendar, Users, X } from 'lucide-react';
+import { Search, MapPin, Users, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { SearchFilters } from '../types';
 import { propertyService, cityService, stayTypeService } from '../lib/firestore';
@@ -30,7 +30,7 @@ export default function SearchBar({
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({});
+  const [filters] = useState<SearchFilters>({});
   
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);

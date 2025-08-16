@@ -2,10 +2,17 @@ import React from 'react';
 import { useLoaderData, Link } from 'react-router-dom';
 import { MapPin, Star, ArrowLeft, Wifi, Car, Coffee, Waves } from 'lucide-react';
 import { Section, Card, Grid } from '../components/Layout';
-import { Breadcrumb, createPropertyBreadcrumb } from '../components/Breadcrumb';
+import { Breadcrumb } from '../components/Breadcrumb';
+import { createPropertyBreadcrumb } from '../utils/breadcrumbs';
 import { PropertyImageGallery } from '../components/PropertyImageGallery';
 import { BookingSidebar } from '../components/BookingSidebar';
 import { PropertyLoaderData } from '../router/loaders';
+
+interface BookingData {
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+}
 
 export default function PropertyDetail() {
   const { property, city, stayTypes } = useLoaderData() as PropertyLoaderData;
@@ -27,7 +34,7 @@ export default function PropertyDetail() {
     propertyName: property.name
   });
 
-  const handleBookingSubmit = async (bookingData: any) => {
+  const handleBookingSubmit = async (bookingData: BookingData) => {
     // Handle booking submission logic here
     console.log('Booking submitted:', bookingData);
     // This would typically make an API call to create the booking

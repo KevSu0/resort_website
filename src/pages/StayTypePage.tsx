@@ -3,12 +3,11 @@ import { useLoaderData } from 'react-router-dom';
 import { MapPin, Users, Coffee, Waves, Filter } from 'lucide-react';
 import { Section, HeroSection } from '../components/Layout';
 import { Breadcrumb } from '../components/Breadcrumb';
-import { PropertyGrid } from '../components/PropertyGrid';
 import SearchBar from '../components/SearchBar';
 import type { StayTypeLoaderData, SearchFilters } from '../router/loaders';
 
 export default function StayTypePage() {
-  const { property, stayType, city, allStayTypes } = useLoaderData() as StayTypeLoaderData;
+  const { stayType } = useLoaderData() as StayTypeLoaderData;
 
   const handleSearch = (filters: SearchFilters) => {
     console.log('Search filters:', filters);
@@ -79,7 +78,6 @@ export default function StayTypePage() {
           </button>
         </div>
         
-        {/* <PropertyGrid properties={properties} /> */}
       </Section>
     </>
   );

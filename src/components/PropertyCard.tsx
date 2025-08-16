@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Wifi, Car, Coffee, Users, Building, Utensils, Wind } from 'lucide-react';
+import { MapPin, Star, Wifi, Car, Coffee, Utensils, Wind } from 'lucide-react';
 import { Property } from '../types';
 
 interface PropertyCardProps {
@@ -32,7 +32,6 @@ export default function PropertyCard({
     branding,
     active,
     rating,
-    reviewCount,
     amenities,
     priceRange
   } = property;

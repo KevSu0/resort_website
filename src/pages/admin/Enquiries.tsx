@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Mail, Phone, Calendar, MessageSquare, ChevronDown } from 'lucide-react';
+import { Mail, Phone, Calendar, MessageSquare } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { Card } from '../../components/Layout';
 import AdminSearchFilter from '../../components/AdminSearchFilter';
@@ -33,7 +33,7 @@ export default function AdminEnquiries() {
       await enquiryService.update(id, { status: newStatus });
       setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status: newStatus } : e));
       toast({ title: 'Success', description: 'Enquiry status updated.', variant: 'success' });
-    } catch (error) {
+    } catch {
       toast({ title: 'Error', description: 'Failed to update status.', variant: 'destructive' });
     }
   };

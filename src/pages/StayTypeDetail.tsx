@@ -3,8 +3,10 @@ import { useLoaderData, Link } from 'react-router-dom';
 import { Users, ArrowLeft, Filter } from 'lucide-react';
 import { Section, Card, Grid, HeroSection } from '../components/Layout';
 import { PropertyGrid } from '../components/PropertyGrid';
-import { Breadcrumb, createStayTypeBreadcrumb } from '../components/Breadcrumb';
-import { SortDropdown, propertySortOptions } from '../components/SortDropdown';
+import { Breadcrumb } from '../components/Breadcrumb';
+import { createStayTypeBreadcrumb } from '../utils/breadcrumbs';
+import SortDropdown from '../components/SortDropdown';
+import { propertySortOptions } from '../utils/sorting';
 import SearchBar from '../components/SearchBar';
 import type { StayType, Property, SearchFilters } from '../types';
 

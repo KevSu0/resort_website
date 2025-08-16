@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Bell, Shield, Globe, Database, Mail, Palette } from 'lucide-react';
+import { Bell, Shield, Globe, Database, Palette } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { Card } from '../../components/Layout';
 
@@ -30,11 +30,6 @@ export default function AdminSettings() {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
-    // In a real app, this would save to backend
-    console.log('Saving settings:', settings);
-    alert('Settings saved successfully!');
-  };
 
   const tabs = [
     { id: 'general', name: 'General', icon: Globe },

@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, DollarSign, Calendar, MapPin, Star, BarChart3, Plus } from 'lucide-react';
+import { Users, DollarSign, Calendar, MapPin, Star, Plus, Settings } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { Card, Grid } from '../../components/Layout';
 import AdminStatsCard from '../../components/AdminStatsCard';
 import { propertyService, enquiryService } from '../../lib/firestore';
-import { Property, Enquiry } from '../../types';
+import { Enquiry } from '../../types';
+
+interface Stat {
+  title: string;
+  value: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+interface TopProperty {
+  name: string;
+  bookings: number;
+  revenue: string;
+  rating: string | undefined;
+}
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<any[]>([]);
+  const [stats, setStats] = useState<Stat[]>([]);
   const [recentEnquiries, setRecentEnquiries] = useState<Enquiry[]>([]);
-  const [topProperties, setTopProperties] = useState<any[]>([]);
+  const [topProperties, setTopProperties] = useState<TopProperty[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,8 +38,8 @@ export default function Dashboard() {
 
         // Calculate stats
         const totalRevenue = enquiries
-          .filter(e => e.status === 'booked' && e.booking_details?.check_in) // Assuming some logic for revenue
-          .reduce((acc, e) => acc + 1500, 0); // Placeholder revenue calculation
+          .filter(enquiry => enquiry.status === 'booked' && enquiry.booking_details?.check_in) // Assuming some logic for revenue
+          .reduce((acc) => acc + 1500, 0); // Placeholder revenue calculation
 
         const guestSatisfaction = properties.reduce((acc, p) => acc + (p.rating || 0), 0) / properties.length;
 
@@ -100,7 +115,7 @@ export default function Dashboard() {
                 title={stat.title}
                 value={stat.value}
                 icon={stat.icon}
-                color={stat.color}
+                color={stat.color as 'blue' | 'green' | 'purple' | 'yellow' | 'red' | 'orange'}
               />
             ))}
           </Grid>

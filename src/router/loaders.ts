@@ -154,7 +154,6 @@ export async function searchLoader({ request }: LoaderFunctionArgs) {
 }
 
 import { getCurrentUser } from '../hooks/useAuth';
-import { isDevelopmentMode } from '../lib/firebase';
 
 // Admin loader - checks authentication and authorization
 export async function adminLoader() {

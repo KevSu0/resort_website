@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { MapPin, Star, Wifi, Car, Coffee, Waves, Dumbbell, Utensils, Heart, Users, Calendar, Filter } from 'lucide-react';
+import { MapPin, Star, Wifi, Car, Coffee, Waves, Dumbbell, Utensils, Heart, Users, Filter } from 'lucide-react';
 import { Card } from './Layout';
 import FilterPanel from './FilterPanel';
 import type { Property } from '../types';
@@ -32,13 +32,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, viewMode }) => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
 
   if (viewMode === 'list') {
     return (
@@ -46,7 +39,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, viewMode }) => {
         <div className="flex gap-6">
           <div className="w-48 h-32 flex-shrink-0">
             <img
-              src={property.images?.[0] || `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`luxury ${property.stayType} resort ${property.name} exterior view`)}&image_size=landscape_4_3`}
+              src={property.branding.hero_image || `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`luxury ${property.stay_types[0]} resort ${property.name} exterior view`)}&image_size=landscape_4_3`}
               alt={property.name}
               className="w-full h-full object-cover rounded-lg"
             />
@@ -76,12 +69,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, viewMode }) => {
               </div>
               <div className="flex items-center gap-1 text-gray-600">
                 <Users className="w-4 h-4" />
-                <span className="text-sm">{property.stayType} accommodation</span>
+                <span className="text-sm">{property.stay_types.join(', ')} accommodation</span>
               </div>
             </div>
 
             <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-              {property.description}
+              {property.branding.description}
             </p>
 
             <div className="flex items-center gap-3">
@@ -105,7 +98,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, viewMode }) => {
     <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
       <div className="relative">
         <img
-          src={property.images?.[0] || `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`luxury ${property.stayType} resort ${property.name} exterior view`)}&image_size=landscape_4_3`}
+          src={property.branding.hero_image || `https://trae-api-us.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(`luxury ${property.stay_types[0]} resort ${property.name} exterior view`)}&image_size=landscape_4_3`}
           alt={property.name}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
@@ -136,13 +129,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, viewMode }) => {
         <div className="flex items-center gap-3 mb-3">
           <div className="flex items-center gap-1 text-gray-500">
             <Users className="w-4 h-4" />
-            <span className="text-xs">{property.stayType}</span>
+            <span className="text-xs">{property.stay_types.join(', ')}</span>
           </div>
           <span className="text-xs text-gray-500">({property.reviewCount} reviews)</span>
         </div>
 
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-          {property.description}
+          {property.branding.description}
         </p>
 
         <div className="flex items-center gap-2 flex-wrap">

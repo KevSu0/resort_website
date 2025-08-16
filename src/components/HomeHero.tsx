@@ -36,7 +36,7 @@ export function HomeHero({
     "https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80";
   return (
     <div 
-      className="relative z-10 text-center text-white py-32"
+      className={`relative z-10 text-center text-white py-32 ${className}`}
       style={{
         backgroundImage: `url('${heroBackground}')`,
         backgroundSize: 'cover',

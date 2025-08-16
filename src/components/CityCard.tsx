@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Building, ArrowRight } from 'lucide-react';
+import { MapPin, Building, ArrowRight } from 'lucide-react';
 import { City } from '../types';
 
 interface CityCardProps {

@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { Section } from '../components/Layout';
 import { CityGrid } from '../components/CityGrid';
-import SearchBar from '../components/SearchBar';
 import { ListingPageHeader } from '../components/PageHeader';
-import { SortDropdown } from '../components/SortDropdown';
+import SortDropdown from '../components/SortDropdown';
 import { Pagination } from '../components/Pagination';
 import type { City, SearchFilters } from '../types';
 
@@ -21,9 +20,6 @@ export default function Cities() {
   const itemsPerPage = 12;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleSearch = (newFilters: SearchFilters) => {
-    // Search filters updated
-  };
 
   const handleSortChange = (newSortBy: string) => {
     setSortBy(newSortBy);

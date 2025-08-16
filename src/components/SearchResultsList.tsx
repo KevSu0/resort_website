@@ -1,16 +1,16 @@
 import React from 'react';
 import { Star, MapPin, Wifi, Car, Utensils, Dumbbell, Heart, Share2, ExternalLink } from 'lucide-react';
-import type { MockProperty } from '../lib/mockData';
+import type { Property } from '../types';
 
 interface SearchResultsListProps {
-  properties: MockProperty[];
-  onPropertySelect?: (property: MockProperty) => void;
+  properties: Property[];
+  onPropertySelect?: (property: Property) => void;
   className?: string;
 }
 
 interface PropertyListItemProps {
-  property: MockProperty;
-  onSelect?: (property: MockProperty) => void;
+  property: Property;
+  onSelect?: (property: Property) => void;
 }
 
 export default function SearchResultsList({
@@ -86,13 +86,13 @@ function PropertyListItem({ property, onSelect }: PropertyListItemProps) {
         {/* Property Image */}
         <div className="flex-shrink-0 w-64 h-48 relative">
           <img
-            src={property.images[0]}
+            src={property.branding.hero_image || ''}
             alt={property.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute top-3 left-3">
             <span className="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full">
-              {property.stayType}
+              {property.stay_types.join(', ')}
             </span>
           </div>
           <div className="absolute top-3 right-3 flex gap-2">
@@ -116,12 +116,11 @@ function PropertyListItem({ property, onSelect }: PropertyListItemProps) {
                 <MapPin className="w-4 h-4 mr-1" />
                 <span className="text-sm">{property.location.address}</span>
                 <span className="mx-2 text-gray-400">•</span>
-                <span className="text-sm">{property.city}</span>
               </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-gray-900">
-                ${property.priceRange.min}-${property.priceRange.max}
+                ${property.priceRange?.min}-${property.priceRange?.max}
               </div>
               <div className="text-sm text-gray-600">per night</div>
             </div>
@@ -142,13 +141,13 @@ function PropertyListItem({ property, onSelect }: PropertyListItemProps) {
 
           {/* Description */}
           <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-            {property.shortDescription || property.description}
+            {property.branding.description}
           </p>
 
           {/* Amenities */}
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
-              {property.amenities.slice(0, 6).map((amenity, index) => {
+              {property.amenities?.slice(0, 6).map((amenity, index) => {
                 const icon = getAmenityIcon(amenity);
                 return (
                   <div
@@ -160,7 +159,7 @@ function PropertyListItem({ property, onSelect }: PropertyListItemProps) {
                   </div>
                 );
               })}
-              {property.amenities.length > 6 && (
+              {property.amenities && property.amenities.length > 6 && (
                 <div className="flex items-center bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
                   +{property.amenities.length - 6} more
                 </div>
@@ -190,26 +189,5 @@ function PropertyListItem({ property, onSelect }: PropertyListItemProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-// Utility component for truncating text
-function TruncatedText({ text, maxLength = 150 }: { text: string; maxLength?: number }) {
-  const [isExpanded, setIsExpanded] = React.useState(false);
-  
-  if (text.length <= maxLength) {
-    return <span>{text}</span>;
-  }
-
-  return (
-    <span>
-      {isExpanded ? text : `${text.slice(0, maxLength)}...`}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="text-blue-600 hover:text-blue-700 ml-1 text-sm font-medium"
-      >
-        {isExpanded ? 'Show less' : 'Show more'}
-      </button>
-    </span>
   );
 }

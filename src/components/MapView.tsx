@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Navigation, ZoomIn, ZoomOut, Layers } from 'lucide-react';
-import type { MockProperty } from '../lib/mockData';
+import type { Property } from '../types';
 
 interface MapViewProps {
-  properties: MockProperty[];
-  selectedProperty?: MockProperty;
-  onPropertySelect?: (property: MockProperty) => void;
+  properties: Property[];
+  selectedProperty?: Property;
+  onPropertySelect?: (property: Property) => void;
   className?: string;
 }
 
@@ -13,7 +13,7 @@ interface MapMarker {
   id: string;
   lat: number;
   lng: number;
-  property: MockProperty;
+  property: Property;
 }
 
 export default function MapView({
@@ -24,7 +24,7 @@ export default function MapView({
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 }); // Default to NYC
-  const [zoomLevel, setZoomLevel] = useState(10);
+  const [, setZoomLevel] = useState(10);
   const [mapStyle, setMapStyle] = useState<'standard' | 'satellite' | 'terrain'>('standard');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -73,15 +73,15 @@ export default function MapView({
     }
   };
 
-  const getMarkerSize = (property: MockProperty) => {
+  const getMarkerSize = (property: Property) => {
     if (selectedProperty?.id === property.id) return 'large';
     return 'normal';
   };
 
-  const getMarkerColor = (property: MockProperty) => {
+  const getMarkerColor = (property: Property) => {
     if (selectedProperty?.id === property.id) return 'bg-red-500';
-    if (property.rating >= 4.5) return 'bg-green-500';
-    if (property.rating >= 4.0) return 'bg-blue-500';
+    if ((property.rating || 0) >= 4.5) return 'bg-green-500';
+    if ((property.rating || 0) >= 4.0) return 'bg-blue-500';
     return 'bg-gray-500';
   };
 
@@ -147,7 +147,7 @@ export default function MapView({
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-3 z-10">
                   <div className="flex gap-3">
                     <img
-                      src={marker.property.images[0]}
+                      src={marker.property.branding.hero_image || ''}
                       alt={marker.property.name}
                       className="w-16 h-16 rounded-lg object-cover"
                     />
@@ -156,15 +156,15 @@ export default function MapView({
                         {marker.property.name}
                       </h3>
                       <p className="text-xs text-gray-600 mb-1">
-                        {marker.property.city} • {marker.property.stayType}
+                        {marker.property.location.address} • {marker.property.stay_types.join(', ')}
                       </p>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1">
                           <span className="text-xs text-yellow-500">★</span>
-                          <span className="text-xs text-gray-600">{marker.property.rating}</span>
+                          <span className="text-xs text-gray-600">{marker.property.rating || 0}</span>
                         </div>
                         <div className="text-xs font-semibold text-gray-900">
-                          ${marker.property.priceRange.min}-${marker.property.priceRange.max}
+                          ${marker.property.priceRange?.min}-${marker.property.priceRange?.max}
                         </div>
                       </div>
                     </div>

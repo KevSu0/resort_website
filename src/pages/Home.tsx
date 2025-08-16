@@ -2,7 +2,7 @@ import React from 'react';
 import { HomeHero } from '../components/HomeHero';
 import { FeaturedProperties } from '../components/FeaturedProperties';
 import { FeaturedCities } from '../components/FeaturedCities';
-import { WhyChooseUs } from '../components/WhyChooseUs';
+import WhyChooseUs from '../components/WhyChooseUs';
 import { HomeCallToAction } from '../components/HomeCallToAction';
 
 export default function Home() {
