@@ -8,6 +8,7 @@ import { PageTransition } from '../components/PageTransition';
 import { useSmoothScroll } from '../hooks/useSmoothScroll';
 import { type Property } from '../types';
 import { initializeMockData } from '../data/mockData';
+import { config } from '../config';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ export const HomePage: React.FC = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href={`tel:${import.meta.env.VITE_WHATSAPP_CONTACT_NUMBER || '+919876543210'}`}
+                  href={`tel:${config.VITE_WHATSAPP_CONTACT_NUMBER}`}
                   className="btn-primary"
                 >
                   Call Us Now

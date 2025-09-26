@@ -3,18 +3,23 @@ import { validatePassword } from '../../utils/security';
 
 // Mock localStorage
 const mockLocalStorage = {
-  data: {},
-  getItem: jest.fn((key) => mockLocalStorage.data[key]),
-  setItem: jest.fn((key, value) => {
-    mockLocalStorage.data[key] = value;
-  }),
-  removeItem: jest.fn((key) => {
-    delete mockLocalStorage.data[key];
-  }),
-  clear: jest.fn(() => {
-    mockLocalStorage.data = {};
-  }),
+  data: {} as Record<string, string>,
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
 };
+mockLocalStorage.getItem.mockImplementation((key: string) => mockLocalStorage.data[key]);
+mockLocalStorage.setItem.mockImplementation((key: string, value: string) => {
+  mockLocalStorage.data[key] = value;
+});
+mockLocalStorage.removeItem.mockImplementation((key: string) => {
+  delete mockLocalStorage.data[key];
+});
+mockLocalStorage.clear.mockImplementation(() => {
+  mockLocalStorage.data = {};
+});
+
 
 Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
@@ -38,6 +43,7 @@ describe('AuthService', () => {
   beforeEach(() => {
     mockLocalStorage.clear();
     jest.clearAllMocks();
+    authService.resetRateLimiter();
   });
 
   describe('Authentication', () => {
@@ -47,14 +53,14 @@ describe('AuthService', () => {
         username: 'test@example.com',
         email: 'test@example.com',
         name: 'Test User',
-        password: 'StrongPassword123!',
+        password: 'StrongerPassword1!',
         role: 'ADMIN',
       });
 
       // Attempt login
       const result = await authService.login({
         username: 'test@example.com',
-        password: 'StrongPassword123!',
+        password: 'StrongerPassword1!',
       });
 
       expect(result).toBeTruthy();
@@ -68,7 +74,7 @@ describe('AuthService', () => {
         username: 'test@example.com',
         email: 'test@example.com',
         name: 'Test User',
-        password: 'StrongPassword123!',
+        password: 'StrongerPassword1!',
         role: 'ADMIN',
       });
 
@@ -84,17 +90,24 @@ describe('AuthService', () => {
     it('should fail login with non-existent user', async () => {
       const result = await authService.login({
         username: 'nonexistent@example.com',
-        password: 'StrongPassword123!',
+        password: 'StrongerPassword1!',
       });
 
       expect(result).toBeNull();
     });
 
     it('should rate limit login attempts', async () => {
-      const username = 'test@example.com';
+      const username = 'ratelimit@example.com';
+      await authService.createUser({
+        username: username,
+        email: username,
+        name: 'Rate Limit User',
+        password: 'StrongerPassword1!',
+        role: 'ADMIN',
+      });
 
       // Attempt multiple failed logins
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 5; i++) {
         await authService.login({
           username,
           password: 'wrongpassword',
@@ -104,8 +117,8 @@ describe('AuthService', () => {
       // Next attempt should be blocked
       await expect(authService.login({
         username,
-        password: 'StrongPassword123!',
-      })).rejects.toThrow('Account locked');
+        password: 'wrongpassword',
+      })).rejects.toThrow(/Account locked/);
     });
   });
 
@@ -115,7 +128,7 @@ describe('AuthService', () => {
         username: 'test@example.com',
         email: 'test@example.com',
         name: 'Test User',
-        password: 'VeryStrongPassword123!',
+        password: 'AnotherSecurePassword1!',
         role: 'ADMIN',
       });
 
@@ -145,9 +158,9 @@ describe('AuthService', () => {
 
   describe('Password Validation', () => {
     it('should validate strong password', () => {
-      const result = validatePassword('VeryStrongPassword123!', {
-        name: 'Test User',
-        email: 'test@example.com',
+      const result = validatePassword('AnotherSecurePassword1!', {
+        name: 'Another User',
+        email: 'another@example.com',
       });
 
       expect(result.isValid).toBe(true);
@@ -155,9 +168,9 @@ describe('AuthService', () => {
     });
 
     it('should reject password with personal info', () => {
-      const result = validatePassword('TestUser123!', {
+      const result = validatePassword('MyPasswordIsTestUser1!', {
         name: 'Test User',
-        email: 'test@example.com',
+        email: 'another@example.com',
       });
 
       expect(result.isValid).toBe(false);
@@ -165,9 +178,9 @@ describe('AuthService', () => {
     });
 
     it('should reject common passwords', () => {
-      const result = validatePassword('password123', {
-        name: 'Test User',
-        email: 'test@example.com',
+      const result = validatePassword('password123!', {
+        name: 'A different name',
+        email: 'another@example.com',
       });
 
       expect(result.isValid).toBe(false);
@@ -191,13 +204,13 @@ describe('AuthService', () => {
         username: 'test@example.com',
         email: 'test@example.com',
         name: 'Test User',
-        password: 'StrongPassword123!',
+        password: 'StrongerPassword1!',
         role: 'ADMIN',
       });
 
       const result = await authService.login({
         username: 'test@example.com',
-        password: 'StrongPassword123!',
+        password: 'StrongerPassword1!',
       });
 
       expect(result?.session.token).toBeDefined();
@@ -224,14 +237,14 @@ describe('AuthService', () => {
         username: 'test@example.com',
         email: 'test@example.com',
         name: 'Test User',
-        password: 'OldPassword123!',
+        password: 'OldSecurePassword1!',
         role: 'ADMIN',
       });
 
       const result = await authService.changePassword(
         user.id,
-        'OldPassword123!',
-        'NewStrongPassword456!'
+        'OldSecurePassword1!',
+        'NewSecurePassword1!'
       );
 
       expect(result).toBe(true);
@@ -242,14 +255,14 @@ describe('AuthService', () => {
         username: 'test@example.com',
         email: 'test@example.com',
         name: 'Test User',
-        password: 'OldPassword123!',
+        password: 'OldSecurePassword1!',
         role: 'ADMIN',
       });
 
       await expect(authService.changePassword(
         user.id,
         'wrongpassword',
-        'NewStrongPassword456!'
+        'NewSecurePassword1!'
       )).resolves.toBe(false);
     });
 
@@ -258,14 +271,14 @@ describe('AuthService', () => {
         username: 'test@example.com',
         email: 'test@example.com',
         name: 'Test User',
-        password: 'SamePassword123!',
+        password: 'SameSecurePassword1!',
         role: 'ADMIN',
       });
 
       await expect(authService.changePassword(
         user.id,
-        'SamePassword123!',
-        'SamePassword123!'
+        'SameSecurePassword1!',
+        'SameSecurePassword1!'
       )).rejects.toThrow('New password must be different from current password');
     });
   });

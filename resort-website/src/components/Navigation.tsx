@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Phone, Mail, MapPin, ArrowLeft } from 'lucide-react';
+import { config } from '../config';
 
 export const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,18 +48,18 @@ export const Navigation: React.FC = () => {
           <div className="flex items-center justify-between text-sm">
             <div className="hidden md:flex items-center gap-4">
               <a
-                href={`tel:${import.meta.env.VITE_WHATSAPP_CONTACT_NUMBER || '+919876543210'}`}
+                href={`tel:${config.VITE_WHATSAPP_CONTACT_NUMBER}`}
                 className="flex items-center gap-1 hover:text-primary-400 transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                <span>{import.meta.env.VITE_WHATSAPP_CONTACT_NUMBER || '+91 98765 43210'}</span>
+                <span>{config.VITE_WHATSAPP_CONTACT_NUMBER}</span>
               </a>
               <a
-                href={`mailto:${import.meta.env.VITE_SITE_EMAIL_FROM || 'info@wayanadresorts.com'}`}
+                href={`mailto:${config.VITE_SITE_EMAIL_FROM}`}
                 className="flex items-center gap-1 hover:text-primary-400 transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                <span>{import.meta.env.VITE_SITE_EMAIL_FROM || 'info@wayanadresorts.com'}</span>
+                <span>{config.VITE_SITE_EMAIL_FROM}</span>
               </a>
             </div>
             <div className="flex items-center gap-2">
