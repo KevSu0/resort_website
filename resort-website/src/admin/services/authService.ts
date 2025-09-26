@@ -16,7 +16,7 @@ const SESSION_DURATION = 15 * 60 * 1000; // 15 minutes
 
 class AuthService {
   private users: AdminUser[] = [];
-  private loginRateLimiter: RateLimiter;
+  public loginRateLimiter: RateLimiter;
 
   constructor() {
     this.loadUsers();
@@ -52,10 +52,8 @@ class AuthService {
       throw new Error(`Account locked. Try again in ${Math.ceil(lockoutTime / 60000)} minutes.`);
     }
 
-    // Record attempt
-    this.loginRateLimiter.recordAttempt(sanitizedUsername);
-
     if (!user) {
+      this.loginRateLimiter.recordAttempt(sanitizedUsername);
       logSecurityEvent({
         type: 'LOGIN_FAILED',
         timestamp: new Date().toISOString(),
@@ -66,6 +64,7 @@ class AuthService {
 
     const isPasswordValid = bcrypt.compareSync(credentials.password, user.passwordHash);
     if (!isPasswordValid) {
+      this.loginRateLimiter.recordAttempt(sanitizedUsername);
       const remainingAttempts = this.loginRateLimiter.getRemainingAttempts(sanitizedUsername);
       logSecurityEvent({
         type: 'LOGIN_FAILED',
@@ -329,6 +328,10 @@ class AuthService {
     // In a real application, this would come from the request
     // For local storage, we'll use a placeholder
     return navigator?.userAgent || 'Unknown';
+  }
+
+  resetRateLimiter() {
+    this.loginRateLimiter = new RateLimiter('login_attempts');
   }
 }
 

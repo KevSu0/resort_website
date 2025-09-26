@@ -1,14 +1,13 @@
 import type { Config } from 'jest'
-import nextJs from 'ts-jest/presets'
 
 export default {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 
   // Module name mapping
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
 
   // Test path patterns
@@ -23,19 +22,16 @@ export default {
     '!src/**/*.d.ts',
     '!src/main.tsx',
     '!src/vite-env.d.ts',
+    '!src/config.ts',
   ],
 
   // Transform configuration
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx',
-      },
-    }],
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
 
   // Module file extensions
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 
   // Test environment variables
   testEnvironmentOptions: {
@@ -52,5 +48,8 @@ export default {
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/dist/',
+  ],
+  transformIgnorePatterns: [
+    '/node_modules/(?!bcryptjs|jszip|uuid|@hookform/resolvers|react-router-dom)/',
   ],
 } satisfies Config

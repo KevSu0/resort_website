@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { config } from '../config';
 
 export const Footer: React.FC = () => {
   return (
@@ -65,18 +66,18 @@ export const Footer: React.FC = () => {
               <h3 className="font-semibold text-lg mb-4">Get in Touch</h3>
               <div className="space-y-3">
                 <a
-                  href={`tel:${import.meta.env.VITE_WHATSAPP_CONTACT_NUMBER || '+919876543210'}`}
+                  href={`tel:${config.VITE_WHATSAPP_CONTACT_NUMBER}`}
                   className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  <span>{import.meta.env.VITE_WHATSAPP_CONTACT_NUMBER || '+91 98765 43210'}</span>
+                  <span>{config.VITE_WHATSAPP_CONTACT_NUMBER}</span>
                 </a>
                 <a
-                  href={`mailto:${import.meta.env.VITE_SITE_EMAIL_FROM || 'info@wayanadresorts.com'}`}
+                  href={`mailto:${config.VITE_SITE_EMAIL_FROM}`}
                   className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
                 >
                   <Mail className="w-5 h-5" />
-                  <span>{import.meta.env.VITE_SITE_EMAIL_FROM || 'info@wayanadresorts.com'}</span>
+                  <span>{config.VITE_SITE_EMAIL_FROM}</span>
                 </a>
                 <div className="flex items-start gap-3 text-gray-400">
                   <MapPin className="w-5 h-5 mt-0.5" />
