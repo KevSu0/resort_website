@@ -1,0 +1,573 @@
+{
+  "project": {
+    "name": "Wayanad Nature Resorts - Mobile-First Website & Admin Panel",
+    "description": "A mobile-first booking enquiry system for 3 nature resorts in Wayanad with admin panel",
+    "techStack": {
+      "frontend": "React + TypeScript + Tailwind CSS + Vite",
+      "backend": "Local Storage (for development)",
+      "uiLibrary": "shadcn/ui components",
+      "routing": "React Router v6",
+      "formHandling": "react-hook-form + Zod",
+      "stateManagement": "React Context + useReducer"
+    }
+  },
+  "progress": {
+    "lastUpdated": "2025-09-26T12:00:00Z",
+    "currentTask": "TSK-001",
+    "completedTasks": ["setup-1", "TSK-002-SUBTSK-004", "TSK-002-SUBTSK-005", "TSK-001-SUBTSK-001", "TSK-001-SUBTSK-002", "TSK-001-SUBTSK-003"],
+    "completedMicrotasks": [
+      "Create localStorage helper functions",
+      "Implement data serialization/deserialization",
+      "Add error handling for storage limits",
+      "Define property data structure",
+      "Create 3 resort mock data",
+      "Add room types and amenities",
+      "Include image URLs and descriptions",
+      "Create HeroSection component with responsive design",
+      "Add hero background image or carousel",
+      "Implement overlay text with resort tagline",
+      "Add CTA buttons for browsing properties",
+      "Create PropertyCard component",
+      "Add property image, name, price range",
+      "Implement responsive grid layout",
+      "Add hover effects and transitions",
+      "Create Highlights component with icons",
+      "Add key selling points (3-5 items)",
+      "Implement animated counters or stats",
+      "Integrate all components into main App"
+    ],
+    "notes": [
+      {
+        "timestamp": "2025-09-26T10:45:00Z",
+        "task": "setup-1",
+        "message": "Project repository initialized. Ready to start implementing components."
+      },
+      {
+        "timestamp": "2025-09-26T11:15:00Z",
+        "task": "TSK-002-SUBTSK-004",
+        "message": "LocalStorageService created with full CRUD operations for all entities. Includes error handling for quota limits."
+      },
+      {
+        "timestamp": "2025-09-26T11:20:00Z",
+        "task": "TSK-002-SUBTSK-005",
+        "message": "Mock data created for 3 properties with rooms, places, admin, offers, promo codes, and referrers. Includes initialization function."
+      },
+      {
+        "timestamp": "2025-09-26T11:30:00Z",
+        "task": "TSK-001-SUBTSK-001",
+        "message": "HeroSection component created with image carousel slideshow, responsive design, and smooth animations."
+      },
+      {
+        "timestamp": "2025-09-26T11:45:00Z",
+        "task": "TSK-001-SUBTSK-002",
+        "message": "PropertyCard and FeaturedProperties components created with responsive grid, hover effects, and image galleries."
+      },
+      {
+        "timestamp": "2025-09-26T11:55:00Z",
+        "task": "TSK-001-SUBTSK-003",
+        "message": "Highlights component created with 6 USPs, statistics, and animated entrance effects using framer-motion."
+      },
+      {
+        "timestamp": "2025-09-26T12:00:00Z",
+        "task": "TSK-001",
+        "message": "Landing page fully integrated. Application running successfully on http://localhost:5173/"
+      }
+    ]
+  },
+  "epics": [
+    {
+      "id": "EPIC-001",
+      "title": "Property Browsing & Discovery",
+      "description": "Users can browse and discover resort properties, rooms, and amenities",
+      "priority": "high",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Landing Page Experience",
+          "description": "As a potential guest, I want to see an attractive landing page with hero section, featured properties, and key information about the resorts",
+          "acceptanceCriteria": [
+            "Hero section with compelling imagery and tagline",
+            "Featured properties carousel/grid",
+            "Key highlights/USPs section",
+            "Quick links to property details",
+            "Mobile-optimized layout",
+            "Call-to-action buttons"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-001",
+              "title": "Create Landing Page Component",
+              "description": "Build the main landing page with hero, featured properties, and highlights",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-001",
+                  "title": "Design hero section component",
+                  "microTasks": [
+                    "Create HeroSection component with responsive design",
+                    "Add hero background image or carousel",
+                    "Implement overlay text with resort tagline",
+                    "Add CTA buttons for browsing properties"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-002",
+                  "title": "Implement featured properties section",
+                  "microTasks": [
+                    "Create PropertyCard component",
+                    "Add property image, name, price range",
+                    "Implement responsive grid layout",
+                    "Add hover effects and transitions"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-003",
+                  "title": "Build highlights/USPs section",
+                  "microTasks": [
+                    "Create Highlights component with icons",
+                    "Add key selling points (3-5 items)",
+                    "Implement animated counters or stats"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "TSK-002",
+              "title": "Implement Property Data Service",
+              "description": "Create local storage service for property data management",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-004",
+                  "title": "Setup local storage utilities",
+                  "microTasks": [
+                    "Create localStorage helper functions",
+                    "Implement data serialization/deserialization",
+                    "Add error handling for storage limits"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-005",
+                  "title": "Create mock property data",
+                  "microTasks": [
+                    "Define property data structure",
+                    "Create 3 resort mock data",
+                    "Add room types and amenities",
+                    "Include image URLs and descriptions"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "US-002",
+          "title": "Property Details Page",
+          "description": "As a guest, I want to view detailed information about a specific property including rooms, amenities, and nearby attractions",
+          "acceptanceCriteria": [
+            "Property image gallery with carousel",
+            "Detailed description and location info",
+            "List of available room types",
+            "Amenities section with icons",
+            "Nearby places of interest",
+            "Map integration (static for now)",
+            "Reviews/ratings section"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-003",
+              "title": "Build Property Detail Page",
+              "description": "Create comprehensive property detail view",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-006",
+                  "title": "Implement image gallery",
+                  "microTasks": [
+                    "Create ImageGallery component",
+                    "Add image carousel functionality",
+                    "Implement thumbnail navigation",
+                    "Add zoom/lightbox feature"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-007",
+                  "title": "Create property info sections",
+                  "microTasks": [
+                    "Build PropertyInfo component",
+                    "Add amenities grid with icons",
+                    "Create nearby places section",
+                    "Implement location map static image"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "US-003",
+          "title": "Room Type Details",
+          "description": "As a guest, I want to see detailed information about specific room types including pricing, capacity, and available dates",
+          "acceptanceCriteria": [
+            "Room image gallery",
+            "Detailed room description",
+            "Pricing information (display only)",
+            "Capacity and amenities",
+            "Date picker for availability",
+            "Show Interest CTA"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-004",
+              "title": "Create Room Detail Component",
+              "description": "Build room type detail page with booking CTA",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-008",
+                  "title": "Implement room info display",
+                  "microTasks": [
+                    "Create RoomDetail component",
+                    "Add room images gallery",
+                    "Display room capacity and amenities",
+                    "Show base pricing information"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-009",
+                  "title": "Add date picker component",
+                  "microTasks": [
+                    "Integrate date picker library",
+                    "Implement date range selection",
+                    "Add validation for minimum stay",
+                    "Highlight available dates"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-002",
+      "title": "Enquiry Flow",
+      "description": "Guests can submit 'Show Interest' enquiries without creating accounts",
+      "priority": "high",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "Show Interest Form",
+          "description": "As a guest, I want to easily submit an enquiry with my contact details and preferred dates",
+          "acceptanceCriteria": [
+            "Pre-filled property and room selection",
+            "Contact form with validation",
+            "Guest count selection",
+            "Special requests field",
+            "Privacy consent checkbox",
+            "Form submission handling",
+            "Reference ID generation",
+            "Success confirmation"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-005",
+              "title": "Build Enquiry Form Component",
+              "description": "Create comprehensive enquiry form with validation",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-010",
+                  "title": "Implement form fields",
+                  "microTasks": [
+                    "Create form with react-hook-form",
+                    "Add validation with Zod schema",
+                    "Implement phone number formatting",
+                    "Add guest count selector"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-011",
+                  "title": "Handle form submission",
+                  "microTasks": [
+                    "Create local storage for enquiries",
+                    "Generate unique reference ID",
+                    "Save enquiry data",
+                    "Show success message with ref ID"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "US-005",
+          "title": "Thank You Page",
+          "description": "After submitting an enquiry, guests see a confirmation page with next steps",
+          "acceptanceCriteria": [
+            "Display enquiry reference ID",
+            "Show estimated response time",
+            "Provide contact information",
+            "Option to make another enquiry",
+            "Social sharing options"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-006",
+              "title": "Create Thank You Page",
+              "description": "Build confirmation page after successful enquiry",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-012",
+                  "title": "Design confirmation layout",
+                  "microTasks": [
+                    "Create ThankYou component",
+                    "Display reference ID prominently",
+                    "Add next steps information",
+                    "Include contact buttons"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-003",
+      "title": "Admin Panel",
+      "description": "Administrative interface for managing enquiries, properties, and content",
+      "priority": "medium",
+      "stories": [
+        {
+          "id": "US-006",
+          "title": "Admin Authentication",
+          "description": "Admin users can securely login to access the admin panel",
+          "acceptanceCriteria": [
+            "Login form with email/password",
+            "Session management",
+            "Protected routes",
+            "Auto-logout on inactivity",
+            "Password visibility toggle"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-007",
+              "title": "Implement Auth System",
+              "description": "Create admin authentication with local storage",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-013",
+                  "title": "Build login form",
+                  "microTasks": [
+                    "Create LoginForm component",
+                    "Add form validation",
+                    "Implement password hashing (mock)",
+                    "Store auth token in localStorage"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-014",
+                  "title": "Create auth context",
+                  "microTasks": [
+                    "Setup React Auth Context",
+                    "Implement login/logout functions",
+                    "Create protected route component"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "US-007",
+          "title": "Enquiry Management",
+          "description": "Admins can view, search, and update enquiry statuses",
+          "acceptanceCriteria": [
+            "List view of all enquiries",
+            "Search and filter functionality",
+            "Status update (New/Contacted/Confirmed/Declined)",
+            "Detailed enquiry view",
+            "Add internal notes",
+            "Export functionality"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-008",
+              "title": "Build Enquiry Dashboard",
+              "description": "Create admin interface for managing enquiries",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-015",
+                  "title": "Create enquiry list",
+                  "microTasks": [
+                    "Build EnquiryList component",
+                    "Implement search and filters",
+                    "Add pagination",
+                    "Display status badges"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-016",
+                  "title": "Create enquiry detail view",
+                  "microTasks": [
+                    "Build EnquiryDetail component",
+                    "Show all enquiry information",
+                    "Add status update dropdown",
+                    "Implement notes functionality"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "US-008",
+          "title": "Property Management",
+          "description": "Admins can manage property information, rooms, and images",
+          "acceptanceCriteria": [
+            "CRUD operations for properties",
+            "Room type management",
+            "Image upload simulation",
+            "Amenities management",
+            "Nearby places management"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-009",
+              "title": "Build Property Management Interface",
+              "description": "Create admin tools for managing properties",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-017",
+                  "title": "Create property form",
+                  "microTasks": [
+                    "Build PropertyForm component",
+                    "Add all property fields",
+                    "Implement image selection",
+                    "Add form validation"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-018",
+                  "title": "Create property list",
+                  "microTasks": [
+                    "Build AdminPropertyList component",
+                    "Add edit/delete actions",
+                    "Implement create new property"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EPIC-004",
+      "title": "Offers & Discounts System",
+      "description": "Manage promotional offers, discount codes, and referral program",
+      "priority": "medium",
+      "stories": [
+        {
+          "id": "US-009",
+          "title": "Offer Management",
+          "description": "Admins can create and manage promotional offers",
+          "acceptanceCriteria": [
+            "Create different offer types (seasonal, early-bird, etc.)",
+            "Set discount values and conditions",
+            "Define validity periods",
+            "Configure usage limits",
+            "Activate/deactivate offers"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-010",
+              "title": "Build Offer Management System",
+              "description": "Create interface for managing offers",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-019",
+                  "title": "Create offer form",
+                  "microTasks": [
+                    "Build OfferForm component",
+                    "Add offer type selection",
+                    "Implement discount configuration",
+                    "Add date range picker"
+                  ]
+                },
+                {
+                  "id": "SUBTSK-020",
+                  "title": "Implement offer validation",
+                  "microTasks": [
+                    "Create validation service",
+                    "Check offer applicability",
+                    "Calculate discount amounts",
+                    "Handle stacking rules"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "US-010",
+          "title": "Promo Code System",
+          "description": "Generate and manage promotional codes",
+          "acceptanceCriteria": [
+            "Generate unique promo codes",
+            "Set code-specific rules",
+            "Track usage statistics",
+            "Bulk code generation",
+            "CSV export functionality"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-011",
+              "title": "Build Promo Code Generator",
+              "description": "Create tools for managing promo codes",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-021",
+                  "title": "Create code generator",
+                  "microTasks": [
+                    "Build PromoCodeGenerator component",
+                    "Implement code patterns",
+                    "Add bulk generation features",
+                    "Ensure uniqueness"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "US-011",
+          "title": "Referral Program",
+          "description": "Manage referral codes and track rewards",
+          "acceptanceCriteria": [
+            "Create referrer profiles",
+            "Generate referral codes",
+            "Track referral usage",
+            "Calculate rewards",
+            "Show analytics dashboard"
+          ],
+          "tasks": [
+            {
+              "id": "TSK-012",
+              "title": "Build Referral System",
+              "description": "Implement referral program management",
+              "subtasks": [
+                {
+                  "id": "SUBTSK-022",
+                  "title": "Create referrer management",
+                  "microTasks": [
+                    "Build ReferrerManager component",
+                    "Add referrer form",
+                    "Generate referral codes",
+                    "Track referrals"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
