@@ -2,27 +2,32 @@
 require('@testing-library/jest-dom');
 jest.mock('./src/config');
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-  length: 0,
-  key: jest.fn(),
+// Mock localStorage and sessionStorage
+const createStorageMock = () => {
+  let store = {};
+  return {
+    getItem: jest.fn(key => store[key] || null),
+    setItem: jest.fn((key, value) => {
+      store[key] = String(value);
+    }),
+    removeItem: jest.fn(key => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    }),
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: jest.fn(i => {
+      const keys = Object.keys(store);
+      return keys[i] || null;
+    }),
+  };
 };
-global.localStorage = localStorageMock;
 
-// Mock sessionStorage
-const sessionStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-  length: 0,
-  key: jest.fn(),
-};
-global.sessionStorage = sessionStorageMock;
+global.localStorage = createStorageMock();
+global.sessionStorage = createStorageMock();
 
 // Mock crypto API for UUID generation
 Object.defineProperty(global, 'crypto', {
@@ -202,17 +207,9 @@ afterEach(() => {
   // Clear all mocks
   jest.clearAllMocks();
 
-  // Clear localStorage
-  localStorageMock.getItem.mockClear();
-  localStorageMock.setItem.mockClear();
-  localStorageMock.removeItem.mockClear();
-  localStorageMock.clear.mockClear();
-
-  // Clear sessionStorage
-  sessionStorageMock.getItem.mockClear();
-  sessionStorageMock.setItem.mockClear();
-  sessionStorageMock.removeItem.mockClear();
-  sessionStorageMock.clear.mockClear();
+  // Clear storage mocks
+  global.localStorage.clear();
+  global.sessionStorage.clear();
 
   // Clear fetch mock
   global.fetch.mockClear();

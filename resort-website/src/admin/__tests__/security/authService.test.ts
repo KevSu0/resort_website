@@ -1,30 +1,6 @@
 import { authService } from '../../services/authService';
 import { validatePassword } from '../../utils/security';
 
-// Mock localStorage
-const mockLocalStorage = {
-  data: {} as Record<string, string>,
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-};
-mockLocalStorage.getItem.mockImplementation((key: string) => mockLocalStorage.data[key]);
-mockLocalStorage.setItem.mockImplementation((key: string, value: string) => {
-  mockLocalStorage.data[key] = value;
-});
-mockLocalStorage.removeItem.mockImplementation((key: string) => {
-  delete mockLocalStorage.data[key];
-});
-mockLocalStorage.clear.mockImplementation(() => {
-  mockLocalStorage.data = {};
-});
-
-
-Object.defineProperty(window, 'localStorage', {
-  value: mockLocalStorage,
-});
-
 // Mock crypto
 Object.defineProperty(window, 'crypto', {
   value: {
@@ -41,7 +17,7 @@ Object.defineProperty(window, 'navigator', {
 
 describe('AuthService', () => {
   beforeEach(() => {
-    mockLocalStorage.clear();
+    localStorage.clear();
     jest.clearAllMocks();
     authService.resetRateLimiter();
   });
@@ -106,19 +82,30 @@ describe('AuthService', () => {
         role: 'ADMIN',
       });
 
-      // Attempt multiple failed logins
-      for (let i = 0; i < 5; i++) {
-        await authService.login({
+      // Attempt multiple failed logins, up to the limit - 1
+      for (let i = 0; i < 4; i++) {
+        const result = await authService.login({
           username,
           password: 'wrongpassword',
         });
+        expect(result).toBeNull();
       }
 
-      // Next attempt should be blocked
-      await expect(authService.login({
-        username,
-        password: 'wrongpassword',
-      })).rejects.toThrow(/Account locked/);
+      // The 5th attempt should fail and throw the "too many attempts" error
+      await expect(
+        authService.login({
+          username,
+          password: 'wrongpassword',
+        })
+      ).rejects.toThrow('Account locked due to too many failed attempts.');
+
+      // The 6th attempt should fail and throw the "try again later" error
+      await expect(
+        authService.login({
+          username,
+          password: 'wrongpassword',
+        })
+      ).rejects.toThrow(/Account locked. Try again in \d+ minutes./);
     });
   });
 
@@ -144,21 +131,46 @@ describe('AuthService', () => {
         name: 'Test User',
         password: 'weak',
         role: 'ADMIN',
-      })).rejects.toThrow('Password requirements not met');
+      })).rejects.toThrow('Password is too weak. Please choose a stronger password.');
     });
 
-    it('should update user information', () => {
-      // Implementation would go here
+    it('should update user information', async () => {
+      const user = await authService.createUser({
+        username: 'update@example.com',
+        email: 'update@example.com',
+        name: 'Update User',
+        password: 'StrongerPassword1!',
+        role: 'ADMIN',
+      });
+      const result = authService.updateUser(user.id, { name: 'Updated Name' });
+      expect(result).toBe(true);
+      const updatedUser = authService.getAllUsers().find(u => u.id === user.id);
+      expect(updatedUser?.name).toBe('Updated Name');
     });
 
-    it('should delete user', () => {
-      // Implementation would go here
+    it('should delete a user', async () => {
+      const user = await authService.createUser({
+        username: 'delete@example.com',
+        email: 'delete@example.com',
+        name: 'Delete User',
+        password: 'StrongerPassword1!',
+        role: 'ADMIN',
+      });
+      const result = authService.deleteUser(user.id);
+      expect(result).toBe(true);
+      const deletedUser = authService.getAllUsers().find(u => u.id === user.id);
+      expect(deletedUser).toBeUndefined();
+    });
+
+    it('should not delete a non-existent user', () => {
+        const result = authService.deleteUser('non-existent-id');
+        expect(result).toBe(false);
     });
   });
 
   describe('Password Validation', () => {
     it('should validate strong password', () => {
-      const result = validatePassword('AnotherSecurePassword1!', {
+      const result = validatePassword('A-Really-Good-Pw1!', {
         name: 'Another User',
         email: 'another@example.com',
       });
@@ -168,7 +180,7 @@ describe('AuthService', () => {
     });
 
     it('should reject password with personal info', () => {
-      const result = validatePassword('MyPasswordIsTestUser1!', {
+      const result = validatePassword('MyPasswordIs Test User 1!', {
         name: 'Test User',
         email: 'another@example.com',
       });
@@ -178,7 +190,7 @@ describe('AuthService', () => {
     });
 
     it('should reject common passwords', () => {
-      const result = validatePassword('password123!', {
+      const result = validatePassword('password', {
         name: 'A different name',
         email: 'another@example.com',
       });

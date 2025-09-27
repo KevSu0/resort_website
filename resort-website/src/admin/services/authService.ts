@@ -173,12 +173,12 @@ class AuthService {
       email: userData.email
     });
 
-    if (!passwordValidation.isValid) {
-      throw new Error(`Password requirements not met: ${passwordValidation.errors.join(', ')}`);
-    }
-
     if (passwordValidation.score < 60) {
       throw new Error('Password is too weak. Please choose a stronger password.');
+    }
+
+    if (!passwordValidation.isValid) {
+      throw new Error(`Password requirements not met: ${passwordValidation.errors.join(', ')}`);
     }
 
     const user: AdminUser = {
@@ -222,12 +222,12 @@ class AuthService {
       email: userData.email
     });
 
-    if (!passwordValidation.isValid) {
-      throw new Error(`Password requirements not met: ${passwordValidation.errors.join(', ')}`);
-    }
-
     if (passwordValidation.score < 60) {
       throw new Error('Password is too weak. Please choose a stronger password.');
+    }
+
+    if (!passwordValidation.isValid) {
+      throw new Error(`Password requirements not met: ${passwordValidation.errors.join(', ')}`);
     }
 
     // Check if user already exists
@@ -288,12 +288,12 @@ class AuthService {
       email: user.email
     });
 
-    if (!passwordValidation.isValid) {
-      throw new Error(`New password requirements not met: ${passwordValidation.errors.join(', ')}`);
-    }
-
     if (passwordValidation.score < 60) {
       throw new Error('New password is too weak. Please choose a stronger password.');
+    }
+
+    if (!passwordValidation.isValid) {
+      throw new Error(`New password requirements not met: ${passwordValidation.errors.join(', ')}`);
     }
 
     // Check if new password is same as current
