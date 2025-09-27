@@ -1,258 +1,73 @@
-import { fileStorageService } from '../../services/fileStorage';
+import 'fake-indexeddb/auto';
+import { FileStorageService } from '../../services/fileStorage';
+import { DatabaseService, OBJECT_STORES } from '../../services/databaseService';
 
-// Mock IndexedDB
-const mockDB = {
-  objectStoreNames: {
-    contains: jest.fn(),
-    length: 3,
-  },
-  transaction: jest.fn(),
-  close: jest.fn(),
-};
+describe('FileStorageService', () => {
+    let databaseService: DatabaseService;
+    let fileStorageService: FileStorageService;
 
-const mockTransaction = {
-  objectStore: jest.fn(),
-};
+    beforeEach(async () => {
+        // Use a unique DB name for each test run to ensure isolation
+        const dbName = `test_db_fs_${Date.now()}`;
+        databaseService = new DatabaseService(dbName);
+        await databaseService.initialize();
 
-const mockObjectStore = {
-  getAll: jest.fn(),
-};
-
-const mockRequest = {
-  result: [],
-  onsuccess: null as any,
-  onerror: null as any,
-};
-
-const mockOpenRequest = {
-  result: mockDB,
-  onerror: null as any,
-  onsuccess: null as any,
-  onupgradeneeded: null as any,
-};
-
-// Mock IndexedDB globals
-(global as any).indexedDB = {
-  open: jest.fn(() => mockOpenRequest),
-};
-
-describe('fileStorageService', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-
-    // Reset mock implementations
-    mockDB.objectStoreNames.contains.mockReturnValue(true);
-    mockDB.transaction.mockReturnValue(mockTransaction);
-    mockTransaction.objectStore.mockReturnValue(mockObjectStore);
-    mockObjectStore.getAll.mockReturnValue(mockRequest);
-
-    // Setup request event handlers
-    mockRequest.onsuccess = null;
-    mockRequest.onerror = null;
-    mockOpenRequest.onsuccess = null;
-    mockOpenRequest.onerror = null;
-    mockOpenRequest.onupgradeneeded = null;
-  });
-
-  describe('getStorageUsage', () => {
-    it('calculates storage usage correctly', async () => {
-      // Mock database with sample data
-      const mockData = [
-        { id: 1, name: 'file1.jpg', data: 'x'.repeat(1024 * 1024) }, // 1MB
-        { id: 2, name: 'file2.jpg', data: 'x'.repeat(2 * 1024 * 1024) }, // 2MB
-      ];
-
-      mockRequest.result = mockData;
-
-      // Trigger success
-      setTimeout(() => {
-        if (mockRequest.onsuccess) {
-          mockRequest.onsuccess({ target: { result: mockData } } as any);
-        }
-        if (mockOpenRequest.onsuccess) {
-          mockOpenRequest.onsuccess({ target: { result: mockDB } } as any);
-        }
-      }, 0);
-
-      const usage = await fileStorageService.getStorageUsage();
-
-      expect(usage.used).toBeCloseTo(0.01, 2); // ~3MB in JSON format
-      expect(usage.limit).toBe(100);
-      expect(usage.breakdown).toBeDefined();
+        // Inject the isolated database service instance
+        fileStorageService = new FileStorageService(databaseService);
     });
 
-    it('handles empty database', async () => {
-      mockRequest.result = [];
-
-      setTimeout(() => {
-        if (mockRequest.onsuccess) {
-          mockRequest.onsuccess({ target: { result: [] } } as any);
-        }
-        if (mockOpenRequest.onsuccess) {
-          mockOpenRequest.onsuccess({ target: { result: mockDB } } as any);
-        }
-      }, 0);
-
-      const usage = await fileStorageService.getStorageUsage();
-
-      expect(usage.used).toBe(0);
-      expect(usage.breakdown.media).toBe(0);
-      expect(usage.breakdown.content).toBe(0);
+    afterEach(async () => {
+        // Clean up the specific database instance
+        const dbName = (databaseService as any).dbName;
+        databaseService.close();
+        await new Promise<void>(resolve => {
+            const req = indexedDB.deleteDatabase(dbName);
+            req.onsuccess = req.onerror = () => resolve();
+        });
     });
 
-    it('categorizes storage by store type', async () => {
-      // Mock different store names
-      mockDB.objectStoreNames.contains = jest.fn()
-        .mockReturnValueOnce(true) // media_files
-        .mockReturnValueOnce(true) // draft_content
-        .mockReturnValueOnce(true); // admin_settings
+    describe('getStorageUsage', () => {
+        it('should calculate storage usage correctly for a populated database', async () => {
+            // Arrange: Seed the database with data large enough to be measured
+            const db = databaseService.getDb();
+            if (!db) throw new Error('Test setup failed: DB not available');
 
-      const mediaData = [{ id: 1, type: 'image' }];
-      const contentData = [{ id: 1, content: 'text' }];
-      const settingsData = [{ id: 1, setting: 'value' }];
+            const tx = db.transaction(OBJECT_STORES.map(s => s.name), 'readwrite');
+            tx.objectStore('media').add({ id: 'file1', data: 'x'.repeat(1024 * 50) }); // 50KB
+            tx.objectStore('draftContent').add({ id: 'content1', data: 'y'.repeat(1024 * 50) }); // 50KB
 
-      // Mock multiple getAll calls for different stores
-      let callCount = 0;
-      mockObjectStore.getAll.mockImplementation(() => {
-        const request = { ...mockRequest };
-        if (callCount === 0) request.result = mediaData;
-        else if (callCount === 1) request.result = contentData;
-        else request.result = settingsData;
-        callCount++;
-        return request;
-      });
+            await new Promise<void>((resolve, reject) => {
+                tx.oncomplete = () => resolve();
+                tx.onerror = (e) => reject(tx.error);
+            });
 
-      setTimeout(() => {
-        if (mockRequest.onsuccess) {
-          mockRequest.onsuccess({ target: { result: [] } } as any);
-        }
-        if (mockOpenRequest.onsuccess) {
-          mockOpenRequest.onsuccess({ target: { result: mockDB } } as any);
-        }
-      }, 0);
+            // Act
+            const usage = await fileStorageService.getStorageUsage();
 
-      const usage = await fileStorageService.getStorageUsage();
+            // Assert
+            expect(usage.used).toBeGreaterThan(0);
+            expect(usage.breakdown.media).toBeGreaterThan(0);
+            expect(usage.breakdown.content).toBeGreaterThan(0);
+        });
 
-      expect(usage.breakdown.media).toBeGreaterThan(0);
-      expect(usage.breakdown.content).toBeGreaterThan(0);
-      expect(usage.breakdown.settings).toBeGreaterThan(0);
+        it('should return zero usage for an empty database', async () => {
+            const usage = await fileStorageService.getStorageUsage();
+            expect(usage.used).toBe(0);
+        });
+
+        it('should handle database errors gracefully', async () => {
+            // Arrange: Mock the initialize method to simulate a connection failure
+            jest.spyOn(databaseService, 'initialize').mockRejectedValue(new Error('DB Init Failed'));
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            // Act
+            const usage = await fileStorageService.getStorageUsage();
+
+            // Assert
+            expect(usage.used).toBe(0);
+            expect(consoleSpy).toHaveBeenCalledWith('Failed to get storage usage:', expect.any(Error));
+
+            consoleSpy.mockRestore();
+        });
     });
-
-    it('handles database errors gracefully', async () => {
-      const error = new Error('Database error');
-      mockOpenRequest.onerror = jest.fn();
-
-      setTimeout(() => {
-        if (mockOpenRequest.onerror) {
-          mockOpenRequest.onerror({ target: { error } } as any);
-        }
-      }, 0);
-
-      const usage = await fileStorageService.getStorageUsage();
-
-      expect(usage.used).toBe(0);
-      expect(usage.limit).toBe(100);
-    });
-
-    it('handles transaction errors', async () => {
-      mockObjectStore.getAll.mockReturnValue({
-        onsuccess: null,
-        onerror: jest.fn(),
-      });
-
-      setTimeout(() => {
-        if (mockOpenRequest.onsuccess) {
-          mockOpenRequest.onsuccess({ target: { result: mockDB } } as any);
-        }
-      }, 0);
-
-      const usage = await fileStorageService.getStorageUsage();
-
-      expect(usage.used).toBe(0);
-    });
-  });
-
-  describe('getDB', () => {
-    it('opens database connection', async () => {
-      const promise = (fileStorageService as any).getDB();
-
-      setTimeout(() => {
-        if (mockOpenRequest.onsuccess) {
-          mockOpenRequest.onsuccess({ target: { result: mockDB } } as any);
-        }
-      }, 0);
-
-      const result = await promise;
-      expect(result).toBe(mockDB);
-      expect((global as any).indexedDB.open).toHaveBeenCalledWith('WayanadResortsDB', 1);
-    });
-
-    it('handles database open errors', async () => {
-      const error = new Error('Failed to open database');
-
-      const promise = (fileStorageService as any).getDB();
-
-      setTimeout(() => {
-        if (mockOpenRequest.onerror) {
-          mockOpenRequest.onerror({ target: { error } } as any);
-        }
-      }, 0);
-
-      await expect(promise).rejects.toThrow(error);
-    });
-
-    it('creates object stores on upgrade', async () => {
-      const mockUpgradeEvent = {
-        target: { result: mockDB },
-        oldVersion: 0,
-        newVersion: 1,
-      };
-
-      mockDB.objectStoreNames.contains = jest.fn().mockReturnValue(false);
-      mockDB.createObjectStore = jest.fn();
-
-      const promise = (fileStorageService as any).getDB();
-
-      setTimeout(() => {
-        if (mockOpenRequest.onupgradeneeded) {
-          mockOpenRequest.onupgradeneeded(mockUpgradeEvent);
-        }
-        if (mockOpenRequest.onsuccess) {
-          mockOpenRequest.onsuccess({ target: { result: mockDB } } as any);
-        }
-      }, 0);
-
-      await promise;
-
-      expect(mockDB.createObjectStore).toHaveBeenCalledWith('admin_settings', { keyPath: 'id' });
-      expect(mockDB.createObjectStore).toHaveBeenCalledWith('media_files', { keyPath: 'id' });
-      expect(mockDB.createObjectStore).toHaveBeenCalledWith('draft_content', { keyPath: 'id' });
-    });
-
-    it('does not create existing object stores', async () => {
-      const mockUpgradeEvent = {
-        target: { result: mockDB },
-        oldVersion: 0,
-        newVersion: 1,
-      };
-
-      mockDB.objectStoreNames.contains = jest.fn().mockReturnValue(true);
-      mockDB.createObjectStore = jest.fn();
-
-      const promise = (fileStorageService as any).getDB();
-
-      setTimeout(() => {
-        if (mockOpenRequest.onupgradeneeded) {
-          mockOpenRequest.onupgradeneeded(mockUpgradeEvent);
-        }
-        if (mockOpenRequest.onsuccess) {
-          mockOpenRequest.onsuccess({ target: { result: mockDB } } as any);
-        }
-      }, 0);
-
-      await promise;
-
-      expect(mockDB.createObjectStore).not.toHaveBeenCalled();
-    });
-  });
 });

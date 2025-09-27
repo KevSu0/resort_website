@@ -1,0 +1,9 @@
+{
+  "coverageBaseline": {
+    "statements": "100.00",
+    "branches": "100.00",
+    "functions": "100.00",
+    "lines": "100.00",
+    "timestamp": "2025-09-27T15:34:43.399Z"
+  }
+}
