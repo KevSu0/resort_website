@@ -39,20 +39,16 @@ describe('settingsService', () => {
 
   describe('getSettings', () => {
     it('retrieves settings from database', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(mockSettings)
-      });
+      (databaseService.loadSettings as jest.Mock).mockResolvedValue(mockSettings);
 
       const result = await settingsService.getSettings();
 
-      expect(databaseService.get).toHaveBeenCalledWith('admin_settings', 'app_settings');
+      expect(databaseService.loadSettings).toHaveBeenCalled();
       expect(result).toEqual(mockSettings);
     });
 
     it('returns null when no settings exist', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(undefined)
-      });
+      (databaseService.loadSettings as jest.Mock).mockResolvedValue(null);
 
       const result = await settingsService.getSettings();
 
@@ -61,7 +57,7 @@ describe('settingsService', () => {
 
     it('handles database errors', async () => {
       const error = new Error('Database error');
-      (databaseService.get as jest.Mock).mockRejectedValue(error);
+      (databaseService.loadSettings as jest.Mock).mockRejectedValue(error);
 
       await expect(settingsService.getSettings()).rejects.toThrow(error);
       expect(logger.error).toHaveBeenCalledWith('Failed to get settings:', error);
@@ -70,21 +66,17 @@ describe('settingsService', () => {
 
   describe('saveSettings', () => {
     it('saves settings to database', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        put: jest.fn().mockResolvedValue(undefined)
-      });
+      (databaseService.saveSettings as jest.Mock).mockResolvedValue(undefined);
 
       await settingsService.saveSettings(mockSettings);
 
-      expect(databaseService.get).toHaveBeenCalledWith('admin_settings', 'app_settings');
+      expect(databaseService.saveSettings).toHaveBeenCalledWith(mockSettings);
       expect(logger.info).toHaveBeenCalledWith('Settings saved successfully');
     });
 
     it('handles save errors', async () => {
       const error = new Error('Save failed');
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        put: jest.fn().mockRejectedValue(error)
-      });
+      (databaseService.saveSettings as jest.Mock).mockRejectedValue(error);
 
       await expect(settingsService.saveSettings(mockSettings)).rejects.toThrow(error);
       expect(logger.error).toHaveBeenCalledWith('Failed to save settings:', error);
@@ -93,17 +85,15 @@ describe('settingsService', () => {
 
   describe('updateSetting', () => {
     beforeEach(() => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(mockSettings),
-        put: jest.fn().mockResolvedValue(undefined)
-      });
+        (databaseService.loadSettings as jest.Mock).mockResolvedValue(mockSettings);
+        (databaseService.saveSettings as jest.Mock).mockResolvedValue(undefined);
     });
 
     it('updates a single setting', async () => {
       await settingsService.updateSetting('sessionTimeout', 60);
 
-      expect(databaseService.get).toHaveBeenCalledWith('admin_settings', 'app_settings');
-      expect(databaseService.get('admin_settings', 'app_settings').put).toHaveBeenCalledWith(
+      expect(databaseService.loadSettings).toHaveBeenCalled();
+      expect(databaseService.saveSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           ...mockSettings,
           sessionTimeout: 60
@@ -113,24 +103,18 @@ describe('settingsService', () => {
 
     it('handles update errors', async () => {
       const error = new Error('Update failed');
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(mockSettings),
-        put: jest.fn().mockRejectedValue(error)
-      });
+      (databaseService.saveSettings as jest.Mock).mockRejectedValue(error);
 
       await expect(settingsService.updateSetting('sessionTimeout', 60)).rejects.toThrow(error);
       expect(logger.error).toHaveBeenCalledWith('Failed to update setting sessionTimeout:', error);
     });
 
     it('creates default settings if none exist', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(null),
-        put: jest.fn().mockResolvedValue(undefined)
-      });
+      (databaseService.loadSettings as jest.Mock).mockResolvedValue(null);
 
       await settingsService.updateSetting('sessionTimeout', 60);
 
-      expect(databaseService.get('admin_settings', 'app_settings').put).toHaveBeenCalledWith(
+      expect(databaseService.saveSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           siteName: 'Wayanad Nature Resorts',
           sessionTimeout: 60
@@ -141,13 +125,11 @@ describe('settingsService', () => {
 
   describe('resetSettings', () => {
     it('resets to default settings', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        put: jest.fn().mockResolvedValue(undefined)
-      });
+      (databaseService.saveSettings as jest.Mock).mockResolvedValue(undefined);
 
       await settingsService.resetSettings();
 
-      expect(databaseService.get('admin_settings', 'app_settings').put).toHaveBeenCalledWith(
+      expect(databaseService.saveSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           siteName: 'Wayanad Nature Resorts',
           siteUrl: 'https://wayanad-nature-resort.local',
@@ -180,32 +162,26 @@ describe('settingsService', () => {
 
   describe('initializeSettings', () => {
     it('does nothing if settings already exist', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(mockSettings)
-      });
+      (databaseService.loadSettings as jest.Mock).mockResolvedValue(mockSettings);
 
       await settingsService.initializeSettings();
 
-      expect(databaseService.get('admin_settings', 'app_settings').put).not.toHaveBeenCalled();
+      expect(databaseService.saveSettings).not.toHaveBeenCalled();
     });
 
     it('initializes with defaults if no settings exist', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(null),
-        put: jest.fn().mockResolvedValue(undefined)
-      });
+      (databaseService.loadSettings as jest.Mock).mockResolvedValue(null);
+      (databaseService.saveSettings as jest.Mock).mockResolvedValue(undefined);
 
       await settingsService.initializeSettings();
 
-      expect(databaseService.get('admin_settings', 'app_settings').put).toHaveBeenCalled();
+      expect(databaseService.saveSettings).toHaveBeenCalled();
     });
   });
 
   describe('exportSettings', () => {
     it('exports settings as JSON', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        get: jest.fn().mockResolvedValue(mockSettings)
-      });
+      (databaseService.loadSettings as jest.Mock).mockResolvedValue(mockSettings);
 
       const result = await settingsService.exportSettings();
 
@@ -214,7 +190,7 @@ describe('settingsService', () => {
 
     it('handles export errors', async () => {
       const error = new Error('Export failed');
-      (databaseService.get as jest.Mock).mockRejectedValue(error);
+      (databaseService.loadSettings as jest.Mock).mockRejectedValue(error);
 
       await expect(settingsService.exportSettings()).rejects.toThrow(error);
       expect(logger.error).toHaveBeenCalledWith('Failed to export settings:', error);
@@ -225,13 +201,11 @@ describe('settingsService', () => {
     const validJson = JSON.stringify(mockSettings, null, 2);
 
     it('imports valid settings', async () => {
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        put: jest.fn().mockResolvedValue(undefined)
-      });
+      (databaseService.saveSettings as jest.Mock).mockResolvedValue(undefined);
 
       await settingsService.importSettings(validJson);
 
-      expect(databaseService.get('admin_settings', 'app_settings').put).toHaveBeenCalledWith(mockSettings);
+      expect(databaseService.saveSettings).toHaveBeenCalledWith(mockSettings);
       expect(logger.info).toHaveBeenCalledWith('Settings imported successfully');
     });
 
@@ -248,9 +222,7 @@ describe('settingsService', () => {
 
     it('handles import errors', async () => {
       const error = new Error('Import failed');
-      (databaseService.get as jest.Mock).mockResolvedValue({
-        put: jest.fn().mockRejectedValue(error)
-      });
+      (databaseService.saveSettings as jest.Mock).mockRejectedValue(error);
 
       await expect(settingsService.importSettings(validJson)).rejects.toThrow(error);
       expect(logger.error).toHaveBeenCalledWith('Failed to import settings:', error);

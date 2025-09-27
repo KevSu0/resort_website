@@ -36,7 +36,7 @@ const DATABASE_CONFIG: DatabaseConfig = {
   version: 1
 };
 
-const OBJECT_STORES: ObjectStoreConfig[] = [
+export const OBJECT_STORES: ObjectStoreConfig[] = [
   {
     name: 'draftContent',
     keyPath: 'id',
@@ -149,37 +149,36 @@ const OBJECT_STORES: ObjectStoreConfig[] = [
 export class DatabaseService {
   private db: IDBDatabase | null = null;
   private initializationPromise: Promise<void> | null = null;
+  private dbName: string;
+  private dbVersion: number;
 
-  constructor() {
-    this.initializationPromise = this.initialize();
+  constructor(dbName?: string, dbVersion?: number) {
+    this.dbName = dbName || DATABASE_CONFIG.name;
+    this.dbVersion = dbVersion || DATABASE_CONFIG.version;
   }
 
-  private async initialize(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DATABASE_CONFIG.name, DATABASE_CONFIG.version);
+  public initialize(): Promise<void> {
+    if (this.initializationPromise) {
+      return this.initializationPromise;
+    }
+    this.initializationPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.dbVersion);
 
       request.onerror = () => {
-        console.error('Database error:', request.error);
+        this.initializationPromise = null; // Clear promise on failure to allow retry
         reject(request.error);
       };
 
       request.onsuccess = () => {
         this.db = request.result;
-        console.log('Database initialized successfully');
         resolve();
       };
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-
-        // Create object stores
         OBJECT_STORES.forEach(storeConfig => {
           if (!db.objectStoreNames.contains(storeConfig.name)) {
-            const store = db.createObjectStore(storeConfig.name, {
-              keyPath: storeConfig.keyPath
-            });
-
-            // Create indexes
+            const store = db.createObjectStore(storeConfig.name, { keyPath: storeConfig.keyPath });
             storeConfig.indexes.forEach(index => {
               store.createIndex(index.name, index.keyPath, index.options);
             });
@@ -187,13 +186,13 @@ export class DatabaseService {
         });
       };
     });
+    return this.initializationPromise;
   }
 
   private async getStore(storeName: string, mode: IDBTransactionMode = 'readonly'): Promise<IDBObjectStore> {
     if (!this.initializationPromise) {
-      this.initializationPromise = this.initialize();
+      this.initialize();
     }
-
     await this.initializationPromise;
 
     if (!this.db) {
@@ -204,7 +203,7 @@ export class DatabaseService {
     return transaction.objectStore(storeName);
   }
 
-  // Generic CRUD operations
+  // All other methods (CRUD, specific operations) remain the same...
   async create<T>(storeName: string, data: T): Promise<string> {
     const store = await this.getStore(storeName, 'readwrite');
     return new Promise((resolve, reject) => {
@@ -251,7 +250,6 @@ export class DatabaseService {
     const store = await this.getStore(storeName);
     return new Promise((resolve, reject) => {
       let source: IDBRequest<IDBCursorWithValue> | IDBObjectStore;
-
       if (indexName && query) {
         const index = store.index(indexName);
         source = index.openCursor(query);
@@ -260,9 +258,7 @@ export class DatabaseService {
       } else {
         source = store.openCursor();
       }
-
       const results: T[] = [];
-
       source.onsuccess = () => {
         const cursor = source.result;
         if (cursor) {
@@ -272,7 +268,6 @@ export class DatabaseService {
           resolve(results);
         }
       };
-
       source.onerror = () => reject(source.error);
     });
   }
@@ -281,7 +276,6 @@ export class DatabaseService {
     const store = await this.getStore(storeName);
     return new Promise((resolve, reject) => {
       let source: IDBRequest;
-
       if (indexName && query) {
         const index = store.index(indexName);
         source = index.count(query);
@@ -290,13 +284,11 @@ export class DatabaseService {
       } else {
         source = store.count();
       }
-
       source.onsuccess = () => resolve(source.result);
       source.onerror = () => reject(source.error);
     });
   }
 
-  // Specific methods for content management
   async saveDraft(draft: DraftContent): Promise<void> {
     const draftWithId = { ...draft, id: 'current' };
     await this.update('draftContent', 'current', draftWithId);
@@ -317,7 +309,6 @@ export class DatabaseService {
     return result || null;
   }
 
-  // Media operations
   async saveMedia(media: AdminMedia): Promise<void> {
     await this.update('media', media.id, media);
   }
@@ -334,7 +325,6 @@ export class DatabaseService {
     await this.delete('media', id);
   }
 
-  // Settings operations
   async saveSettings(settings: SiteSettings): Promise<void> {
     const settingsWithId = { ...settings, id: 'current' };
     await this.update('settings', 'current', settingsWithId);
@@ -344,7 +334,6 @@ export class DatabaseService {
     return await this.read<SiteSettings>('settings', 'current') || null;
   }
 
-  // Enquiry operations
   async saveEnquiry(enquiry: Enquiry): Promise<string> {
     return await this.create('enquiries', enquiry);
   }
@@ -365,7 +354,6 @@ export class DatabaseService {
     await this.update('enquiries', id, updates);
   }
 
-  // Entity operations (Properties, Rooms, Places, etc.)
   async saveProperty(property: Property): Promise<string> {
     return await this.create('properties', property);
   }
@@ -405,11 +393,8 @@ export class DatabaseService {
     return await this.getAll<Place>('places', range, 'propertyId');
   }
 
-  // Snapshot operations
   async saveSnapshot(snapshot: Snapshot): Promise<void> {
     await this.create('snapshots', snapshot);
-
-    // Keep only last 20 snapshots
     const all = await this.getAll<Snapshot>('snapshots');
     if (all.length > 20) {
       const toDelete = all.slice(20);
@@ -431,7 +416,6 @@ export class DatabaseService {
     await this.delete('snapshots', id);
   }
 
-  // Utility methods
   async clearAllData(): Promise<void> {
     const storeNames = this.db?.objectStoreNames || [];
     for (let i = 0; i < storeNames.length; i++) {
@@ -451,19 +435,16 @@ export class DatabaseService {
       exportedAt: new Date().toISOString(),
       data: {}
     };
-
     const storeNames = this.db?.objectStoreNames || [];
     for (let i = 0; i < storeNames.length; i++) {
       const storeName = storeNames[i];
       exportData.data[storeName] = await this.getAll(storeName);
     }
-
     return JSON.stringify(exportData, null, 2);
   }
 
   async importData(jsonData: string): Promise<void> {
     const data = JSON.parse(jsonData);
-
     for (const [storeName, items] of Object.entries(data.data || {})) {
       if (Array.isArray(items)) {
         for (const item of items) {
@@ -473,9 +454,6 @@ export class DatabaseService {
     }
   }
 
-  /**
-   * Run database integrity check
-   */
   async runIntegrityCheck(): Promise<{
     passed: boolean;
     issues: string[];
@@ -485,95 +463,59 @@ export class DatabaseService {
     const issues: string[] = [];
     const storeCounts: Record<string, number> = {};
     const checkResults: any = {};
-
     try {
-      const db = await this.initialize();
-
-      // Check all object stores exist
+      await this.initialize();
+      const db = this.db;
+      if (!db) {
+        issues.push('Database connection is not available.');
+        return { passed: false, issues, storeCounts, checkResults };
+      }
       const expectedStores = OBJECT_STORES.map(s => s.name);
       const actualStores = Array.from(db.objectStoreNames);
-
       for (const storeName of expectedStores) {
         if (!actualStores.includes(storeName)) {
           issues.push(`Missing object store: ${storeName}`);
         }
       }
-
-      // Check each store
       for (const storeName of actualStores) {
         try {
           const count = await this.count(storeName);
           storeCounts[storeName] = count;
-
-          // Basic validation for each store type
           switch (storeName) {
-            case 'enquiries':
-              await this.validateEnquiries(storeName, issues);
-              break;
-            case 'media':
-              await this.validateMedia(storeName, issues);
-              break;
-            case 'properties':
-              await this.validateProperties(storeName, issues);
-              break;
-            case 'rooms':
-              await this.validateRooms(storeName, issues);
-              break;
+            case 'enquiries': await this.validateEnquiries(storeName, issues); break;
+            case 'media': await this.validateMedia(storeName, issues); break;
+            case 'properties': await this.validateProperties(storeName, issues); break;
+            case 'rooms': await this.validateRooms(storeName, issues); break;
           }
-
           checkResults[storeName] = { count, status: 'ok' };
         } catch (error) {
           issues.push(`Error checking store ${storeName}: ${error}`);
           checkResults[storeName] = { count: 0, status: 'error', error: String(error) };
         }
       }
-
-      // Check indexes
       await this.validateIndexes(issues);
-
-      return {
-        passed: issues.length === 0,
-        issues,
-        storeCounts,
-        checkResults
-      };
+      return { passed: issues.length === 0, issues, storeCounts, checkResults };
     } catch (error) {
       issues.push(`Database integrity check failed: ${error}`);
-      return {
-        passed: false,
-        issues,
-        storeCounts: {},
-        checkResults: { error: String(error) }
-      };
+      return { passed: false, issues, storeCounts: {}, checkResults: { error: String(error) } };
     }
   }
 
-  /**
-   * Validate enquiries store
-   */
   private async validateEnquiries(storeName: string, issues: string[]): Promise<void> {
     const enquiries = await this.getAll(storeName);
-
     for (const enquiry of enquiries) {
-      // Check required fields
       if (!enquiry.id) issues.push('Enquiry missing ID');
       if (!enquiry.customer?.email) issues.push('Enquiry missing customer email');
       if (!enquiry.status) issues.push('Enquiry missing status');
       if (!enquiry.createdAt) issues.push('Enquiry missing createdAt');
-
-      // Check dates are valid
       if (enquiry.createdAt && isNaN(new Date(enquiry.createdAt).getTime())) {
         issues.push(`Enquiry ${enquiry.id} has invalid createdAt`);
       }
     }
   }
 
-  /**
-   * Validate media store
-   */
   private async validateMedia(storeName: string, issues: string[]): Promise<void> {
     const media = await this.getAll(storeName);
-
     for (const item of media) {
       if (!item.id) issues.push('Media item missing ID');
       if (!item.type) issues.push('Media item missing type');
@@ -581,12 +523,8 @@ export class DatabaseService {
     }
   }
 
-  /**
-   * Validate properties store
-   */
   private async validateProperties(storeName: string, issues: string[]): Promise<void> {
     const properties = await this.getAll(storeName);
-
     for (const property of properties) {
       if (!property.id) issues.push('Property missing ID');
       if (!property.name) issues.push('Property missing name');
@@ -594,12 +532,8 @@ export class DatabaseService {
     }
   }
 
-  /**
-   * Validate rooms store
-   */
   private async validateRooms(storeName: string, issues: string[]): Promise<void> {
     const rooms = await this.getAll(storeName);
-
     for (const room of rooms) {
       if (!room.id) issues.push('Room missing ID');
       if (!room.name) issues.push('Room missing name');
@@ -608,16 +542,17 @@ export class DatabaseService {
     }
   }
 
-  /**
-   * Validate all indexes exist
-   */
   private async validateIndexes(issues: string[]): Promise<void> {
-    const db = await this.initialize();
-
+    await this.initialize();
+    const db = this.db;
+    if (!db) {
+      issues.push('Cannot validate indexes without a database connection.');
+      return;
+    }
     for (const storeConfig of OBJECT_STORES) {
+      if (!db.objectStoreNames.contains(storeConfig.name)) continue;
       const store = db.transaction(storeConfig.name, 'readonly').objectStore(storeConfig.name);
       const indexNames = Array.from(store.indexNames);
-
       for (const indexConfig of storeConfig.indexes) {
         if (!indexNames.includes(indexConfig.name)) {
           issues.push(`Missing index ${indexConfig.name} in store ${storeConfig.name}`);
@@ -626,7 +561,6 @@ export class DatabaseService {
     }
   }
 
-  // Close database connection
   close(): void {
     if (this.db) {
       this.db.close();
@@ -634,7 +568,10 @@ export class DatabaseService {
       this.initializationPromise = null;
     }
   }
+
+  getDb(): IDBDatabase | null {
+    return this.db;
+  }
 }
 
-// Export singleton instance
 export const databaseService = new DatabaseService();

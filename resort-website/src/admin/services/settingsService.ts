@@ -31,14 +31,40 @@ export interface Settings {
 const SETTINGS_STORE = 'admin_settings';
 const SETTINGS_KEY = 'app_settings';
 
+const defaultSettings: Settings = {
+  siteName: 'Wayanad Nature Resorts',
+  siteUrl: 'https://wayanad-nature-resort.local',
+  adminEmail: '',
+  timezone: 'Asia/Kolkata',
+  sessionTimeout: 15,
+  maxLoginAttempts: 5,
+  apiRateLimit: 60,
+  fileUploadLimit: 10,
+  debugMode: false,
+  emailNotifications: true,
+  pushNotifications: true,
+  smsNotifications: false,
+  twoFactorAuth: false,
+  featureFlags: {
+    enableBetaFeatures: false,
+    enableDebugMode: false,
+    enableOfflineMode: true,
+  },
+  storageQuota: {
+    used: 0,
+    limit: 100,
+    warningThreshold: 80,
+  },
+};
+
 export const settingsService = {
+  defaultSettings,
   /**
    * Get all settings
    */
   async getSettings(): Promise<Settings | null> {
     try {
-      const db = await databaseService.getDB();
-      const settings = await db.get(SETTINGS_STORE, SETTINGS_KEY);
+      const settings = await databaseService.loadSettings();
       return settings || null;
     } catch (error) {
       logger.error('Failed to get settings:', error);
@@ -51,8 +77,7 @@ export const settingsService = {
    */
   async saveSettings(settings: Settings): Promise<void> {
     try {
-      const db = await databaseService.getDB();
-      await db.put(SETTINGS_STORE, settings, SETTINGS_KEY);
+      await databaseService.saveSettings(settings);
       logger.info('Settings saved successfully');
     } catch (error) {
       logger.error('Failed to save settings:', error);
@@ -65,9 +90,9 @@ export const settingsService = {
    */
   async updateSetting<K extends keyof Settings>(key: K, value: Settings[K]): Promise<void> {
     try {
-      const currentSettings = await this.getSettings() || {} as Settings;
+      const currentSettings = await this.getSettings();
       const updatedSettings = {
-        ...currentSettings,
+        ...(currentSettings || this.defaultSettings),
         [key]: value
       };
       await this.saveSettings(updatedSettings);
@@ -81,34 +106,8 @@ export const settingsService = {
    * Reset settings to defaults
    */
   async resetSettings(): Promise<void> {
-    const defaultSettings: Settings = {
-      siteName: 'Wayanad Nature Resorts',
-      siteUrl: 'https://wayanad-nature-resort.local',
-      adminEmail: '',
-      timezone: 'Asia/Kolkata',
-      sessionTimeout: 15,
-      maxLoginAttempts: 5,
-      apiRateLimit: 60,
-      fileUploadLimit: 10,
-      debugMode: false,
-      emailNotifications: true,
-      pushNotifications: true,
-      smsNotifications: false,
-      twoFactorAuth: false,
-      featureFlags: {
-        enableBetaFeatures: false,
-        enableDebugMode: false,
-        enableOfflineMode: true,
-      },
-      storageQuota: {
-        used: 0,
-        limit: 100,
-        warningThreshold: 80,
-      },
-    };
-
     try {
-      await this.saveSettings(defaultSettings);
+      await this.saveSettings(this.defaultSettings);
       logger.info('Settings reset to defaults');
     } catch (error) {
       logger.error('Failed to reset settings:', error);
@@ -168,6 +167,9 @@ export const settingsService = {
    * Validate settings structure
    */
   validateSettings(settings: any): settings is Settings {
+    if (typeof settings !== 'object' || settings === null) {
+      return false;
+    }
     const requiredFields = [
       'siteName', 'siteUrl', 'adminEmail', 'timezone',
       'sessionTimeout', 'maxLoginAttempts', 'apiRateLimit',
