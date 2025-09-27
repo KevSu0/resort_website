@@ -183,6 +183,51 @@ export class FileStorageService {
     localStorage.setItem(key, JSON.stringify(enquiries, null, 2));
   }
 
+  // Backup operations
+  async saveBackup(backup: any): Promise<void> {
+    const key = `${this.config.dataDir}/backups/${backup.id}.json`;
+    localStorage.setItem(key, JSON.stringify(backup, null, 2));
+
+    // Keep only last 10 backups
+    const backups = await this.listBackups();
+    if (backups.length > 10) {
+      const toDelete = backups.slice(10);
+      toDelete.forEach(b => {
+        localStorage.removeItem(`${this.config.dataDir}/backups/${b.id}.json`);
+      });
+    }
+  }
+
+  async loadBackup(backupId: string): Promise<any | null> {
+    const key = `${this.config.dataDir}/backups/${backupId}.json`;
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+  }
+
+  async listBackups(): Promise<any[]> {
+    const backups: any[] = [];
+    const prefix = `${this.config.dataDir}/backups/`;
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(prefix)) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key)!);
+          backups.push(data);
+        } catch (error) {
+          console.error('Failed to parse backup:', key, error);
+        }
+      }
+    }
+
+    return backups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async deleteBackup(backupId: string): Promise<void> {
+    const key = `${this.config.dataDir}/backups/${backupId}.json`;
+    localStorage.removeItem(key);
+  }
+
   // Export/Import operations
   async exportData(options: { includeMedia: boolean; includeSnapshots: boolean }): Promise<string> {
     const exportData: any = {
@@ -293,6 +338,99 @@ export class FileStorageService {
     };
 
     await this.saveSettings(defaultSettings);
+  }
+
+  /**
+   * Get storage usage statistics
+   */
+  async getStorageUsage(): Promise<{ used: number; limit: number; breakdown: any }> {
+    try {
+      // Calculate total storage used across all stores
+      const db = await this.getDB();
+      let totalSize = 0;
+      const breakdown = {
+        media: 0,
+        content: 0,
+        settings: 0,
+        other: 0
+      };
+
+      // Get all object stores
+      const storeNames = db.objectStoreNames;
+
+      for (const storeName of storeNames) {
+        const transaction = db.transaction(storeName, 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+
+        await new Promise((resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+
+        // Calculate size for each store
+        const storeData = JSON.stringify(request.result);
+        const storeSize = new Blob([storeData]).size / (1024 * 1024); // Convert to MB
+
+        totalSize += storeSize;
+
+        // Categorize by store name
+        if (storeName.includes('media')) {
+          breakdown.media += storeSize;
+        } else if (storeName.includes('content') || storeName.includes('draft')) {
+          breakdown.content += storeSize;
+        } else if (storeName.includes('settings')) {
+          breakdown.settings += storeSize;
+        } else {
+          breakdown.other += storeSize;
+        }
+      }
+
+      return {
+        used: parseFloat(totalSize.toFixed(2)),
+        limit: 100, // Default limit in MB
+        breakdown
+      };
+    } catch (error) {
+      console.error('Failed to get storage usage:', error);
+      return {
+        used: 0,
+        limit: 100,
+        breakdown: {
+          media: 0,
+          content: 0,
+          settings: 0,
+          other: 0
+        }
+      };
+    }
+  }
+
+  /**
+   * Get IndexedDB instance
+   */
+  private async getDB(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('WayanadResortsDB', 1);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        // Create object stores if they don't exist
+        if (!db.objectStoreNames.contains('admin_settings')) {
+          db.createObjectStore('admin_settings', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('media_files')) {
+          db.createObjectStore('media_files', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('draft_content')) {
+          db.createObjectStore('draft_content', { keyPath: 'id' });
+        }
+      };
+    });
   }
 }
 

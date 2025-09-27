@@ -3,13 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
-  X,
   Users,
   Mail,
   Phone,
   MapPin,
   Calendar,
-  FileText,
   AlertCircle
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -20,6 +18,7 @@ import { useAuth } from '../../hooks/admin/useAuth';
 export const EnquiryFormPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars 
   const [enquiry, setEnquiry] = useState<Partial<Enquiry>>({
     name: '',
     email: '',
@@ -58,7 +57,7 @@ export const EnquiryFormPage: React.FC = () => {
         return;
       }
 
-      await enquiriesService.createEnquiry(enquiry as any);
+      await enquiriesService.createEnquiry(enquiry as Enquiry);
       navigate('/admin/enquiries');
     } catch (err) {
       setErrors([err instanceof Error ? err.message : 'Failed to create enquiry']);

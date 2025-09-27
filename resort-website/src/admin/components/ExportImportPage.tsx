@@ -6,19 +6,23 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  FileText,
   RotateCcw,
-  Clock
+  Clock,
+  History,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { ProgressIndicator } from './shared/ProgressIndicator';
 import { exportImportService } from '../services/exportImportService';
-import { type ExportOptions, type ImportResult, type ImportDiff } from '../types/admin';
+import { type ExportOptions, type ImportResult } from '../types/admin';
 
 export const ExportImportPage: React.FC = () => {
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [dryRun, setDryRun] = useState(true);
+  const [rollbackProgress, setRollbackProgress] = useState(false);
+  const [rollbackResult, setRollbackResult] = useState<{ success: boolean; message: string } | null>(null);
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
     includeSnapshots: true,
     includeMedia: false,
@@ -26,9 +30,58 @@ export const ExportImportPage: React.FC = () => {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Progress states
+  const [exportProgress, setExportProgress] = useState({
+    isRunning: false,
+    progress: 0,
+    status: 'idle' as 'idle' | 'running' | 'success' | 'error',
+    message: '',
+    error: '',
+    steps: [] as string[],
+    currentStep: 0
+  });
+
+  const [importProgress, setImportProgress] = useState({
+    isRunning: false,
+    progress: 0,
+    status: 'idle' as 'idle' | 'running' | 'success' | 'error',
+    message: '',
+    error: '',
+    steps: [] as string[],
+    currentStep: 0
+  });
+
   const handleExport = async () => {
-    setExporting(true);
+    const steps = [
+      'Preparing export data',
+      'Collecting content',
+      exportOptions.includeSnapshots && 'Adding snapshots',
+      exportOptions.includeMedia && 'Processing media files',
+      'Creating archive',
+      'Generating download'
+    ].filter(Boolean) as string[];
+
+    setExportProgress({
+      isRunning: true,
+      progress: 0,
+      status: 'running',
+      message: 'Exporting data...',
+      error: '',
+      steps,
+      currentStep: 0
+    });
+
     try {
+      // Simulate progress steps
+      for (let i = 0; i < steps.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setExportProgress(prev => ({
+          ...prev,
+          progress: ((i + 1) / steps.length) * 90,
+          currentStep: i + 1
+        }));
+      }
+
       const blob = await exportImportService.exportData(exportOptions);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -38,23 +91,108 @@ export const ExportImportPage: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      setExportProgress(prev => ({
+        ...prev,
+        progress: 100,
+        status: 'success',
+        message: 'Export completed successfully',
+        isRunning: false
+      }));
+
+      // Reset after delay
+      setTimeout(() => {
+        setExportProgress({
+          isRunning: false,
+          progress: 0,
+          status: 'idle',
+          message: '',
+          error: '',
+          steps: [],
+          currentStep: 0
+        });
+      }, 3000);
     } catch (error) {
-      console.error('Export failed:', error);
-    } finally {
-      setExporting(false);
+      setExportProgress({
+        isRunning: false,
+        progress: 0,
+        status: 'error',
+        message: 'Export failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        steps,
+        currentStep: 0
+      });
     }
   };
 
   const handleImport = async (file: File) => {
-    setImporting(true);
+    const steps = [
+      'Validating export file',
+      'Reading manifest',
+      'Analyzing content',
+      'Generating diff',
+      dryRun ? 'Preparing preview' : 'Creating backup',
+      !dryRun && 'Applying changes',
+      !dryRun && 'Finalizing import'
+    ].filter(Boolean) as string[];
+
+    setImportProgress({
+      isRunning: true,
+      progress: 0,
+      status: 'running',
+      message: dryRun ? 'Analyzing import data...' : 'Importing data...',
+      error: '',
+      steps,
+      currentStep: 0
+    });
+
     setImportResult(null);
     try {
+      // Simulate progress steps
+      for (let i = 0; i < steps.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, 400));
+        setImportProgress(prev => ({
+          ...prev,
+          progress: ((i + 1) / steps.length) * 90,
+          currentStep: i + 1
+        }));
+      }
+
       const result = await exportImportService.importData(file, dryRun);
       setImportResult(result);
+
+      setImportProgress(prev => ({
+        ...prev,
+        progress: 100,
+        status: 'success',
+        message: dryRun ? 'Analysis completed' : 'Import completed',
+        isRunning: false
+      }));
+
+      // Reset after delay only for dry run
+      if (dryRun) {
+        setTimeout(() => {
+          setImportProgress({
+            isRunning: false,
+            progress: 0,
+            status: 'idle',
+            message: '',
+            error: '',
+            steps: [],
+            currentStep: 0
+          });
+        }, 3000);
+      }
     } catch (error) {
-      console.error('Import failed:', error);
-    } finally {
-      setImporting(false);
+      setImportProgress({
+        isRunning: false,
+        progress: 0,
+        status: 'error',
+        message: 'Import failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        steps,
+        currentStep: 0
+      });
     }
   };
 
@@ -88,6 +226,27 @@ export const ExportImportPage: React.FC = () => {
       console.error('Import failed:', error);
     } finally {
       setImporting(false);
+    }
+  };
+
+  const handleRollback = async () => {
+    if (!importResult?.backupId) return;
+
+    setRollbackProgress(true);
+    setRollbackResult(null);
+    try {
+      const success = await exportImportService.rollback(importResult.backupId);
+      setRollbackResult({
+        success,
+        message: success ? 'Rollback completed successfully' : 'Rollback failed'
+      });
+    } catch (error) {
+      setRollbackResult({
+        success: false,
+        message: error instanceof Error ? error.message : 'Rollback failed'
+      });
+    } finally {
+      setRollbackProgress(false);
     }
   };
 
@@ -145,11 +304,11 @@ export const ExportImportPage: React.FC = () => {
 
             <Button
               onClick={handleExport}
-              disabled={exporting}
+              disabled={exportProgress.isRunning}
               className="w-full"
             >
               <FileArchive className="w-4 h-4 mr-2" />
-              {exporting ? 'Exporting...' : 'Export Data'}
+              {exportProgress.isRunning ? 'Exporting...' : 'Export Data'}
             </Button>
           </div>
         </div>
@@ -214,6 +373,31 @@ export const ExportImportPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Progress Indicators */}
+      {exportProgress.status !== 'idle' && (
+        <ProgressIndicator
+          isRunning={exportProgress.isRunning}
+          progress={exportProgress.progress}
+          status={exportProgress.status}
+          message={exportProgress.message}
+          error={exportProgress.error}
+          steps={exportProgress.steps}
+          currentStep={exportProgress.currentStep}
+        />
+      )}
+
+      {importProgress.status !== 'idle' && (
+        <ProgressIndicator
+          isRunning={importProgress.isRunning}
+          progress={importProgress.progress}
+          status={importProgress.status}
+          message={importProgress.message}
+          error={importProgress.error}
+          steps={importProgress.steps}
+          currentStep={importProgress.currentStep}
+        />
+      )}
+
       {/* Import Results */}
       {importResult && (
         <div className="bg-white rounded-lg border p-6">
@@ -273,6 +457,22 @@ export const ExportImportPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Amenity Analysis */}
+                  {(importResult.diff.amenityDuplicates! > 0 || importResult.diff.amenityNormalized! > 0) && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="w-4 h-4 text-orange-600" />
+                        <h4 className="font-medium text-orange-800">Amenity Analysis</h4>
+                      </div>
+                      <div className="text-sm text-orange-700 space-y-1">
+                        <p>• {importResult.diff.amenityNormalized} unique amenities detected</p>
+                        {importResult.diff.amenityDuplicates! > 0 && (
+                          <p>• {importResult.diff.amenityDuplicates} duplicate amenities will be removed during import</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {importResult.diff.details.length > 0 && (
                     <div>
                       <h3 className="font-medium mb-2">Detailed Changes</h3>
@@ -295,12 +495,70 @@ export const ExportImportPage: React.FC = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Rollback Option */}
+                  {!dryRun && importResult.backupId && (
+                    <div className="border-t pt-4">
+                      <div className="flex items-center gap-2">
+                        <History className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium">Backup Created</span>
+                        <span className="text-xs text-gray-500 ml-auto">ID: {importResult.backupId}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRollback}
+                        disabled={rollbackProgress}
+                        className="mt-2 w-full"
+                      >
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        {rollbackProgress ? 'Rolling Back...' : 'Rollback to Backup'}
+                      </Button>
+                      {rollbackResult && (
+                        <div className={`mt-2 p-2 rounded text-sm ${rollbackResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+                          {rollbackResult.message}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           ) : (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-800">{importResult.message}</p>
+            <div className="space-y-3">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-800">{importResult.message}</p>
+              </div>
+
+              {/* Error logs */}
+              {importResult.errors && importResult.errors.length > 0 && (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                  <h4 className="font-medium text-orange-800 mb-2">Error Details:</h4>
+                  <ul className="text-sm text-orange-700 space-y-1">
+                    {importResult.errors.map((error, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-orange-500 mt-0.5">•</span>
+                        <span>{error}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Warning logs for successful imports */}
+              {importResult.success && importResult.errors && importResult.errors.length > 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <h4 className="font-medium text-yellow-800 mb-2">Warnings:</h4>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    {importResult.errors.map((error, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                        <span>{error}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -1,0 +1,84 @@
+{
+  "enquiries": [
+    {
+      "id": "enq_001",
+      "name": "John Smith",
+      "email": "john@example.com",
+      "phone": "+1234567890",
+      "checkIn": "2024-02-15",
+      "checkOut": "2024-02-20",
+      "guests": 2,
+      "propertyType": "villa",
+      "budget": "300-400",
+      "message": "Looking for a villa with mountain view and private pool",
+      "status": "new",
+      "assignedTo": null,
+      "response": null,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": "enq_002",
+      "name": "Sarah Johnson",
+      "email": "sarah@example.com",
+      "phone": "+0987654321",
+      "checkIn": "2024-03-01",
+      "checkOut": "2024-03-07",
+      "guests": 4,
+      "propertyType": "cottage",
+      "budget": "200-300",
+      "message": "Family vacation, need 2 bedrooms, prefer garden view",
+      "status": "contacted",
+      "assignedTo": "agent_001",
+      "response": {
+        "message": "Thank you for your enquiry. We have several cottages available.",
+        "sentAt": "2024-01-14T16:00:00Z"
+      },
+      "createdAt": "2024-01-14T15:45:00Z",
+      "updatedAt": "2024-01-14T16:00:00Z"
+    },
+    {
+      "id": "enq_003",
+      "name": "Michael Chen",
+      "email": "michael@example.com",
+      "phone": "+1122334455",
+      "checkIn": "2024-04-10",
+      "checkOut": "2024-04-15",
+      "guests": 6,
+      "propertyType": "villa",
+      "budget": "500+",
+      "message": "Corporate retreat, need conference facilities",
+      "status": "pending",
+      "assignedTo": null,
+      "response": null,
+      "createdAt": "2024-01-13T09:20:00Z",
+      "updatedAt": "2024-01-13T09:20:00Z"
+    },
+    {
+      "id": "enq_004",
+      "name": "Emily Davis",
+      "email": "emily@example.com",
+      "phone": "+5544332211",
+      "checkIn": "2024-02-28",
+      "checkOut": "2024-03-05",
+      "guests": 2,
+      "propertyType": "cottage",
+      "budget": "150-250",
+      "message": "Honeymoon package request, romantic setting preferred",
+      "status": "resolved",
+      "assignedTo": "agent_002",
+      "response": {
+        "message": "Congratulations! We have special honeymoon packages available.",
+        "sentAt": "2024-01-12T14:30:00Z"
+      },
+      "createdAt": "2024-01-12T11:15:00Z",
+      "updatedAt": "2024-01-13T10:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 48,
+    "pages": 5
+  }
+}

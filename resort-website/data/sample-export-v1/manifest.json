@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "exportedAt": "2025-01-27T10:00:00.000Z",
+  "exportedBy": "Local Admin",
+  "schema": {
+    "version": 1,
+    "stores": ["draftContent", "publishedContent", "snapshots", "media", "settings", "enquiries", "properties", "roomTypes", "places", "offers", "promoCodes", "activityLog", "auditLog"]
+  },
+  "counts": {
+    "properties": 3,
+    "roomTypes": 8,
+    "places": 12,
+    "offers": 5,
+    "promoCodes": 3,
+    "enquiries": 27,
+    "media": 45,
+    "settings": 1
+  },
+  "includesMedia": false,
+  "piiWarning": "This export contains personally identifiable information (PII) including names, phone numbers, and email addresses. Handle with care and store securely.",
+  "checksums": {
+    "content": "sha256-content-hash-placeholder",
+    "snapshots": "sha256-snapshots-hash-placeholder"
+  }
+}

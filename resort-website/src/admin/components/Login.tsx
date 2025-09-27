@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/admin/useAuth';
 import { type LoginCredentials } from '../types/admin';
 
@@ -30,7 +30,7 @@ export const Login: React.FC<LoginFormProps> = ({ onSuccess }) => {
       } else {
         setError(result.error || 'Login failed');
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setIsSubmitting(false);
@@ -47,19 +47,19 @@ export const Login: React.FC<LoginFormProps> = ({ onSuccess }) => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div className="mx-auto h-14 w-14 bg-primary-600 rounded-xl flex items-center justify-center">
             <span className="text-white font-bold text-xl">W</span>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
             Admin Login
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-gray-600">
             Wayanad Nature Resorts CMS
           </p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
               <label htmlFor="username" className="sr-only">
                 Username
@@ -71,7 +71,7 @@ export const Login: React.FC<LoginFormProps> = ({ onSuccess }) => {
                 required
                 value={credentials.username}
                 onChange={handleInputChange}
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                 placeholder="Username"
                 autoComplete="username"
               />
@@ -88,7 +88,7 @@ export const Login: React.FC<LoginFormProps> = ({ onSuccess }) => {
                 required
                 value={credentials.password}
                 onChange={handleInputChange}
-                className="appearance-none rounded-md relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-lg relative block w-full px-4 py-3 pr-12 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 autoComplete="current-password"
               />
@@ -107,7 +107,7 @@ export const Login: React.FC<LoginFormProps> = ({ onSuccess }) => {
           </div>
 
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
+            <div className="rounded-lg bg-red-50 border-l-4 border-red-400 p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <AlertCircle className="h-5 w-5 text-red-400" />
@@ -123,7 +123,7 @@ export const Login: React.FC<LoginFormProps> = ({ onSuccess }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -133,11 +133,13 @@ export const Login: React.FC<LoginFormProps> = ({ onSuccess }) => {
             </button>
           </div>
 
-          <div className="text-center">
-            <p className="text-xs text-gray-500">
-              Default credentials: admin / admin123
-            </p>
-          </div>
+          {process.env.NODE_ENV === 'development' && (
+            <div className="text-center mt-4">
+              <p className="text-xs text-gray-500 bg-gray-100 rounded-lg py-2 px-3 inline-block">
+                Development credentials: admin / Admin123!@#
+              </p>
+            </div>
+          )}
         </form>
       </div>
     </div>

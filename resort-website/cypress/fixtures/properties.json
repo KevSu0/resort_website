@@ -1,0 +1,106 @@
+{
+  "properties": [
+    {
+      "id": "prop_001",
+      "name": "Mountain View Villa",
+      "type": "villa",
+      "description": "Luxurious villa with panoramic mountain views, private pool, and modern amenities",
+      "price": 350,
+      "capacity": 4,
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "amenities": ["pool", "wifi", "ac", "kitchen", "parking"],
+      "images": [
+        {
+          "id": "img_001",
+          "url": "/images/villa1-1.jpg",
+          "alt": "Mountain view from villa balcony",
+          "caption": "Stunning mountain views"
+        },
+        {
+          "id": "img_002",
+          "url": "/images/villa1-2.jpg",
+          "alt": "Private swimming pool",
+          "caption": "Private infinity pool"
+        }
+      ],
+      "location": {
+        "area": "Wayanad",
+        "coordinates": {
+          "lat": 11.6855,
+          "lng": 76.1316
+        }
+      },
+      "availability": true,
+      "featured": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-10T12:00:00Z"
+    },
+    {
+      "id": "prop_002",
+      "name": "Forest Cottage",
+      "type": "cottage",
+      "description": "Cozy cottage nestled in the forest, perfect for nature lovers",
+      "price": 200,
+      "capacity": 2,
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "amenities": ["fireplace", "wifi", "kitchen", "garden"],
+      "images": [
+        {
+          "id": "img_003",
+          "url": "/images/cottage1-1.jpg",
+          "alt": "Forest cottage exterior",
+          "caption": "Rustic forest cottage"
+        }
+      ],
+      "location": {
+        "area": "Wayanad",
+        "coordinates": {
+          "lat": 11.6924,
+          "lng": 76.1235
+        }
+      },
+      "availability": true,
+      "featured": false,
+      "createdAt": "2024-01-02T00:00:00Z",
+      "updatedAt": "2024-01-05T15:30:00Z"
+    },
+    {
+      "id": "prop_003",
+      "name": "Lake View Suite",
+      "type": "suite",
+      "description": "Elegant suite overlooking the serene lake with modern amenities",
+      "price": 280,
+      "capacity": 3,
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "amenities": ["balcony", "wifi", "ac", "minibar", "lake-access"],
+      "images": [
+        {
+          "id": "img_004",
+          "url": "/images/suite1-1.jpg",
+          "alt": "Lake view from balcony",
+          "caption": "Peaceful lake views"
+        }
+      ],
+      "location": {
+        "area": "Wayanad",
+        "coordinates": {
+          "lat": 11.6987,
+          "lng": 76.1456
+        }
+      },
+      "availability": false,
+      "featured": true,
+      "createdAt": "2024-01-03T00:00:00Z",
+      "updatedAt": "2024-01-08T09:15:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 12,
+    "pages": 2
+  }
+}

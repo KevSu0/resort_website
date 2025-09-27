@@ -23,6 +23,11 @@ class AuthService {
     this.loginRateLimiter = new RateLimiter('login_attempts');
     SessionManager.cleanup();
     this.loginRateLimiter.cleanup();
+
+    // Create default admin user in development if no users exist
+    if (this.users.length === 0 && process.env.NODE_ENV === 'development') {
+      this.createDefaultAdmin();
+    }
   }
 
   private loadUsers(): void {
@@ -332,6 +337,28 @@ class AuthService {
 
   resetRateLimiter() {
     this.loginRateLimiter = new RateLimiter('login_attempts');
+  }
+
+  private createDefaultAdmin(): void {
+    const defaultAdmin: AdminUser = {
+      id: uuidv4(),
+      username: 'admin',
+      email: 'admin@wayanad-nature-resort.local',
+      name: 'Default Admin',
+      passwordHash: bcrypt.hashSync('Admin123!@#', 10),
+      role: 'ADMIN',
+      createdAt: new Date().toISOString(),
+    };
+
+    this.users.push(defaultAdmin);
+    this.saveUsers();
+
+    // Mark setup as complete since we have a default admin
+    localStorage.setItem('admin_setup_complete', 'true');
+
+    console.log('Default admin user created:');
+    console.log('Username: admin');
+    console.log('Password: Admin123!@#');
   }
 }
 

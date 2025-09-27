@@ -1,14 +1,5 @@
 import { type Enquiry } from '../types/entities';
-
-type EnquiryStatus = 'NEW' | 'CONTACTED' | 'CONFIRMED' | 'DECLINED' | 'CANCELLED';
-
-interface EnquiryTimeline {
-  id: string;
-  timestamp: string;
-  status: string;
-  notes: string;
-  by: string;
-}
+import { OfflineQueueService } from './offlineQueueService';
 import { fileStorageService } from './fileStorage';
 
 export class EnquiriesService {
@@ -142,9 +133,127 @@ export class EnquiriesService {
       (e.fullName || e.name || '').toLowerCase().includes(lowerQuery) ||
       (e.email && e.email.toLowerCase().includes(lowerQuery)) ||
       e.phone.toLowerCase().includes(lowerQuery) ||
-      (e.propertyId || '').toLowerCase().includes(lowerQuery) ||
+      (e.propertyId || e.propertyName || '').toLowerCase().includes(lowerQuery) ||
       (e.notes && e.notes.toLowerCase().includes(lowerQuery))
     );
+  }
+
+  // Timeline management with offline support
+  async addTimelineEvent(
+    enquiryId: string,
+    event: {
+      action: string;
+      notes: string;
+      by?: string;
+      status?: string;
+      metadata?: Record<string, any>;
+    }
+  ): Promise<void> {
+    const offlineQueue = OfflineQueueService.getInstance();
+    const eventId = await offlineQueue.addTimelineEvent(enquiryId, {
+      ...event,
+      by: event.by || 'Local Admin'
+    });
+
+    // For immediate UI feedback, update the enquiry locally
+    try {
+      const enquiries = await this.loadEnquiries();
+      const index = enquiries.findIndex(e => e.id === enquiryId);
+      if (index !== -1) {
+        const timelineEntry: EnquiryTimeline = {
+          id: `event_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          status: event.status || event.action,
+          notes: event.notes,
+          by: event.by || 'Local Admin'
+        };
+        enquiries[index].timeline.push(timelineEntry);
+        enquiries[index].updatedAt = new Date().toISOString();
+        await this.saveEnquiries(enquiries);
+      }
+    } catch (error) {
+      console.error('Failed to update local timeline:', error);
+    }
+
+    console.log(`Timeline event queued: ${eventId}`);
+  }
+
+  // Quick action methods
+  async logWhatsAppAction(enquiryId: string, phone: string): Promise<void> {
+    await this.addTimelineEvent(enquiryId, {
+      action: 'WhatsApp',
+      notes: `Initiated WhatsApp chat to ${phone}`,
+      by: 'Admin',
+      metadata: {
+        method: 'whatsapp',
+        phone,
+        url: `https://wa.me/${phone.replace(/\D/g, '')}`
+      }
+    });
+  }
+
+  async logEmailAction(enquiryId: string, email: string): Promise<void> {
+    await this.addTimelineEvent(enquiryId, {
+      action: 'Email',
+      notes: `Sent email to ${email}`,
+      by: 'Admin',
+      metadata: {
+        method: 'email',
+        email
+      }
+    });
+  }
+
+  async logCallAction(enquiryId: string, phone: string): Promise<void> {
+    await this.addTimelineEvent(enquiryId, {
+      action: 'Call',
+      notes: `Called ${phone}`,
+      by: 'Admin',
+      metadata: {
+        method: 'call',
+        phone
+      }
+    });
+  }
+
+  async updateEnquiryStatus(
+    enquiryId: string,
+    newStatus: 'NEW' | 'CONTACTED' | 'FOLLOW_UP' | 'CONFIRMED' | 'DECLINED' | 'CANCELLED',
+    notes?: string
+  ): Promise<void> {
+    const enquiries = await this.loadEnquiries();
+    const index = enquiries.findIndex(e => e.id === enquiryId);
+
+    if (index === -1) throw new Error('Enquiry not found');
+
+    const enquiry = enquiries[index];
+    const oldStatus = enquiry.status;
+
+    // Update status
+    enquiry.status = newStatus;
+    enquiry.updatedAt = new Date().toISOString();
+
+    // Add timeline event
+    const timelineEvent = {
+      action: 'Status Update',
+      notes: notes || `Status changed from ${oldStatus} to ${newStatus}`,
+      status: newStatus,
+      metadata: {
+        oldStatus,
+        newStatus
+      }
+    };
+
+    await this.addTimelineEvent(enquiryId, timelineEvent);
+
+    // Save the enquiry
+    enquiries[index] = enquiry;
+    await this.saveEnquiries(enquiries);
+  }
+
+  async getOfflineQueueStatus() {
+    const offlineQueue = OfflineQueueService.getInstance();
+    return offlineQueue.getQueueStatus();
   }
 }
 

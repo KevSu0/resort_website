@@ -13,7 +13,16 @@
       "Bash(npm run preview:*)",
       "Bash(find:*)",
       "Bash(npm start)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run build:tsc:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run verify:*)"
     ],
     "deny": [],
     "ask": []

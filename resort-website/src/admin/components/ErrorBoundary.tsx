@@ -1,9 +1,9 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
-import { logger, logError } from '../utils/logger';
+import { logError } from '../utils/logger';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, AlertTriangle, Bug, FileText } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { RefreshCw, AlertTriangle, Bug } from 'lucide-react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -16,7 +16,7 @@ interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   resetOnPropsChange?: boolean;
 }
 
@@ -234,7 +234,7 @@ export function GlobalErrorBoundary({ children }: { children: ReactNode }): Reac
   return (
     <ErrorBoundary
       context={{ global: true }}
-      onError={(error, errorInfo) => {
+      onError={() => {
         // Send to error tracking service in production
         if (process.env.NODE_ENV === 'production') {
           // Example: sendToErrorTracking(error, errorInfo);
