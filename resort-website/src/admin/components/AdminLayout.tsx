@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/admin/useAuth';
 import { ADMIN_CONFIG } from '../config/adminConfig';
-import { SkipLinks, ARIA_ROLES, useKeyboardNavigation } from '../utils/accessibility';
+import { SkipLinks } from './AccessibilityComponents';
+import { ARIA_ROLES, useKeyboardNavigation } from '../utils/accessibility';
 
 interface AdminLayoutProps {
   children?: React.ReactNode;

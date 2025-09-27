@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { logError } from '../utils/logger';
 import { Button } from '@/components/ui/button';

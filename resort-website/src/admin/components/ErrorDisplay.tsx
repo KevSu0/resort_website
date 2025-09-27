@@ -1,12 +1,12 @@
 import React from 'react';
 import { AlertCircle, Info, AlertTriangle, XCircle, RefreshCw, HelpCircle } from 'lucide-react';
-import { ErrorConfig, getErrorConfig, getErrorStyles } from '../utils/errorMessages';
+import { getErrorConfig, getErrorStyles } from '../utils/errorMessages';
 
 interface ErrorDisplayProps {
   error?: Error | string;
   code?: string;
   customMessage?: string;
-  context?: any;
+  context?: unknown;
   className?: string;
   showDetails?: boolean;
   onDismiss?: () => void;

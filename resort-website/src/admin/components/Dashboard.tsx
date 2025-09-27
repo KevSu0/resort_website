@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building,
@@ -7,11 +7,7 @@ import {
   MessageSquare,
   Tag,
   Clock,
-  Eye,
-  AlertCircle,
-  TrendingUp,
-  Calendar,
-  Plus
+  AlertCircle
 } from 'lucide-react';
 import { propertyService } from '../services/propertyService';
 import { roomService } from '../services/roomService';
@@ -19,7 +15,6 @@ import { mediaService } from '../services/mediaService';
 import { enquiriesService } from '../services/enquiriesService';
 import { offersService } from '../services/offersService';
 import { publishService } from '../services/publishService';
-import { OfflineQueueService } from '../services/offlineQueueService';
 import { LoadingSpinner } from './shared/LoadingSpinner';
 
 interface DashboardStats {
@@ -125,9 +120,9 @@ export const Dashboard: React.FC = () => {
     }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [loadDashboardData]);
 
-  const loadDashboardData = async (showLoading = true) => {
+  const loadDashboardData = useCallback(async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
 
@@ -186,13 +181,13 @@ export const Dashboard: React.FC = () => {
     } finally {
       if (showLoading) setLoading(false);
     }
-  };
+  }, []);
 
-  const generateRecentActivity = (data: {
-    enquiries: any[];
-    offers: any[];
-    media: any[];
-    properties: any[];
+  const generateRecentActivity = useCallback((data: {
+    enquiries: Array<{ id: string; createdAt: string; name?: string }>;
+    offers: Array<{ id: string; createdAt: string; title?: string }>;
+    media: Array<{ id: string; uploadedAt: string; filename?: string }>;
+    properties: Array<{ id: string; updatedAt: string; name?: string }>;
   }): ActivityItem[] => {
     const activities: ActivityItem[] = [];
 
@@ -242,7 +237,7 @@ export const Dashboard: React.FC = () => {
     return activities
       .sort((a, b) => parseTimeAgo(b.time) - parseTimeAgo(a.time))
       .slice(0, 6);
-  };
+  }, []);
 
   const formatTimeAgo = (date: Date): string => {
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);

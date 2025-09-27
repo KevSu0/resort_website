@@ -88,7 +88,7 @@ export const useKeyboardNavigation = (
   onArrowLeft?: () => void,
   onArrowRight?: () => void
 ) => {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: any) => {
     switch (e.key) {
       case 'Enter':
         e.preventDefault();
@@ -147,28 +147,6 @@ export const useAnnouncer = () => {
   return { announce };
 };
 
-// Skip link component
-export const SkipLinks = () => {
-  const links = [
-    { href: '#main-content', text: 'Skip to main content' },
-    { href: '#navigation', text: 'Skip to navigation' },
-    { href: '#search', text: 'Skip to search' },
-  ];
-
-  return (
-    <div className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50">
-      {links.map((link) => (
-        <a
-          key={link.href}
-          href={link.href}
-          className="block px-4 py-2 bg-white text-blue-600 rounded shadow-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {link.text}
-        </a>
-      ))}
-    </div>
-  );
-};
 
 // Color contrast checker
 export const checkColorContrast = (color1: string, color2: string): boolean => {
@@ -221,19 +199,3 @@ export const getFormFieldProps = (
   return props;
 };
 
-// Landmark region utilities
-export const LandmarkRegion = ({
-  role,
-  label,
-  children
-}: {
-  role: keyof typeof ARIA_ROLES;
-  label: string;
-  children: React.ReactNode
-}) => {
-  return (
-    <div role={ARIA_ROLES[role]} aria-label={label}>
-      {children}
-    </div>
-  );
-};

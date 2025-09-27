@@ -1,5 +1,5 @@
 // Jest setup file
-import { TextEncoder, TextDecoder } from 'util';
+const { TextEncoder, TextDecoder } = require('util');
 
 // Manual polyfill for structuredClone, as the core-js one is not working in this environment.
 if (typeof global.structuredClone === 'undefined') {
@@ -7,7 +7,7 @@ if (typeof global.structuredClone === 'undefined') {
 }
 
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as typeof global.TextDecoder;
+global.TextDecoder = TextDecoder;
 
 require('fake-indexeddb/auto');
 require('@testing-library/jest-dom');

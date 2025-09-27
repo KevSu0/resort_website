@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { DatabaseService } from '../../services/databaseService';
-import { OBJECT_STORES } from '../../services/databaseService';
+// import { OBJECT_STORES } from '../../services/databaseService'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 describe('DatabaseService', () => {
     // Helper to get a unique DB name for each test to ensure complete isolation

@@ -38,7 +38,7 @@ describe('FileStorageService', () => {
 
             await new Promise<void>((resolve, reject) => {
                 tx.oncomplete = () => resolve();
-                tx.onerror = (e) => reject(tx.error);
+                tx.onerror = () => reject(tx.error);
             });
 
             // Act

@@ -15,8 +15,7 @@ import {
   Eye,
   MessageSquare,
   Wifi,
-  WifiOff,
-  Filter
+  WifiOff
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { enquiriesService } from '../services/enquiriesService';

@@ -18,7 +18,8 @@ import { useAuth } from '../../hooks/admin/useAuth';
 export const EnquiryFormPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _ = user; // Mark as used to avoid lint error 
   const [enquiry, setEnquiry] = useState<Partial<Enquiry>>({
     name: '',
     email: '',

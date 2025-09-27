@@ -17,8 +17,7 @@ import { exportImportService } from '../services/exportImportService';
 import { type ExportOptions, type ImportResult } from '../types/admin';
 
 export const ExportImportPage: React.FC = () => {
-  const [exporting, setExporting] = useState(false);
-  const [importing, setImporting] = useState(false);
+    const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [dryRun, setDryRun] = useState(true);
   const [rollbackProgress, setRollbackProgress] = useState(false);
