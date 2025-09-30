@@ -1,10 +1,5 @@
-<<<<<<< HEAD:tests/unit/__tests__/services/authService2.test.ts
 import { authService as authServiceSingleton } from '../../../src/admin/services/authService';
-import { SECURITY_CONFIG } from '../../../src/admin/utils/security';
-=======
-import { authService as authServiceSingleton } from '../../services/authService';
-import { SECURITY_CONFIG, SessionManager } from '../../utils/security';
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/__tests__/services/authService2.test.ts
+import { SECURITY_CONFIG, SessionManager } from '../../../src/admin/utils/security';
 
 type AuthServiceType = typeof authServiceSingleton;
 
@@ -13,11 +8,7 @@ describe('AuthService Extended', () => {
 
   beforeEach(() => {
     jest.resetModules();
-<<<<<<< HEAD:tests/unit/__tests__/services/authService2.test.ts
-    authService = require('../../../src/admin/services/authService').authService;
-=======
     authService = authServiceSingleton;
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/__tests__/services/authService2.test.ts
 
     localStorage.clear();
     jest.clearAllMocks();
@@ -198,11 +189,7 @@ describe('AuthService Extended', () => {
     });
     await authService.login({ username: user.username, password: user.password });
 
-<<<<<<< HEAD:tests/unit/__tests__/services/authService2.test.ts
-    const sessions = require('../../../src/admin/utils/security').SessionManager.getAllSessions();
-=======
     const sessions = SessionManager.getAllSessions();
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/__tests__/services/authService2.test.ts
     expect(sessions[0].userAgent).toBe('Unknown');
 
     // Restore navigator

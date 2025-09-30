@@ -9,17 +9,15 @@ import {
   Settings,
   Menu,
   X,
+  LogOut,
   Bell,
   Search,
   Shield
 } from 'lucide-react';
-<<<<<<< HEAD:src/admin/components/AdminLayout.tsx
-=======
 import { useAuth } from '../../hooks/admin/useAuth';
 import { ADMIN_CONFIG } from '../config/adminConfig';
 import { SkipLinks } from './AccessibilityComponents';
 import { ARIA_ROLES, useKeyboardNavigation } from '../utils/accessibility';
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/components/AdminLayout.tsx
 
 interface AdminLayoutProps {
   children?: React.ReactNode;
@@ -69,13 +67,9 @@ const navigation: NavItem[] = [
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-<<<<<<< HEAD:src/admin/components/AdminLayout.tsx
-  // Mock user data - authentication disabled
-  const user = {
-    username: 'Admin',
-    role: 'Administrator'
-=======
   // Keyboard navigation for sidebar toggle
   const sidebarKeyboardNav = useKeyboardNavigation(
     () => setSidebarOpen(true),  // Enter
@@ -101,7 +95,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     if (!ADMIN_CONFIG.DISABLE_AUTH) {
       navigate('/admin/login');
     }
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/components/AdminLayout.tsx
   };
 
   const isActive = (href: string) => {
@@ -186,29 +179,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </nav>
 
           {/* User section */}
-<<<<<<< HEAD:src/admin/components/AdminLayout.tsx
-          <div className="border-t p-4">
-            <div className="flex items-center mb-4">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-=======
           <div className="border-t border-gray-200 p-6" role="region" aria-label="User information">
             <div className="flex items-center mb-6">
               <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center" aria-hidden="true">
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/components/AdminLayout.tsx
                 <span className="text-gray-600 font-medium text-sm">
                   {user?.username?.charAt(0).toUpperCase()}
                 </span>
               </div>
-<<<<<<< HEAD:src/admin/components/AdminLayout.tsx
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">{user?.username}</p>
-                <p className="text-xs text-gray-500">{user?.role}</p>
-              </div>
-            </div>
-            <div className="w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-500 bg-gray-100 rounded-md">
-              Authentication Disabled
-            </div>
-=======
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-900">{user?.username}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{user?.role}</p>
@@ -221,7 +198,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
               Logout
             </button>
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/components/AdminLayout.tsx
           </div>
         </div>
       </div>

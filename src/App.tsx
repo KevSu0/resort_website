@@ -3,6 +3,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastContainer, useGlobalToast } from './components/ui/toast';
 import { HomePage } from './pages/HomePage';
 import { PropertyDetailPage } from './pages/PropertyDetailPage';
+import { LoginPage } from './pages/admin/LoginPage';
 import { DashboardPage } from './pages/admin/DashboardPage';
 import { MediaPage } from './pages/admin/MediaPage';
 import { ContentPage } from './pages/admin/ContentPage';
@@ -28,14 +29,6 @@ function AppWithGlobalToast() {
           <Route path="/" element={<HomePage />} />
           <Route path="/properties/:slug" element={<PropertyDetailPage />} />
 
-<<<<<<< HEAD:src/App.tsx
-        {/* Admin Routes - Authentication Disabled */}
-        <Route path="/admin" element={<DashboardPage />} />
-        <Route path="/admin/media" element={<MediaPage />} />
-        <Route path="/admin/*" element={<DashboardPage />} />
-      </Routes>
-    </Router>
-=======
           {/* Admin Routes */}
           {ADMIN_CONFIG.DISABLE_AUTH ? (
             <>
@@ -86,7 +79,6 @@ function AppWithGlobalToast() {
         <ToastContainer />
       </Router>
     </ErrorBoundary>
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/App.tsx
   );
 }
 

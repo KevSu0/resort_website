@@ -3,32 +3,25 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Save,
   X,
-  MapPin,
   Star,
   Image as ImageIcon,
   Plus,
   Trash2,
   AlertCircle,
-  CheckCircle,
   Eye,
-  Code
 } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
+import { Button } from '@/components/ui/button';
 import { MediaEditor } from './MediaEditor';
 import { contentService } from '../../services/contentService';
 import { mediaService } from '../../services/mediaService';
 import { type Property } from '../../types/entities';
-<<<<<<< HEAD:src/admin/components/editors/PropertyEditor.tsx
-=======
 import { useAuth } from '../../../hooks/admin/useAuth';
 import { CoordinatePreview } from '../shared/CoordinatePreview';
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/components/editors/PropertyEditor.tsx
 
 export const PropertyEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  // Mock user data - authentication disabled
-  const user = { id: 'admin', username: 'Admin' };
+  const { user } = useAuth();
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -335,7 +328,7 @@ export const PropertyEditor: React.FC = () => {
               <div className="relative group">
                 <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
                   <img
-                    src={`data:image/jpeg;base64,${localStorage.getItem(`assets/images/${property.heroImage}.jpg`)?.split(',')[1] || ''}`}
+                    src={`data:image/jpeg;base64,${localStorage.getItem(`media/${property.heroImage}.jpg`)?.split(',')[1] || ''}`}
                     alt="Hero"
                     className="w-full h-full object-cover"
                   />
@@ -385,7 +378,7 @@ export const PropertyEditor: React.FC = () => {
                   <div key={mediaId} className="relative group">
                     <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                       <img
-                        src={`data:image/jpeg;base64,${localStorage.getItem(`assets/images/${mediaId}.jpg`)?.split(',')[1] || ''}`}
+                        src={`data:image/jpeg;base64,${localStorage.getItem(`media/${mediaId}.jpg`)?.split(',')[1] || ''}`}
                         alt="Gallery"
                         className="w-full h-full object-cover"
                       />

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:tests/unit/__tests__/security/authService.test.ts
 import { authService } from '../../../src/admin/services/authService';
-import { validatePassword } from '../../../src/admin/utils/security';
-=======
-import { authService } from '../../services/authService';
-import { validatePassword, SECURITY_CONFIG } from '../../utils/security';
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/__tests__/security/authService.test.ts
+import { validatePassword, SECURITY_CONFIG } from '../../../src/admin/utils/security';
 
 // Mock crypto
 Object.defineProperty(window, 'crypto', {

@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-<<<<<<< HEAD:package.json
     "dev": "vite --config config/vite.config.ts",
     "build": "vite build --config config/vite.config.ts",
     "build:tsc": "tsc -b && vite build --config config/vite.config.ts",
@@ -14,24 +13,10 @@
     "test:watch": "jest --config config/jest.config.ts --watch",
     "test:coverage": "jest --config config/jest.config.ts --coverage",
     "test:ci": "jest --config config/jest.config.ts --ci --coverage --watchAll=false",
+    "coverage:report": "node scripts/coverage-report.mjs",
     "test:debug": "jest --config config/jest.config.ts --runInBand",
     "e2e": "cypress run --config-file tests/cypress.config.ts",
     "e2e:open": "cypress open --config-file tests/cypress.config.ts",
-=======
-    "dev": "vite",
-    "build": "vite build",
-    "build:tsc": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --watchAll=false",
-    "coverage:report": "node scripts/coverage-report.mjs",
-    "test:debug": "jest --runInBand",
-    "e2e": "cypress run",
-    "e2e:open": "cypress open",
->>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/package.json
     "verify": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
