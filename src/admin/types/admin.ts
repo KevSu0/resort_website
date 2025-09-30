@@ -7,6 +7,21 @@ import type {
   Referrer,
   LandingContent,
   SiteSettings,
+  Media,
+} from './entities';
+
+// Re-export types for convenience
+export type {
+  Property,
+  RoomType,
+  Place,
+  Offer,
+  PromoCode,
+  Referrer,
+  Media,
+  SiteSettings,
+  Enquiry,
+  LandingContent
 } from './entities';
 
 export type Role = 'ADMIN' | 'EDITOR';
@@ -92,6 +107,7 @@ export interface ImportResult {
   message: string;
   diff?: ImportDiff;
   errors?: string[];
+  backupId?: string;
 }
 
 export interface ImportDiff {
@@ -99,6 +115,8 @@ export interface ImportDiff {
   modified: number;
   removed: number;
   details: DiffDetail[];
+  amenityDuplicates?: number;
+  amenityNormalized?: number;
 }
 
 export interface DiffDetail {

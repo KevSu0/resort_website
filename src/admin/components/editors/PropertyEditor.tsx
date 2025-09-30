@@ -18,12 +18,17 @@ import { MediaEditor } from './MediaEditor';
 import { contentService } from '../../services/contentService';
 import { mediaService } from '../../services/mediaService';
 import { type Property } from '../../types/entities';
+<<<<<<< HEAD:src/admin/components/editors/PropertyEditor.tsx
+=======
 import { useAuth } from '../../../hooks/admin/useAuth';
+import { CoordinatePreview } from '../shared/CoordinatePreview';
+>>>>>>> 7a1d48b79540236df1d8f5bdfbb986d46d90119a:resort-website/src/admin/components/editors/PropertyEditor.tsx
 
 export const PropertyEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  // Mock user data - authentication disabled
+  const user = { id: 'admin', username: 'Admin' };
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -293,10 +298,10 @@ export const PropertyEditor: React.FC = () => {
         </div>
 
         {/* Location */}
-        <div className="bg-white rounded-lg border p-6">
-          <h2 className="text-lg font-semibold mb-4">Location</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border p-6">
+            <h2 className="text-lg font-semibold mb-4">Location</h2>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Address *
               </label>
@@ -308,33 +313,13 @@ export const PropertyEditor: React.FC = () => {
                 required
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Latitude
-              </label>
-              <input
-                type="number"
-                step="any"
-                value={property.latitude}
-                onChange={(e) => setProperty({ ...property, latitude: parseFloat(e.target.value) || 0 })}
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Longitude
-              </label>
-              <input
-                type="number"
-                step="any"
-                value={property.longitude}
-                onChange={(e) => setProperty({ ...property, longitude: parseFloat(e.target.value) || 0 })}
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
           </div>
+
+          <CoordinatePreview
+            latitude={property.latitude}
+            longitude={property.longitude}
+            onCoordinatesChange={(lat, lng) => setProperty({ ...property, latitude: lat, longitude: lng })}
+          />
         </div>
 
         {/* Media */}

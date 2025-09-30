@@ -12,10 +12,10 @@ import {
 } from 'lucide-react';
 // import { publishService } from '../services/publishService';
 // import { fileStorageService } from '../services/fileStorage';
-import { useAuth } from '../../../hooks/admin/useAuth';
 
 export const PublishControls: React.FC = () => {
-  const { user } = useAuth();
+  // Mock user data - authentication disabled
+  const user = { id: 'admin', username: 'Admin' };
   const [status, setStatus] = useState<{
     hasUnpublishedChanges: boolean;
     lastPublished?: string;

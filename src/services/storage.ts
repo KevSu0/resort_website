@@ -203,7 +203,7 @@ export class LocalStorageService {
   }
 
   exportData(): string {
-    const data: Record<string, any> = {};
+    const data: Record<string, unknown> = {};
     Object.entries(this.STORAGE_KEYS).forEach(([name, key]) => {
       const value = localStorage.getItem(key);
       if (value) {

@@ -16,11 +16,11 @@ import {
 import { Button } from '../../../components/ui/button';
 import { contentService } from '../../services/contentService';
 import { type SiteSettings } from '../../types/entities';
-import { useAuth } from '../../../hooks/admin/useAuth';
 
 export const SettingsEditor: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  // Mock user data - authentication disabled
+  const user = { id: 'admin', username: 'Admin' };
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

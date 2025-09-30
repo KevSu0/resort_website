@@ -43,7 +43,7 @@ export const FirstRunSetup: React.FC = () => {
     if (!adminData.name.trim()) validationErrors.push('Name is required');
     if (!adminData.email.trim()) validationErrors.push('Email is required');
     if (!adminData.password) validationErrors.push('Password is required');
-    if (adminData.password.length < 8) validationErrors.push('Password must be at least 8 characters');
+    if (adminData.password.length < 12) validationErrors.push('Password must be at least 12 characters');
     if (adminData.password !== adminData.confirmPassword) validationErrors.push('Passwords do not match');
 
     if (validationErrors.length > 0) {
@@ -76,13 +76,13 @@ export const FirstRunSetup: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-full flex items-center justify-center">
+          <div className="mx-auto h-14 w-14 bg-primary-600 rounded-full flex items-center justify-center">
             <Shield className="h-8 w-8 text-white" />
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
             Admin Setup
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-3 text-gray-600">
             {step === 'welcome' && 'Welcome to your resort website admin panel. Let\'s create your admin account.'}
             {step === 'create' && 'Create your administrator account'}
             {step === 'complete' && 'Setup complete!'}
@@ -91,8 +91,8 @@ export const FirstRunSetup: React.FC = () => {
 
         {/* Welcome Step */}
         {step === 'welcome' && (
-          <div className="bg-white rounded-lg shadow p-6 space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-white rounded-xl shadow-lg p-8 space-y-6">
+            <div className="bg-blue-50 border-l-4 border-blue-400 rounded-r-lg p-4">
               <div className="flex items-center gap-2 text-blue-800">
                 <AlertCircle className="w-5 h-5" />
                 <span className="font-medium">Important</span>
@@ -102,24 +102,24 @@ export const FirstRunSetup: React.FC = () => {
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                 <span>Full access to admin panel</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                 <span>Manage content and media</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
                 <span>View and respond to enquiries</span>
               </div>
             </div>
 
             <Button
               onClick={() => setStep('create')}
-              className="w-full"
+              className="w-full py-3"
             >
               Get Started
             </Button>
@@ -128,9 +128,9 @@ export const FirstRunSetup: React.FC = () => {
 
         {/* Create Admin Step */}
         {step === 'create' && (
-          <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <div className="bg-white rounded-xl shadow-lg p-8 space-y-6">
             {errors.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="bg-red-50 border-l-4 border-red-400 rounded-r-lg p-4">
                 <ul className="list-disc list-inside text-sm text-red-700">
                   {errors.map((error, index) => (
                     <li key={index}>{error}</li>
@@ -140,7 +140,7 @@ export const FirstRunSetup: React.FC = () => {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name
               </label>
               <div className="relative">
@@ -151,14 +151,14 @@ export const FirstRunSetup: React.FC = () => {
                   type="text"
                   value={adminData.name}
                   onChange={(e) => setAdminData({ ...adminData, name: e.target.value })}
-                  className="pl-10 w-full border rounded-lg px-3 py-2"
+                  className="pl-10 w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="John Doe"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
               <div className="relative">
@@ -169,14 +169,14 @@ export const FirstRunSetup: React.FC = () => {
                   type="email"
                   value={adminData.email}
                   onChange={(e) => setAdminData({ ...adminData, email: e.target.value })}
-                  className="pl-10 w-full border rounded-lg px-3 py-2"
+                  className="pl-10 w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="admin@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -187,7 +187,7 @@ export const FirstRunSetup: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={adminData.password}
                   onChange={(e) => setAdminData({ ...adminData, password: e.target.value })}
-                  className="pl-10 pr-10 w-full border rounded-lg px-3 py-2"
+                  className="pl-10 pr-10 w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
                 <button
@@ -196,19 +196,19 @@ export const FirstRunSetup: React.FC = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Must be at least 8 characters long
+              <p className="text-xs text-gray-500 mt-2">
+                Must be at least 12 characters with uppercase, lowercase, numbers, and special characters
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -219,7 +219,7 @@ export const FirstRunSetup: React.FC = () => {
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={adminData.confirmPassword}
                   onChange={(e) => setAdminData({ ...adminData, confirmPassword: e.target.value })}
-                  className="pl-10 pr-10 w-full border rounded-lg px-3 py-2"
+                  className="pl-10 pr-10 w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
                 <button
@@ -228,9 +228,9 @@ export const FirstRunSetup: React.FC = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}
                 </button>
               </div>
@@ -239,7 +239,7 @@ export const FirstRunSetup: React.FC = () => {
             <Button
               onClick={handleCreateAdmin}
               disabled={loading}
-              className="w-full"
+              className="w-full py-3"
             >
               {loading ? 'Creating Account...' : 'Create Admin Account'}
             </Button>

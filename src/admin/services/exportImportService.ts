@@ -8,6 +8,7 @@ export interface ExportManifest {
   version: string;
   exportedAt: string;
   description?: string;
+  backupId?: string;
 }
 
 export class ExportImportService {
@@ -68,9 +69,26 @@ export class ExportImportService {
   }
 
   async importData(file: File, dryRun: boolean = true): Promise<ImportResult> {
+    const startTime = Date.now();
+    const errorLog: string[] = [];
+
     try {
-      // Read ZIP file
-      const zip = await JSZip.loadAsync(file);
+      // Validate file
+      if (!file.name.endsWith('.zip')) {
+        throw new Error('Invalid file format. Please select a .zip file.');
+      }
+
+      if (file.size > 100 * 1024 * 1024) { // 100MB limit
+        throw new Error('File too large. Maximum size is 100MB.');
+      }
+
+      // Read ZIP file with error handling
+      let zip;
+      try {
+        zip = await JSZip.loadAsync(file);
+      } catch (error) {
+        throw new Error('Invalid or corrupted ZIP file. Please ensure the file was exported from this system.');
+      }
 
       // Read manifest
       const manifestData = await zip.file('manifest.json')?.async('text');
@@ -111,13 +129,39 @@ export class ExportImportService {
         };
       }
 
-      // Apply changes
-      await fileStorageService.saveDraft(draft);
-      if (published) {
-        await fileStorageService.savePublished(published);
+      // Apply changes with backup and error recovery
+      const backupId = `backup-${Date.now()}`;
+      try {
+        await this.createBackup(backupId);
+        console.log(`Backup created: ${backupId}`);
+      } catch (backupError) {
+        errorLog.push(`Failed to create backup: ${backupError instanceof Error ? backupError.message : 'Unknown error'}`);
+        // Continue with import but log the error
       }
-      await fileStorageService.saveSettings(settings);
-      await fileStorageService.saveEnquiries(enquiries);
+
+      // Apply changes with amenity de-duplication and error handling
+      try {
+        const processedDraft = this.processAmenities(draft);
+        await fileStorageService.saveDraft(processedDraft);
+
+        if (published) {
+          const processedPublished = this.processAmenities(published);
+          await fileStorageService.savePublished(processedPublished);
+        }
+
+        await fileStorageService.saveSettings(settings);
+        await fileStorageService.saveEnquiries(enquiries);
+      } catch (saveError) {
+        // Attempt rollback if save fails
+        console.error('Save failed, attempting rollback:', saveError);
+        try {
+          await this.rollback(backupId);
+          errorLog.push('Changes were rolled back due to save error');
+        } catch (rollbackError) {
+          errorLog.push(`Rollback failed: ${rollbackError instanceof Error ? rollbackError.message : 'Unknown error'}`);
+        }
+        throw new Error(`Failed to save data: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`);
+      }
 
       // Import snapshots if present
       const snapshotsFolder = zip.folder('snapshots');
@@ -160,15 +204,26 @@ export class ExportImportService {
         }
       }
 
+      const totalTime = Date.now() - startTime;
+      console.log(`Import completed in ${totalTime}ms`);
+
       return {
         success: true,
-        message: 'Import completed successfully',
+        message: errorLog.length > 0
+          ? `Import completed with ${errorLog.length} warning(s). Check logs for details.`
+          : 'Import completed successfully',
         diff,
+        backupId,
+        errors: errorLog.length > 0 ? errorLog : undefined,
       };
     } catch (error) {
+      const totalTime = Date.now() - startTime;
+      console.error(`Import failed after ${totalTime}ms:`, error);
+
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Import failed',
+        errors: errorLog.length > 0 ? [...errorLog, error instanceof Error ? error.message : 'Unknown error'] : undefined,
       };
     }
   }
@@ -194,6 +249,8 @@ export class ExportImportService {
       modified: 0,
       removed: 0,
       details: [],
+      amenityDuplicates: 0,
+      amenityNormalized: 0,
     };
 
     // Compare properties
@@ -255,7 +312,45 @@ export class ExportImportService {
       });
     }
 
+    // Detect amenity duplicates
+    const amenityAnalysis = this.analyzeAmenities(draft.properties || [], currentDraft.properties || []);
+    diff.amenityDuplicates = amenityAnalysis.duplicates;
+    diff.amenityNormalized = amenityAnalysis.normalized;
+
     return diff;
+  }
+
+  private analyzeAmenities(newProperties: any[], currentProperties: any[]) {
+    const allAmenities = new Set<string>();
+    const duplicates: string[] = [];
+    let normalizedCount = 0;
+
+    // Collect all amenities from new properties
+    newProperties.forEach(property => {
+      if (property.amenities && Array.isArray(property.amenities)) {
+        property.amenities.forEach((amenity: string) => {
+          const normalized = this.normalizeAmenity(amenity);
+          if (allAmenities.has(normalized)) {
+            duplicates.push(amenity);
+          } else {
+            allAmenities.add(normalized);
+          }
+        });
+      }
+    });
+
+    return {
+      duplicates: duplicates.length,
+      normalized: allAmenities.size
+    };
+  }
+
+  private normalizeAmenity(amenity: string): string {
+    return amenity
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '-');
   }
 
   private compareEntities(
@@ -300,6 +395,77 @@ export class ExportImportService {
           name: currentItem.name || id,
         });
       }
+    }
+  }
+
+  private async createBackup(backupId: string): Promise<void> {
+    const draft = await fileStorageService.loadDraft();
+    const published = await fileStorageService.loadPublished();
+    const settings = await fileStorageService.loadSettings();
+    const enquiries = await fileStorageService.loadEnquiries();
+
+    const backup = {
+      id: backupId,
+      createdAt: new Date().toISOString(),
+      data: {
+        draft,
+        published,
+        settings,
+        enquiries
+      }
+    };
+
+    await fileStorageService.saveBackup(backup);
+  }
+
+  private processAmenities(data: any): any {
+    if (!data.properties || !Array.isArray(data.properties)) {
+      return data;
+    }
+
+    const processedData = { ...data };
+    processedData.properties = data.properties.map((property: any) => {
+      if (!property.amenities || !Array.isArray(property.amenities)) {
+        return property;
+      }
+
+      // De-duplicate amenities
+      const uniqueAmenities = new Map<string, string>();
+      property.amenities.forEach((amenity: string) => {
+        const normalized = this.normalizeAmenity(amenity);
+        if (!uniqueAmenities.has(normalized)) {
+          uniqueAmenities.set(normalized, amenity);
+        }
+      });
+
+      return {
+        ...property,
+        amenities: Array.from(uniqueAmenities.values())
+      };
+    });
+
+    return processedData;
+  }
+
+  async rollback(backupId: string): Promise<boolean> {
+    try {
+      const backup = await fileStorageService.loadBackup(backupId);
+      if (!backup) {
+        throw new Error('Backup not found');
+      }
+
+      // Restore data from backup
+      await fileStorageService.saveDraft(backup.data.draft);
+      if (backup.data.published) {
+        await fileStorageService.savePublished(backup.data.published);
+      }
+      await fileStorageService.saveSettings(backup.data.settings);
+      await fileStorageService.saveEnquiries(backup.data.enquiries);
+
+      return true;
+    } catch (error) {
+      console.error('Rollback failed:', error);
+      return false;
     }
   }
 }

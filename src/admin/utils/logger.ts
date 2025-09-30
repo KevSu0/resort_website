@@ -144,7 +144,7 @@ class Logger {
       args.push('\nError:', entry.error);
     }
 
-    // eslint-disable-next-line no-console
+     
     console[consoleMethod](...args);
   }
 

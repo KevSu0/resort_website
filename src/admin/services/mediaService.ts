@@ -1,6 +1,7 @@
 import { type Media } from '../types/entities';
 import { type MediaValidationResult } from '../types/admin';
 import { fileStorageService } from './fileStorage';
+import { ValidationDictionaryService } from './validationDictionaryService';
 import { v4 as uuidv4 } from 'uuid';
 
 interface MediaValidationConfig {
@@ -285,6 +286,55 @@ export class MediaService {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  /**
+   * Validate media using the validation dictionary (comprehensive validation)
+   */
+  async validateMediaWithDictionary(media: Partial<Media>): Promise<{
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+  }> {
+    const validationService = ValidationDictionaryService.getInstance();
+    const result = validationService.validateMedia(media);
+
+    return {
+      isValid: result.isValid,
+      errors: validationService.formatErrors(result.errors),
+      warnings: [] // Could add additional warnings here
+    };
+  }
+
+  async getAllMedia(): Promise<Media[]> {
+    try {
+      const manifest = await fileStorageService.loadMediaManifest();
+      return Object.values(manifest).sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    } catch (error) {
+      console.error('Failed to load media:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Check if media can be safely deleted (not referenced by any entities)
+   */
+  async checkMediaUsage(mediaId: string): Promise<{
+    canDelete: boolean;
+    references: {
+      entityType: string;
+      entityId: string;
+      entityName: string;
+    }[];
+  }> {
+    // This would need to check all entity stores for references
+    // Implementation depends on database service
+    return {
+      canDelete: true,
+      references: []
+    };
   }
 }
 

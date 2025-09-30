@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -14,8 +14,9 @@ import {
   CheckCircle,
   XCircle,
   MessageSquare,
-  FileText,
-  Plus
+  Plus,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { enquiriesService } from '../services/enquiriesService';
@@ -33,12 +34,36 @@ export const EnquiryDetailPage: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<EnquiryStatus>('NEW');
   const [newNote, setNewNote] = useState('');
+  const [offlineQueueStatus, setOfflineQueueStatus] = useState<{
+    pending: number;
+    processing: boolean;
+    isOnline: boolean;
+  }>({ pending: 0, processing: false, isOnline: navigator.onLine });
 
   useEffect(() => {
     loadEnquiry();
-  }, [id]);
+    loadOfflineQueueStatus();
 
-  const loadEnquiry = async () => {
+    // Setup online/offline listeners
+    const handleOnline = () => {
+      setOfflineQueueStatus(prev => ({ ...prev, isOnline: true }));
+      loadOfflineQueueStatus();
+    };
+
+    const handleOffline = () => {
+      setOfflineQueueStatus(prev => ({ ...prev, isOnline: false }));
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [id, loadEnquiry]);
+
+  const loadEnquiry = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     try {
@@ -55,6 +80,19 @@ export const EnquiryDetailPage: React.FC = () => {
       console.error('Failed to load enquiry:', err);
     } finally {
       setLoading(false);
+    }
+  }, [id, navigate]);
+
+  const loadOfflineQueueStatus = async () => {
+    try {
+      const status = await enquiriesService.getOfflineQueueStatus();
+      setOfflineQueueStatus(prev => ({
+        ...prev,
+        pending: status.pending,
+        processing: status.processing
+      }));
+    } catch (err) {
+      console.error('Failed to load offline queue status:', err);
     }
   };
 
@@ -87,6 +125,7 @@ export const EnquiryDetailPage: React.FC = () => {
       });
       setNewNote('');
       await loadEnquiry();
+      loadOfflineQueueStatus();
     } catch (err) {
       console.error('Failed to add note:', err);
     }
@@ -124,7 +163,22 @@ export const EnquiryDetailPage: React.FC = () => {
             Back
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">{enquiry.refCode}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold">{enquiry.refCode}</h1>
+              {/* Offline Status */}
+              <div className="flex items-center gap-1">
+                {offlineQueueStatus.isOnline ? (
+                  <Wifi className="w-4 h-4 text-green-500" />
+                ) : (
+                  <WifiOff className="w-4 h-4 text-red-500" />
+                )}
+                {offlineQueueStatus.pending > 0 && (
+                  <div className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">
+                    {offlineQueueStatus.pending} pending
+                  </div>
+                )}
+              </div>
+            </div>
             <p className="text-gray-600">
               Enquiry from {enquiry.name} - {new Date(enquiry.createdAt).toLocaleDateString()}
             </p>
@@ -323,22 +377,59 @@ export const EnquiryDetailPage: React.FC = () => {
 
           {/* Timeline */}
           <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">Timeline</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Timeline</h2>
+              {offlineQueueStatus.pending > 0 && (
+                <div className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded">
+                  {offlineQueueStatus.pending} events pending sync
+                </div>
+              )}
+            </div>
             <div className="space-y-3">
               {enquiry.timeline.map((entry, index) => (
-                <div key={entry.id} className="flex gap-3">
+                <div key={entry.id} className="flex gap-3 group">
                   <div className="flex-shrink-0 w-2 h-2 bg-primary-600 rounded-full mt-2"></div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium">{entry.status}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{entry.status}</span>
+                      {entry.by.includes('Local Admin') && !offlineQueueStatus.isOnline && (
+                        <div className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+                          Pending sync
+                        </div>
+                      )}
+                    </div>
                     <div className="text-xs text-gray-500">
-                      {new Date(entry.timestamp).toLocaleString()} by {entry.by}
+                      {new Date(entry.timestamp).toLocaleString()} • {entry.by}
                     </div>
                     {entry.notes && (
-                      <div className="text-sm text-gray-700 mt-1">{entry.notes}</div>
+                      <div className="text-sm text-gray-700 mt-1 bg-gray-50 p-2 rounded">
+                        {entry.notes}
+                      </div>
+                    )}
+                    {/* Show action buttons for timeline events */}
+                    {index > 0 && (
+                      <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs h-6"
+                          onClick={() => {
+                            // Copy timeline entry to clipboard or show details
+                            navigator.clipboard.writeText(`${entry.status}: ${entry.notes}`);
+                          }}
+                        >
+                          Copy
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
               ))}
+              {enquiry.timeline.length === 1 && (
+                <div className="text-center py-4 text-gray-500">
+                  No additional timeline events
+                </div>
+              )}
             </div>
           </div>
 
@@ -349,7 +440,15 @@ export const EnquiryDetailPage: React.FC = () => {
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => window.open(`mailto:${enquiry.email}`, '_blank')}
+                onClick={async () => {
+                  try {
+                    await enquiriesService.logEmailAction(enquiry.id, enquiry.email);
+                    window.open(`mailto:${enquiry.email}`, '_blank');
+                    loadOfflineQueueStatus();
+                  } catch (err) {
+                    console.error('Failed to log email action:', err);
+                  }
+                }}
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Send Email
@@ -357,7 +456,15 @@ export const EnquiryDetailPage: React.FC = () => {
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => window.open(`tel:${enquiry.phone}`, '_blank')}
+                onClick={async () => {
+                  try {
+                    await enquiriesService.logCallAction(enquiry.id, enquiry.phone);
+                    window.open(`tel:${enquiry.phone}`, '_blank');
+                    loadOfflineQueueStatus();
+                  } catch (err) {
+                    console.error('Failed to log call action:', err);
+                  }
+                }}
               >
                 <Phone className="w-4 h-4 mr-2" />
                 Call Guest
@@ -365,9 +472,15 @@ export const EnquiryDetailPage: React.FC = () => {
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => {
-                  const text = `Hi ${enquiry.name}, regarding your enquiry ${enquiry.refCode}...`;
-                  window.open(`https://wa.me/${enquiry.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+                onClick={async () => {
+                  try {
+                    await enquiriesService.logWhatsAppAction(enquiry.id, enquiry.phone);
+                    const text = `Hi ${enquiry.name}, regarding your enquiry ${enquiry.refCode}...`;
+                    window.open(`https://wa.me/${enquiry.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+                    loadOfflineQueueStatus();
+                  } catch (err) {
+                    console.error('Failed to log WhatsApp action:', err);
+                  }
                 }}
               >
                 <MessageSquare className="w-4 h-4 mr-2" />

@@ -358,6 +358,54 @@ export class ContentService {
 
     return slug;
   }
+
+  // Auto-save functionality
+  private autoSaveTimeout: NodeJS.Timeout | null = null;
+  private lastSavedContent: DraftContent | null = null;
+
+  async autoSave(content: DraftContent): Promise<void> {
+    // Clear any pending auto-save
+    if (this.autoSaveTimeout) {
+      clearTimeout(this.autoSaveTimeout);
+    }
+
+    // Check if content has actually changed
+    if (JSON.stringify(content) === JSON.stringify(this.lastSavedContent)) {
+      return;
+    }
+
+    // Set up new auto-save with debounce
+    this.autoSaveTimeout = setTimeout(async () => {
+      try {
+        await this.saveDraft(content);
+        this.lastSavedContent = JSON.parse(JSON.stringify(content));
+        console.log('Auto-saved draft at', new Date().toISOString());
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      }
+    }, 2000); // Auto-save after 2 seconds of inactivity
+  }
+
+  // Cancel any pending auto-save (useful when explicitly saving)
+  cancelAutoSave(): void {
+    if (this.autoSaveTimeout) {
+      clearTimeout(this.autoSaveTimeout);
+      this.autoSaveTimeout = null;
+    }
+  }
+
+  // Get auto-save status
+  getAutoSaveStatus(): {
+    isDirty: boolean;
+    lastSaved?: Date;
+    pending: boolean;
+  } {
+    return {
+      isDirty: this.autoSaveTimeout !== null,
+      lastSaved: this.lastSavedContent ? new Date(this.lastSavedContent.settings.updatedAt || Date.now()) : undefined,
+      pending: this.autoSaveTimeout !== null,
+    };
+  }
 }
 
 export const contentService = new ContentService();
