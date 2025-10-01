@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { MapPin, Star } from 'lucide-react';
+import { MapPin, Star, ArrowLeft } from 'lucide-react';
 import { type Property, type RoomType, type Place } from '../types';
 import { storageService } from '../services/storage';
 import { formatCurrency } from '../utils';
@@ -11,6 +11,7 @@ import { ImageGallery } from '../components/property/ImageGallery';
 import { AmenitiesDisplay } from '../components/property/AmenitiesDisplay';
 import { NearbyPlaces } from '../components/property/NearbyPlaces';
 import { RoomTypes } from '../components/property/RoomTypes';
+import { Button } from '../components/ui/button';
 
 export const PropertyDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -44,9 +45,15 @@ export const PropertyDetailPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Property Not Found</h1>
-          <Link to="/" className="btn-primary">
-            Back to Home
-          </Link>
+          <Button
+            asChild
+            variant="primary"
+            leftIcon={<ArrowLeft className="w-4 h-4" />}
+          >
+            <Link to="/">
+              Back to Home
+            </Link>
+          </Button>
         </div>
       </div>
     );
@@ -143,13 +150,22 @@ export const PropertyDetailPage: React.FC = () => {
                   </div>
                 </div>
 
-                <button className="btn-primary w-full mb-4">
+                <Button
+                  variant="gradient"
+                  fullWidth
+                  size="lg"
+                  className="mb-4 animate-button-pulse"
+                >
                   Check Availability
-                </button>
+                </Button>
 
-                <button className="btn-outline w-full">
+                <Button
+                  variant="outline"
+                  fullWidth
+                  size="lg"
+                >
                   Contact Property
-                </button>
+                </Button>
               </div>
             </div>
           </div>

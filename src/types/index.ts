@@ -62,13 +62,6 @@ export interface Enquiry {
 
 export type EnquiryStatus = 'NEW' | 'CONTACTED' | 'CONFIRMED' | 'DECLINED';
 
-export interface Admin {
-  id: string;
-  email: string;
-  name?: string;
-  role: 'ADMIN';
-  createdAt: string;
-}
 
 export interface Offer {
   id: string;

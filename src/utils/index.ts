@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { SyntheticEvent } from 'react';
+import { IMAGE_PLACEHOLDER } from '@/constants/images';
 
 // Utility for combining CSS classes
 export function cn(...inputs: ClassValue[]) {
@@ -187,6 +189,21 @@ export function lazyLoadImage(imageElement: HTMLImageElement, src: string): void
   });
 
   observer.observe(imageElement);
+}
+
+// Provide a resilient image fallback handler
+export function fallbackImageHandler(
+  event: SyntheticEvent<HTMLImageElement>,
+  fallbackSrc: string = IMAGE_PLACEHOLDER
+): void {
+  const target = event.currentTarget;
+  if (target.src === fallbackSrc) {
+    return;
+  }
+
+  // Prevent endless error loops
+  target.onerror = null;
+  target.src = fallbackSrc;
 }
 
 // Format bytes to human readable format

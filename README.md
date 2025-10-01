@@ -1,33 +1,23 @@
 # Wayanad Nature Resorts
 
-A modern, responsive resort booking website built with React, TypeScript, and Vite. This application features a comprehensive admin CMS for managing properties, bookings, and content.
+A modern, responsive resort booking website built with React, TypeScript, and Vite.
 
 ## Features
 
-### Guest-Facing Features
 - **Property browsing** with detailed information and photo galleries
 - **Room type selection** with pricing and availability
 - **Booking enquiry system** with instant confirmation
 - **Contact forms** with WhatsApp integration
 - **Mobile-responsive design** optimized for all devices
 
-### Admin CMS Features
-- **Property management** - Add, edit, and organize resort properties
-- **Room type management** - Configure rooms, pricing, and amenities
-- **Enquiry tracking** - Manage guest bookings and communications
-- **Media library** - Upload and manage property photos
-- **Content management** - Update website content and SEO
-- **Security features** - Authentication, validation, and audit logging
-
 ## Tech Stack
 
-- **Frontend**: React 18 + TypeScript + Vite
+- **Frontend**: React 19 + TypeScript + Vite
 - **Styling**: Tailwind CSS
 - **Forms**: React Hook Form + Zod validation
 - **State Management**: React Context + localStorage
-- **Build Tools**: Vite, ESLint, Prettier
+- **Build Tools**: Vite, ESLint
 - **Testing**: Jest + React Testing Library
-- **Security**: bcryptjs, DOMPurify, rate limiting
 
 ## Quick Start
 
@@ -51,20 +41,16 @@ Create a `.env.local` file in the root directory:
 
 ```env
 # Contact Information
-SITE_EMAIL_FROM=kevinjoy0@gmail.com
-WHATSAPP_CONTACT_NUMBER=+919567068535
-
-# Admin Credentials (for development)
-ADMIN_SEED_EMAIL=admin@treehouse.in
-ADMIN_SEED_PASSWORD=Treehouse@1234
+VITE_SITE_EMAIL_FROM=kevinjoy0@gmail.com
+VITE_WHATSAPP_CONTACT_NUMBER=+919567068535
 
 # API Keys (leave empty for local storage development)
-RESEND_API_KEY=
-HCAPTCHA_SITE_KEY=
-HCAPTCHA_SECRET_KEY=
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+VITE_RESEND_API_KEY=
+VITE_HCAPTCHA_SITE_KEY=
+VITE_HCAPTCHA_SECRET_KEY=
+VITE_CLOUDINARY_CLOUD_NAME=
+VITE_CLOUDINARY_API_KEY=
+VITE_CLOUDINARY_API_SECRET=
 ```
 
 ### Development
@@ -74,8 +60,7 @@ CLOUDINARY_API_SECRET=
 npm run dev
 
 # Application will be available at:
-# Guest site: http://localhost:5176
-# Admin panel: http://localhost:5176/admin
+# http://localhost:5176
 ```
 
 ## Project Structure
@@ -94,10 +79,8 @@ npm run dev
 ├── src/                 # Source code
 │   ├── components/
 │   │   ├── common/      # Reusable UI components
-│   │   ├── layout/      # Header, footer, navigation
 │   │   ├── property/    # Property cards, galleries
-│   │   ├── booking/     # Booking forms and enquiries
-│   │   └── admin/       # Admin panel components
+│   │   ├── ui/          # UI components (buttons, cards, etc.)
 │   ├── pages/           # Route components
 │   ├── hooks/           # Custom React hooks
 │   ├── context/         # React contexts for state
@@ -124,8 +107,7 @@ npm run preview      # Preview production build
 
 # Code Quality
 npm run lint         # Run ESLint
-npm run typecheck    # Run TypeScript checks
-npm run format       # Format code with Prettier
+npm run verify       # Run lint + test + build
 
 # Testing
 npm run test         # Run tests
@@ -133,21 +115,6 @@ npm run test:watch   # Run tests in watch mode
 npm run coverage     # Generate coverage report
 ```
 
-## Admin CMS Setup
-
-### First-Time Access
-1. Navigate to `http://localhost:5176/admin/login`
-2. Create your admin account using the setup wizard
-3. Use the seeded credentials or create new ones
-
-### Daily Operations
-- **Dashboard**: Overview of properties, enquiries, and system status
-- **Properties**: Add/edit resort properties and room configurations
-- **Enquiries**: Manage guest bookings and communications
-- **Media**: Upload and organize property photos
-- **Settings**: Configure contact info and site details
-
-For detailed admin instructions, see [ADMIN_GUIDE.md](./ADMIN_GUIDE.md).
 
 ## Development Guidelines
 
@@ -172,7 +139,6 @@ For detailed admin instructions, see [ADMIN_GUIDE.md](./ADMIN_GUIDE.md).
 The project includes comprehensive testing setup:
 - Unit tests for components and utilities
 - Integration tests for user flows
-- Security testing for authentication and validation
 
 ```bash
 # Run all tests
@@ -181,14 +147,6 @@ npm run test
 # Run tests with coverage
 npm run test:coverage
 ```
-
-## Security Features
-
-- **Authentication**: Secure login with rate limiting
-- **Input Validation**: Zod schemas for all user inputs
-- **XSS Protection**: Input sanitization with DOMPurify
-- **Security Headers**: CSP and other security headers
-- **Audit Logging**: Comprehensive security event tracking
 
 ## Deployment
 
@@ -203,7 +161,6 @@ The build output will be in the `build/dist/` directory, ready for deployment to
 Set all required environment variables in your hosting environment:
 - Contact information
 - API keys for external services
-- Admin credentials
 
 ## Contributing
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { PropertyCard } from './PropertyCard';
+import { PropertyCardSkeleton } from '@/components/Loading';
 import { type Property } from '@/types';
 import { storageService } from '@/services/storage';
 
@@ -40,14 +41,7 @@ export const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse">
-                <div className="bg-gray-200 h-64 rounded-xl mb-4"></div>
-                <div className="space-y-3">
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                </div>
-              </div>
+              <PropertyCardSkeleton key={i} />
             ))}
           </div>
         </div>
@@ -96,7 +90,7 @@ export const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({
               // Navigate to all properties page
               console.log('Navigate to all properties');
             }}
-            className="btn-outline text-lg px-8 py-3"
+            className="btn-outline text-lg px-8 py-3 hover:scale-[1.02] transition-transform duration-fast ease-out"
           >
             View All Properties
           </button>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Phone, Mail, MapPin, ArrowLeft } from 'lucide-react';
 import { config } from '../config';
+import { Button } from '@/components/ui/button';
 
 export const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,14 +50,14 @@ export const Navigation: React.FC = () => {
             <div className="hidden md:flex items-center gap-4">
               <a
                 href={`tel:${config.VITE_WHATSAPP_CONTACT_NUMBER}`}
-                className="flex items-center gap-1 hover:text-primary-400 transition-colors"
+                className="flex items-center gap-1 hover:text-primary-400 transition-all duration-fast ease-out hover:scale-105"
               >
                 <Phone className="w-4 h-4" />
                 <span>{config.VITE_WHATSAPP_CONTACT_NUMBER}</span>
               </a>
               <a
                 href={`mailto:${config.VITE_SITE_EMAIL_FROM}`}
-                className="flex items-center gap-1 hover:text-primary-400 transition-colors"
+                className="flex items-center gap-1 hover:text-primary-400 transition-all duration-fast ease-out hover:scale-105"
               >
                 <Mail className="w-4 h-4" />
                 <span>{config.VITE_SITE_EMAIL_FROM}</span>
@@ -84,12 +85,14 @@ export const Navigation: React.FC = () => {
             <div className="flex items-center gap-2">
               {/* Mobile Back Button */}
               {isPropertyPage && (
-                <button
+                <Button
                   onClick={() => navigate('/#featured')}
-                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors mr-2"
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden mr-2"
                 >
                   <ArrowLeft className="w-6 h-6 text-gray-900" />
-                </button>
+                </Button>
               )}
 
               {/* Logo */}
@@ -115,47 +118,47 @@ export const Navigation: React.FC = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className={`relative font-medium transition-colors hover:text-primary-600 ${
+                  className={`relative font-medium transition-all duration-fast ease-out hover:text-primary-600 hover:-translate-y-0.5 ${
                     isActive(link.href)
                       ? 'text-primary-600'
                       : 'text-gray-700'
                   }`}
                 >
                   {link.name}
-                  {isActive(link.href) && (
-                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-600 rounded-full" />
-                  )}
+                  <span className={`absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-600 rounded-full transition-all duration-normal ease-out ${
+                    isActive(link.href) ? 'w-full' : 'w-0 hover:w-full'
+                  }`} />
                 </Link>
               ))}
             </div>
 
             {/* CTA Button */}
             <div className="hidden lg:flex items-center gap-4">
-              <Link
-                to="/admin"
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
+              <Button
+                asChild
+                variant="gradient"
+                size="default"
+                className="animate-button-pulse"
               >
-                Admin
-              </Link>
-              <Link
-                to="/#featured"
-                className="btn-outline px-6 py-2.5"
-              >
-                Book Now
-              </Link>
+                <Link to="/#featured">
+                  Book Now
+                </Link>
+              </Button>
             </div>
 
             {/* Mobile Menu Button */}
-            <button
+            <Button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
             >
               {isMenuOpen ? (
                 <X className="w-6 h-6 text-gray-900" />
               ) : (
                 <Menu className="w-6 h-6 text-gray-900" />
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -168,7 +171,7 @@ export const Navigation: React.FC = () => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    className={`font-medium transition-colors hover:text-primary-600 py-2 ${
+                    className={`font-medium transition-all duration-fast ease-out hover:text-primary-600 hover:translate-x-1 py-2 ${
                       isActive(link.href)
                         ? 'text-primary-600'
                         : 'text-gray-700'
@@ -177,12 +180,16 @@ export const Navigation: React.FC = () => {
                     {link.name}
                   </Link>
                 ))}
-                <Link
-                  to="/#featured"
-                  className="btn-primary w-full mt-4"
+                <Button
+                  asChild
+                  variant="gradient"
+                  fullWidth
+                  className="mt-4"
                 >
-                  Book Now
-                </Link>
+                  <Link to="/#featured">
+                    Book Now
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>

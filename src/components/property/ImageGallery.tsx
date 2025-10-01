@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
+import { fallbackImageHandler } from '@/utils';
+import { IMAGE_PLACEHOLDER } from '@/constants/images';
 
 interface ImageGalleryProps {
   images: string[];
@@ -10,12 +12,15 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  const safeImages = images.length > 0 ? images : [IMAGE_PLACEHOLDER];
+  const currentImage = safeImages[selectedImageIndex] || IMAGE_PLACEHOLDER;
+
   const nextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % images.length);
+    setSelectedImageIndex((prev) => (prev + 1) % safeImages.length);
   };
 
   const prevImage = () => {
-    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setSelectedImageIndex((prev) => (prev - 1 + safeImages.length) % safeImages.length);
   };
 
   const openLightbox = (index: number) => {
@@ -27,36 +32,37 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
     setIsLightboxOpen(false);
   };
 
-  if (!images.length) {
-    return (
-      <div className="aspect-video bg-gray-200 rounded-xl flex items-center justify-center">
-        <span className="text-gray-500">No images available</span>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       {/* Main Image */}
-      <div className="relative aspect-video overflow-hidden rounded-xl group cursor-pointer"
-           onClick={() => openLightbox(selectedImageIndex)}>
+      <div
+        className="relative aspect-video overflow-hidden rounded-xl group cursor-pointer"
+        onClick={() => openLightbox(selectedImageIndex)}
+      >
         <img
-          src={images[selectedImageIndex]}
+          src={currentImage}
           alt={`${propertyName} - Image ${selectedImageIndex + 1}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
         />
 
         {/* Navigation Arrows */}
-        {images.length > 1 && (
+        {safeImages.length > 1 && (
           <>
             <button
-              onClick={(e) => { e.stopPropagation(); prevImage(); }}
+              onClick={(event) => {
+                event.stopPropagation();
+                prevImage();
+              }}
               className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-white"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); nextImage(); }}
+              onClick={(event) => {
+                event.stopPropagation();
+                nextImage();
+              }}
               className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-white"
             >
               <ChevronRight className="w-5 h-5" />
@@ -66,7 +72,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
 
         {/* Image Counter */}
         <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
-          {selectedImageIndex + 1} / {images.length}
+          {selectedImageIndex + 1} / {safeImages.length}
         </div>
 
         {/* Zoom Indicator */}
@@ -76,9 +82,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
       </div>
 
       {/* Thumbnail Strip */}
-      {images.length > 1 && (
+      {safeImages.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {images.map((image, index) => (
+          {safeImages.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedImageIndex(index)}
@@ -89,9 +95,10 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
               }`}
             >
               <img
-                src={image}
+                src={image || IMAGE_PLACEHOLDER}
                 alt={`${propertyName} thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
+                onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
               />
             </button>
           ))}
@@ -100,8 +107,10 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
 
       {/* Lightbox */}
       {isLightboxOpen && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-             onClick={closeLightbox}>
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={closeLightbox}
+        >
           <div className="relative max-w-7xl max-h-full">
             {/* Close Button */}
             <button
@@ -113,22 +122,29 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
 
             {/* Lightbox Image */}
             <img
-              src={images[selectedImageIndex]}
+              src={currentImage}
               alt={`${propertyName} - Image ${selectedImageIndex + 1}`}
               className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
             />
 
             {/* Lightbox Navigation */}
-            {images.length > 1 && (
+            {safeImages.length > 1 && (
               <>
                 <button
-                  onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    prevImage();
+                  }}
                   className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 text-white hover:bg-white/30 transition-all"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    nextImage();
+                  }}
                   className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 text-white hover:bg-white/30 transition-all"
                 >
                   <ChevronRight className="w-6 h-6" />
@@ -138,7 +154,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
 
             {/* Lightbox Counter */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
-              {selectedImageIndex + 1} / {images.length}
+              {selectedImageIndex + 1} / {safeImages.length}
             </div>
           </div>
         </div>

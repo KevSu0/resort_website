@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Star, MapPin, Users, Wifi, Car, Coffee, Home, Waves, TreePine, Mountain } from 'lucide-react';
 import { type Property } from '@/types';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, fallbackImageHandler } from '@/utils';
+import { IMAGE_PLACEHOLDER } from '@/constants/images';
 
 interface PropertySummaryProps {
   property: Property;
@@ -37,6 +38,7 @@ export const PropertySummary: React.FC<PropertySummaryProps> = ({ property }) =>
           src={property.heroImage}
           alt={property.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 

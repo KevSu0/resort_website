@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
-import { FileStorageService } from '../../services/fileStorage';
-import { DatabaseService, OBJECT_STORES } from '../../services/databaseService';
+import { FileStorageService } from '@/services/fileStorage';
+import { DatabaseService, OBJECT_STORES } from '@/services/databaseService';
 
 describe('FileStorageService', () => {
     let databaseService: DatabaseService;

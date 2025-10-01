@@ -1,4 +1,4 @@
-import { type Property, type RoomType, type Place, type Admin, type Offer, type PromoCode, type Referrer } from '@/types';
+import { type Property, type RoomType, type Place, type Offer, type PromoCode, type Referrer } from '@/types';
 import { storageService } from '@/services/storage';
 
 // Mock Properties
@@ -444,14 +444,6 @@ export const mockProperties: (Property & { rooms: RoomType[]; places: Place[] })
   }
 ];
 
-// Mock Admin
-export const mockAdmin: Admin = {
-  id: 'admin-1',
-  email: 'admin@treehouse.in',
-  name: 'Administrator',
-  role: 'ADMIN',
-  createdAt: '2024-01-01T00:00:00Z'
-};
 
 // Mock Offers
 export const mockOffers: Offer[] = [
@@ -562,12 +554,7 @@ export const initializeMockData = (): void => {
     storageService.savePlaces(places);
   }
 
-  // Initialize admin
-  const existingAdmins = storageService.getAdmins();
-  if (existingAdmins.length === 0) {
-    storageService.saveAdmins([mockAdmin]);
-  }
-
+  
   // Initialize offers
   const existingOffers = storageService.getOffers();
   if (existingOffers.length === 0) {

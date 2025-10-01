@@ -7,7 +7,7 @@
     <title>resort-website</title>
 
     <!-- Development-friendly CSP. Configure strict security headers at the server/CDN layer in production. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' ws: wss: http: https:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com blob:; img-src 'self' data: blob: https://images.unsplash.com https:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' ws: wss: http: https:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
 
     <meta name="application-name" content="Resort Website Admin" />
     <meta name="theme-color" content="#000000" />
@@ -17,3 +17,4 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+

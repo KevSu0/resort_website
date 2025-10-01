@@ -1,0 +1,3012 @@
+{
+  "project": {
+    "name": "Resort Website Enterprise CMS Implementation",
+    "version": "1.0.0",
+    "startDate": "2024-10-01",
+    "targetCompletionDate": "2025-04-01",
+    "totalDuration": "28 weeks",
+    "databaseStrategy": "PostgreSQL → Supabase Migration",
+    "methodology": "Agile with 2-week sprints"
+  },
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Multi-Tenancy & Enterprise Foundation",
+      "duration": "5 weeks",
+      "startDate": "2024-10-01",
+      "endDate": "2024-11-04",
+      "status": "planned",
+      "objective": "Establish multi-tenant database architecture with enterprise-grade foundation",
+      "tasks": [
+        {
+          "id": "task-1-1",
+          "title": "Database Schema Design & Implementation",
+          "priority": "critical",
+          "estimatedHours": 80,
+          "status": "planned",
+          "deliverables": [
+            "Complete PostgreSQL schema with multi-tenancy",
+            "Database migration scripts",
+            "Seed data and test fixtures"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-1-1-1",
+              "title": "Design Multi-Tenancy Schema",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-1-1-1",
+                  "title": "Create brands and sites tables",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "modelRecommendation": "Ask the model to select the best agent for database schema design with multi-tenancy patterns, PostgreSQL expertise, and complex relationship modeling"
+                  }
+                },
+                {
+                  "id": "microtask-1-1-1-2",
+                  "title": "Add tenant context to all existing tables",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Database Schema Migration",
+                    "requirements": ["ALTER TABLE expertise", "Index optimization", "Performance considerations"],
+                    "context": "Add brand_id and site_id columns to all CMS tables with proper indexing"
+                  }
+                },
+                {
+                  "id": "microtask-1-1-1-3",
+                  "title": "Define tenant isolation constraints",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Database Security",
+                    "requirements": ["Row Level Security knowledge", "Database security patterns", "Access control"],
+                    "context": "Implement tenant data isolation at database level"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-1-1-2",
+              "title": "Create Content Management Tables",
+              "estimatedHours": 30,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-1-2-1",
+                  "title": "Implement pages and content blocks schema",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Content Management Database Design",
+                    "requirements": ["JSONB expertise", "Hierarchical data structures", "Content modeling"],
+                    "context": "Design flexible content management system with blocks and templates"
+                  }
+                },
+                {
+                  "id": "microtask-1-1-2-2",
+                  "title": "Create navigation management tables",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Navigation & Menu Systems",
+                    "requirements": ["Tree structures", "Recursive relationships", "Menu system patterns"],
+                    "context": "Build flexible navigation system supporting multi-level menus"
+                  }
+                },
+                {
+                  "id": "microtask-1-1-2-3",
+                  "title": "Design UI text management system",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Internationalization Systems",
+                    "requirements": ["Multi-language support", "Text resource management", "Localization patterns"],
+                    "context": "Create system for managing all UI text with multi-language support"
+                  }
+                },
+                {
+                  "id": "microtask-1-1-2-4",
+                  "title": "Implement media management schema",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Media Database Design",
+                    "requirements": ["File storage patterns", "Metadata management", "CDN integration concepts"],
+                    "context": "Design comprehensive media management with derivatives and processing"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-1-1-3",
+              "title": "Create Content Lifecycle Tables",
+              "estimatedHours": 30,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-1-3-1",
+                  "title": "Implement version control system",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Version Control Systems",
+                    "requirements": ["Database versioning patterns", "Diff algorithms", "Rollback strategies"],
+                    "context": "Create comprehensive content versioning with diff tracking"
+                  }
+                },
+                {
+                  "id": "microtask-1-1-3-2",
+                  "title": "Design approval workflow tables",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Workflow Systems",
+                    "requirements": ["State machine patterns", "Approval workflows", "Role-based permissions"],
+                    "context": "Build flexible approval workflow system with multiple approval levels"
+                  }
+                },
+                {
+                  "id": "microtask-1-1-3-3",
+                  "title": "Create publishing windows system",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Scheduling Systems",
+                    "requirements": ["Time-based scheduling", "Publishing workflows", "Calendar systems"],
+                    "context": "Implement time-based content publishing with approval windows"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-1-2",
+          "title": "Development Environment Setup",
+          "priority": "critical",
+          "estimatedHours": 40,
+          "status": "planned",
+          "deliverables": [
+            "Docker development environment",
+            "Database migration scripts",
+            "Development database seeding"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-1-2-1",
+              "title": "Setup Docker Development Environment",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-2-1-1",
+                  "title": "Create Docker Compose configuration",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "devops-troubleshooter",
+                    "specialization": "Docker & Containerization",
+                    "requirements": ["Docker Compose expertise", "Multi-service orchestration", "Volume management"],
+                    "context": "Setup development environment with PostgreSQL and Redis"
+                  }
+                },
+                {
+                  "id": "microtask-1-2-1-2",
+                  "title": "Configure PostgreSQL extensions",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "PostgreSQL Administration",
+                    "requirements": ["PostgreSQL extensions", "Database optimization", "Extension management"],
+                    "context": "Enable Supabase-compatible extensions (pg_trgm, uuid-ossp, etc.)"
+                  }
+                },
+                {
+                  "id": "microtask-1-2-1-3",
+                  "title": "Setup Redis for caching",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "devops-troubleshooter",
+                    "specialization": "Redis Configuration",
+                    "requirements": ["Redis setup", "Cache configuration", "Performance optimization"],
+                    "context": "Configure Redis for session management and content caching"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-1-2-2",
+              "title": "Database Migration Infrastructure",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-2-2-1",
+                  "title": "Setup Prisma ORM configuration",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "ORM Configuration",
+                    "requirements": ["Prisma expertise", "TypeScript integration", "Database mapping"],
+                    "context": "Configure Prisma with multi-tenant schema and relationships"
+                  }
+                },
+                {
+                  "id": "microtask-1-2-2-2",
+                  "title": "Create database migration scripts",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Database Migrations",
+                    "requirements": ["Schema migrations", "Rollback strategies", "Data integrity"],
+                    "context": "Create Prisma migrations for all CMS tables with proper ordering"
+                  }
+                },
+                {
+                  "id": "microtask-1-2-2-3",
+                  "title": "Implement database seeding",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Database Seeding",
+                    "requirements": ["Seed data design", "Test data generation", "Data relationships"],
+                    "context": "Create comprehensive seed data for development and testing"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-1-3",
+          "title": "DB-Agnostic Data Access Layer",
+          "priority": "high",
+          "estimatedHours": 60,
+          "status": "planned",
+          "deliverables": [
+            "Abstract database adapters",
+            "Tenant context management",
+            "Repository pattern implementation"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-1-3-1",
+              "title": "Create Database Adapter Pattern",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-3-1-1",
+                  "title": "Design abstract database interface",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Software Architecture",
+                    "requirements": ["Abstract patterns", "Interface design", "Adapter pattern"],
+                    "context": "Define database-agnostic interface for all database operations"
+                  }
+                },
+                {
+                  "id": "microtask-1-3-1-2",
+                  "title": "Implement PostgreSQL adapter",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Database Adapters",
+                    "requirements": ["PostgreSQL integration", "Connection management", "Query building"],
+                    "context": "Create concrete PostgreSQL implementation of database interface"
+                  }
+                },
+                {
+                  "id": "microtask-1-3-1-3",
+                  "title": "Implement Supabase adapter",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Supabase Integration",
+                    "requirements": ["Supabase client", "Real-time subscriptions", "Authentication integration"],
+                    "context": "Create Supabase-specific adapter with auth and real-time features"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-1-3-2",
+              "title": "Tenant Context Management",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-3-2-1",
+                  "title": "Design tenant context interface",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Multi-tenancy Architecture",
+                    "requirements": ["Context patterns", "Tenant isolation", "Security contexts"],
+                    "context": "Define tenant context structure for request handling"
+                  }
+                },
+                {
+                  "id": "microtask-1-3-2-2",
+                  "title": "Implement tenant resolver middleware",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Security Middleware",
+                    "requirements": ["Request processing", "Security validation", "Context resolution"],
+                    "context": "Create middleware to extract tenant context from requests"
+                  }
+                },
+                {
+                  "id": "microtask-1-3-2-3",
+                  "title": "Add tenant-aware caching",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "performance-engineer",
+                    "specialization": "Caching Strategies",
+                    "requirements": ["Redis integration", "Cache invalidation", "Multi-tenant caching"],
+                    "context": "Implement tenant-isolated caching with proper invalidation"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-1-3-3",
+              "title": "Repository Pattern Implementation",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-1-3-3-1",
+                  "title": "Create base repository class",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Repository Pattern",
+                    "requirements": ["Data access patterns", "Generic repositories", "TypeScript generics"],
+                    "context": "Implement base repository with common CRUD operations"
+                  }
+                },
+                {
+                  "id": "microtask-1-3-3-2",
+                  "title": "Create entity-specific repositories",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Entity Repositories",
+                    "requirements": ["Specific entity handling", "Custom queries", "Business logic"],
+                    "context": "Implement repositories for pages, media, users, and workflows"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Advanced Content & Workflow System",
+      "duration": "5 weeks",
+      "startDate": "2024-11-05",
+      "endDate": "2024-12-09",
+      "status": "planned",
+      "objective": "Build enterprise-grade content lifecycle management with approval workflows",
+      "tasks": [
+        {
+          "id": "task-2-1",
+          "title": "Content Lifecycle API",
+          "priority": "critical",
+          "estimatedHours": 80,
+          "status": "planned",
+          "deliverables": [
+            "Content CRUD operations",
+            "Version control API",
+            "Publishing workflows"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-2-1-1",
+              "title": "Content Management API",
+              "estimatedHours": 32,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-1-1-1",
+                  "title": "Implement page CRUD operations",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "fastapi-pro",
+                    "specialization": "RESTful API Development",
+                    "requirements": ["FastAPI expertise", "Request validation", "Response formatting"],
+                    "context": "Create comprehensive API for page management with tenant isolation"
+                  }
+                },
+                {
+                  "id": "microtask-2-1-1-2",
+                  "title": "Implement content block management",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "fastapi-pro",
+                    "specialization": "Content Management APIs",
+                    "requirements": ["JSON handling", "Content validation", "Block management"],
+                    "context": "Build API for managing reusable content blocks and templates"
+                  }
+                },
+                {
+                  "id": "microtask-2-1-1-3",
+                  "title": "Add content search functionality",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-optimizer",
+                    "specialization": "Search Implementation",
+                    "requirements": ["Full-text search", "PostgreSQL FTS", "Query optimization"],
+                    "context": "Implement advanced search with trigram matching and filtering"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-2-1-2",
+              "title": "Version Control System",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-1-2-1",
+                  "title": "Implement version creation API",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Version Control Systems",
+                    "requirements": ["Diff algorithms", "Version management", "Content tracking"],
+                    "context": "Create API for automatic version creation with diff tracking"
+                  }
+                },
+                {
+                  "id": "microtask-2-1-2-2",
+                  "title": "Implement version comparison API",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Content Diffing",
+                    "requirements": ["JSON diff algorithms", "Change detection", "Version comparison"],
+                    "context": "Build API for comparing content versions with detailed diffs"
+                  }
+                },
+                {
+                  "id": "microtask-2-1-2-3",
+                  "title": "Implement rollback functionality",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Secure Rollback Systems",
+                    "requirements": ["Data integrity", "Rollback validation", "Security checks"],
+                    "context": "Create secure rollback API with validation and audit trails"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-2-1-3",
+              "title": "Publishing Workflow API",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-1-3-1",
+                  "title": "Implement draft publishing API",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Publishing Systems",
+                    "requirements": ["Content publishing", "Status management", "Publishing workflows"],
+                    "context": "Create API for transitioning content through publishing states"
+                  }
+                },
+                {
+                  "id": "microtask-2-1-3-2",
+                  "title": "Implement scheduled publishing",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Scheduled Tasks",
+                    "requirements": ["Task scheduling", "Cron jobs", "Background processing"],
+                    "context": "Build system for scheduled content publishing with time windows"
+                  }
+                },
+                {
+                  "id": "microtask-2-1-3-3",
+                  "title": "Add content locking mechanism",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Concurrency Control",
+                    "requirements": ["Optimistic locking", "Conflict resolution", "Lock management"],
+                    "context": "Implement content locking to prevent edit conflicts"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-2-2",
+          "title": "Approval Workflow System",
+          "priority": "critical",
+          "estimatedHours": 60,
+          "status": "planned",
+          "deliverables": [
+            "Workflow engine",
+            "Role-based approvals",
+            "Notification system"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-2-2-1",
+              "title": "Workflow Engine Implementation",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-2-1-1",
+                  "title": "Design workflow state machine",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "State Machine Design",
+                    "requirements": ["State patterns", "Workflow definitions", "Transition management"],
+                    "context": "Create flexible state machine for content approval workflows"
+                  }
+                },
+                {
+                  "id": "microtask-2-2-1-2",
+                  "title": "Implement workflow execution engine",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Workflow Engines",
+                    "requirements": ["Workflow orchestration", "Step execution", "Error handling"],
+                    "context": "Build engine to execute and manage approval workflows"
+                  }
+                },
+                {
+                  "id": "microtask-2-2-1-3",
+                  "title": "Add workflow configuration API",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Workflow Configuration",
+                    "requirements": ["Configuration management", "Dynamic workflows", "Validation"],
+                    "context": "Create API for configuring custom approval workflows"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-2-2-2",
+              "title": "Role-Based Approval System",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-2-2-1",
+                  "title": "Implement role-based permissions",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Role-Based Access Control",
+                    "requirements": ["RBAC implementation", "Permission management", "Role hierarchy"],
+                    "context": "Create comprehensive RBAC system for content approval"
+                  }
+                },
+                {
+                  "id": "microtask-2-2-2-2",
+                  "title": "Implement approval matrix",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Approval Logic",
+                    "requirements": ["Business rules", "Approval matrices", "Condition evaluation"],
+                    "context": "Build system to determine required approvals based on content and user roles"
+                  }
+                },
+                {
+                  "id": "microtask-2-2-2-3",
+                  "title": "Add delegation functionality",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Delegation Systems",
+                    "requirements": ["User delegation", "Temporary permissions", "Approval delegation"],
+                    "context": "Implement system for delegating approval responsibilities"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-2-2-3",
+              "title": "Notification System",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-2-3-1",
+                  "title": "Design notification architecture",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Notification Systems",
+                    "requirements": ["Event-driven architecture", "Notification patterns", "Queue management"],
+                    "context": "Design scalable notification system for workflow events"
+                  }
+                },
+                {
+                  "id": "microtask-2-2-3-2",
+                  "title": "Implement email notifications",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Email Integration",
+                    "requirements": ["Email templates", "SMTP integration", "Bulk email handling"],
+                    "context": "Build email notification system with templates"
+                  }
+                },
+                {
+                  "id": "microtask-2-2-3-3",
+                  "title": "Add in-app notifications",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Real-time Notifications",
+                    "requirements": ["WebSocket integration", "Real-time updates", "Push notifications"],
+                    "context": "Implement real-time notification delivery to admin interface"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-2-3",
+          "title": "Content Security & Validation",
+          "priority": "high",
+          "estimatedHours": 40,
+          "status": "planned",
+          "deliverables": [
+            "Input validation system",
+            "Security middleware",
+            "Audit logging"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-2-3-1",
+              "title": "Input Validation System",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-3-1-1",
+                  "title": "Implement content validation schemas",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Input Validation",
+                    "requirements": ["Schema validation", "Content sanitization", "Security validation"],
+                    "context": "Create comprehensive validation for all content inputs"
+                  }
+                },
+                {
+                  "id": "microtask-2-3-1-2",
+                  "title": "Add XSS protection",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "XSS Prevention",
+                    "requirements": ["XSS prevention", "Content sanitization", "Security headers"],
+                    "context": "Implement protection against cross-site scripting attacks"
+                  }
+                },
+                {
+                  "id": "microtask-2-3-1-3",
+                  "title": "Add SQL injection protection",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "SQL Injection Prevention",
+                    "requirements": ["Parameterized queries", "Query validation", "Database security"],
+                    "context": "Ensure protection against SQL injection attacks"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-2-3-2",
+              "title": "Security Middleware",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-3-2-1",
+                  "title": "Implement authentication middleware",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Authentication Systems",
+                    "requirements": ["JWT handling", "Session management", "Token validation"],
+                    "context": "Create middleware for authentication and authorization"
+                  }
+                },
+                {
+                  "id": "microtask-2-3-2-2",
+                  "title": "Add rate limiting",
+                  "estimatedHours": 3,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Rate Limiting",
+                    "requirements": ["Rate limiting algorithms", "Redis integration", "DDoS protection"],
+                    "context": "Implement rate limiting to prevent abuse"
+                  }
+                },
+                {
+                  "id": "microtask-2-3-2-3",
+                  "title": "Add security headers",
+                  "estimatedHours": 3,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Security Headers",
+                    "requirements": ["HTTP security headers", "CORS configuration", "Security policies"],
+                    "context": "Configure security headers for API protection"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-2-3-3",
+              "title": "Audit Logging System",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-2-3-3-1",
+                  "title": "Design audit log schema",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Audit Logging",
+                    "requirements": ["Audit trail design", "Log retention", "Compliance logging"],
+                    "context": "Design comprehensive audit logging for all content operations"
+                  }
+                },
+                {
+                  "id": "microtask-2-3-3-2",
+                  "title": "Implement audit logging middleware",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "Audit Implementation",
+                    "requirements": ["Event logging", "Change tracking", "Security auditing"],
+                    "context": "Create middleware to automatically log all content changes"
+                  }
+                },
+                {
+                  "id": "microtask-2-3-3-3",
+                  "title": "Add audit reporting API",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Reporting Systems",
+                    "requirements": ["Audit reporting", "Data aggregation", "Query optimization"],
+                    "context": "Build API for accessing and analyzing audit logs"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Media Pipeline & CDN Integration",
+      "duration": "4 weeks",
+      "startDate": "2024-12-10",
+      "endDate": "2025-01-06",
+      "status": "planned",
+      "objective": "Build advanced media management system with CDN integration and derivative generation",
+      "tasks": [
+        {
+          "id": "task-3-1",
+          "title": "Media Upload & Processing",
+          "priority": "critical",
+          "estimatedHours": 64,
+          "status": "planned",
+          "deliverables": [
+            "File upload API",
+            "Image processing pipeline",
+            "Metadata extraction"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-3-1-1",
+              "title": "File Upload System",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-1-1-1",
+                  "title": "Implement multi-part file upload",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "File Upload Systems",
+                    "requirements": ["Multi-part uploads", "File validation", "Progress tracking"],
+                    "context": "Create robust file upload system with validation and progress tracking"
+                  }
+                },
+                {
+                  "id": "microtask-3-1-1-2",
+                  "title": "Add file type validation",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-security-coder",
+                    "specialization": "File Security",
+                    "requirements": ["MIME type validation", "File size limits", "Malware scanning"],
+                    "context": "Implement comprehensive file security validation"
+                  }
+                },
+                {
+                  "id": "microtask-3-1-1-3",
+                  "title": "Implement resumable uploads",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Advanced Upload Features",
+                    "requirements": ["Resumable uploads", "Chunk management", "Upload recovery"],
+                    "context": "Add support for resumable uploads for large files"
+                  }
+                },
+                {
+                  "id": "microtask-3-1-1-4",
+                  "title": "Add upload progress tracking",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Real-time Communication",
+                    "requirements": ["WebSocket integration", "Progress tracking", "Real-time updates"],
+                    "context": "Implement real-time upload progress tracking"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-3-1-2",
+              "title": "Image Processing Pipeline",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-1-2-1",
+                  "title": "Implement derivative generation",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Image Processing",
+                    "requirements": ["Image manipulation", "Sharp library", "Image optimization"],
+                    "context": "Create system for generating multiple image sizes and formats"
+                  }
+                },
+                {
+                  "id": "microtask-3-1-2-2",
+                  "title": "Add EXIF data processing",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Metadata Processing",
+                    "requirements": ["EXIF extraction", "Metadata parsing", "Image analysis"],
+                    "context": "Implement EXIF data extraction and processing"
+                  }
+                },
+                {
+                  "id": "microtask-3-1-2-3",
+                  "title": "Add image optimization",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "performance-engineer",
+                    "specialization": "Image Optimization",
+                    "requirements": ["Image compression", "Format optimization", "Quality management"],
+                    "context": "Implement automatic image optimization for web performance"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-3-1-3",
+              "title": "Async Processing Queue",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-1-3-1",
+                  "title": "Implement job queue system",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Job Queue Systems",
+                    "requirements": ["Queue management", "Background processing", "Job priorities"],
+                    "context": "Create robust job queue for media processing"
+                  }
+                },
+                {
+                  "id": "microtask-3-1-3-2",
+                  "title": "Add job status tracking",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Job Monitoring",
+                    "requirements": ["Job status tracking", "Progress monitoring", "Error handling"],
+                    "context": "Implement system to track job progress and status"
+                  }
+                },
+                {
+                  "id": "microtask-3-1-3-3",
+                  "title": "Add job retry mechanism",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Error Recovery",
+                    "requirements": ["Retry logic", "Error handling", "Failure recovery"],
+                    "context": "Implement automatic retry mechanism for failed jobs"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-3-2",
+          "title": "CDN Integration & Storage",
+          "priority": "critical",
+          "estimatedHours": 48,
+          "status": "planned",
+          "deliverables": [
+            "CDN configuration",
+            "Storage abstraction",
+            "File synchronization"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-3-2-1",
+              "title": "Storage Abstraction Layer",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-2-1-1",
+                  "title": "Design storage interface",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "Storage Abstraction",
+                    "requirements": ["Storage patterns", "Interface design", "Provider abstraction"],
+                    "context": "Create abstract interface for multiple storage providers"
+                  }
+                },
+                {
+                  "id": "microtask-3-2-1-2",
+                  "title": "Implement local storage adapter",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "backend-architect",
+                    "specialization": "File System Storage",
+                    "requirements": ["File system operations", "Path management", "Local storage"],
+                    "context": "Create local file system storage implementation"
+                  }
+                },
+                {
+                  "id": "microtask-3-2-1-3",
+                  "title": "Implement AWS S3 adapter",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "cloud-architect",
+                    "specialization": "AWS S3 Integration",
+                    "requirements": ["AWS SDK", "S3 operations", "Cloud storage"],
+                    "context": "Create AWS S3 storage implementation with CDN integration"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-3-2-2",
+              "title": "CDN Configuration",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-2-2-1",
+                  "title": "Configure Cloudflare CDN",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "cloud-architect",
+                    "specialization": "CDN Configuration",
+                    "requirements": ["Cloudflare API", "CDN configuration", "Cache management"],
+                    "context": "Configure Cloudflare CDN for static assets and images"
+                  }
+                },
+                {
+                  "id": "microtask-3-2-2-2",
+                  "title": "Implement cache invalidation",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "cloud-architect",
+                    "specialization": "Cache Management",
+                    "requirements": ["Cache invalidation", "CDN purging", "Cache strategies"],
+                    "context": "Implement cache invalidation when media is updated"
+                  }
+                },
+                {
+                  "id": "microtask-3-2-2-3",
+                  "title": "Add CDN analytics",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "observability-engineer",
+                    "specialization": "CDN Analytics",
+                    "requirements": ["CDN analytics", "Performance metrics", "Usage tracking"],
+                    "context": "Track CDN performance and usage metrics"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-3-2-3",
+              "title": "File Synchronization",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-2-3-1",
+                  "title": "Implement backup synchronization",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "cloud-architect",
+                    "specialization": "Data Synchronization",
+                    "requirements": ["File synchronization", "Backup strategies", "Data redundancy"],
+                    "context": "Implement automatic backup to secondary storage"
+                  }
+                },
+                {
+                  "id": "microtask-3-2-3-2",
+                  "title": "Add cross-region replication",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "cloud-architect",
+                    "specialization": "Multi-Region Deployment",
+                    "requirements": ["Cross-region replication", "Global distribution", "Latency optimization"],
+                    "context": "Implement multi-region file replication for global CDN"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-3-3",
+          "title": "Media Management API",
+          "priority": "high",
+          "estimatedHours": 48,
+          "status": "planned",
+          "deliverables": [
+            "Media CRUD operations",
+            "Search and filtering",
+            "Usage tracking"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-3-3-1",
+              "title": "Media CRUD API",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-3-1-1",
+                  "title": "Implement media upload API",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "fastapi-pro",
+                    "specialization": "File Upload APIs",
+                    "requirements": ["File upload handling", "Multi-part forms", "Upload validation"],
+                    "context": "Create comprehensive media upload API with validation"
+                  }
+                },
+                {
+                  "id": "microtask-3-3-1-2",
+                  "title": "Implement media metadata API",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "fastapi-pro",
+                    "specialization": "Metadata Management",
+                    "requirements": ["Metadata handling", "EXIF data", "Image information"],
+                    "context": "Create API for managing media metadata and properties"
+                  }
+                },
+                {
+                  "id": "microtask-3-3-1-3",
+                  "title": "Implement media deletion API",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "fastapi-pro",
+                    "specialization": "Safe Deletion",
+                    "requirements": ["Soft deletes", "Dependency checking", "Safe removal"],
+                    "context": "Create safe media deletion with dependency checking"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-3-3-2",
+              "title": "Media Search & Filtering",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-3-2-1",
+                  "title": "Implement advanced search",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-optimizer",
+                    "specialization": "Media Search",
+                    "requirements": ["Full-text search", "Image search", "Metadata search"],
+                    "context": "Implement advanced media search with multiple criteria"
+                  }
+                },
+                {
+                  "id": "microtask-3-3-2-2",
+                  "title": "Add filtering and sorting",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-optimizer",
+                    "specialization": "Query Optimization",
+                    "requirements": ["Filter implementation", "Sorting optimization", "Query performance"],
+                    "context": "Add efficient filtering and sorting for media libraries"
+                  }
+                },
+                {
+                  "id": "microtask-3-3-2-3",
+                  "title": "Implement faceted search",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-optimizer",
+                    "specialization": "Faceted Search",
+                    "requirements": ["Faceted navigation", "Category filtering", "Search facets"],
+                    "context": "Add faceted search for media categories and attributes"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-3-3-3",
+              "title": "Usage Tracking & Analytics",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-3-3-3-1",
+                  "title": "Implement usage tracking",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "observability-engineer",
+                    "specialization": "Usage Analytics",
+                    "requirements": ["Usage tracking", "Analytics collection", "Data aggregation"],
+                    "context": "Track media usage across the application"
+                  }
+                },
+                {
+                  "id": "microtask-3-3-3-2",
+                  "title": "Add performance metrics",
+                  "estimatedHours": 3,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "performance-engineer",
+                    "specialization": "Media Performance",
+                    "requirements": ["Performance monitoring", "Load time tracking", "CDN performance"],
+                    "context": "Track media loading performance and optimization"
+                  }
+                },
+                {
+                  "id": "microtask-3-3-3-3",
+                  "title": "Implement storage analytics",
+                  "estimatedHours": 3,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "observability-engineer",
+                    "specialization": "Storage Analytics",
+                    "requirements": ["Storage usage", "Cost tracking", "Capacity planning"],
+                    "context": "Monitor storage usage and costs"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Content Migration & Testing",
+      "duration": "5 weeks",
+      "startDate": "2025-01-07",
+      "endDate": "2025-02-10",
+      "status": "planned",
+      "objective": "Migrate existing content and perform comprehensive testing",
+      "tasks": [
+        {
+          "id": "task-4-1",
+          "title": "Content Migration from Hardcoded Sources",
+          "priority": "critical",
+          "estimatedHours": 80,
+          "status": "planned",
+          "deliverables": [
+            "Migration scripts",
+            "Content validation",
+            "Data integrity verification"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-4-1-1",
+              "title": "Analyze Existing Content",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-1-1-1",
+                  "title": "Scan codebase for hardcoded content",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "general-purpose",
+                    "specialization": "Code Analysis",
+                    "requirements": ["Code scanning", "Pattern recognition", "Content identification"],
+                    "context": "Analyze entire codebase to identify all hardcoded content"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-1-2",
+                  "title": "Categorize content types",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "general-purpose",
+                    "specialization": "Content Classification",
+                    "requirements": ["Content categorization", "Taxonomy design", "Content modeling"],
+                    "context": "Categorize all identified content by type and usage"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-1-3",
+                  "title": "Create content inventory",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "docs-architect",
+                    "specialization": "Content Documentation",
+                    "requirements": ["Documentation", "Content mapping", "Inventory management"],
+                    "context": "Create comprehensive inventory of all content to migrate"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-4-1-2",
+              "title": "Migration Script Development",
+              "estimatedHours": 32,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-1-2-1",
+                  "title": "Create page content migration scripts",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "data-engineer",
+                    "specialization": "Content Migration",
+                    "requirements": ["Data extraction", "Content transformation", "Database operations"],
+                    "context": "Create scripts to extract and migrate page content"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-2-2",
+                  "title": "Create UI text migration scripts",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "data-engineer",
+                    "specialization": "Text Migration",
+                    "requirements": ["Text extraction", "String processing", "Localization"],
+                    "context": "Create scripts to migrate all UI text and labels"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-2-3",
+                  "title": "Create navigation migration scripts",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "data-engineer",
+                    "specialization": "Navigation Migration",
+                    "requirements": ["Menu structure extraction", "Link mapping", "Navigation重建"],
+                    "context": "Create scripts to migrate navigation structures"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-2-4",
+                  "title": "Create media migration scripts",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "data-engineer",
+                    "specialization": "Media Migration",
+                    "requirements": ["File migration", "Metadata extraction", "Media processing"],
+                    "context": "Create scripts to migrate existing media files"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-4-1-3",
+              "title": "Data Validation & Integrity",
+              "estimatedHours": 28,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-1-3-1",
+                  "title": "Implement validation rules",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "data-engineer",
+                    "specialization": "Data Validation",
+                    "requirements": ["Data validation", "Schema validation", "Integrity checks"],
+                    "context": "Create comprehensive validation for migrated data"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-3-2",
+                  "title": "Run integrity checks",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "data-engineer",
+                    "specialization": "Data Integrity",
+                    "requirements": ["Integrity verification", "Consistency checks", "Data quality"],
+                    "context": "Verify data integrity after migration"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-3-3",
+                  "title": "Create rollback procedures",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Rollback Procedures",
+                    "requirements": ["Backup strategies", "Rollback scripts", "Recovery procedures"],
+                    "context": "Create procedures to rollback migration if needed"
+                  }
+                },
+                {
+                  "id": "microtask-4-1-3-4",
+                  "title": "Generate migration reports",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "docs-architect",
+                    "specialization": "Migration Reporting",
+                    "requirements": ["Report generation", "Data analysis", "Documentation"],
+                    "context": "Create comprehensive migration reports"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-4-2",
+          "title": "Comprehensive Testing Suite",
+          "priority": "critical",
+          "estimatedHours": 120,
+          "status": "planned",
+          "deliverables": [
+            "Unit tests",
+            "Integration tests",
+            "E2E tests",
+            "Performance tests"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-4-2-1",
+              "title": "Unit Testing",
+              "estimatedHours": 40,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-2-1-1",
+                  "title": "Test database operations",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Database Testing",
+                    "requirements": ["Database testing", "Mock data", "Test isolation"],
+                    "context": "Create comprehensive tests for all database operations"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-1-2",
+                  "title": "Test content management APIs",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "API Testing",
+                    "requirements": ["API testing", "HTTP testing", "Response validation"],
+                    "context": "Create tests for all content management endpoints"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-1-3",
+                  "title": "Test workflow systems",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Workflow Testing",
+                    "requirements": ["Workflow testing", "State testing", "Transition testing"],
+                    "context": "Create tests for approval workflow systems"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-1-4",
+                  "title": "Test media processing",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Media Testing",
+                    "requirements": ["File testing", "Image processing tests", "Media validation"],
+                    "context": "Create tests for media upload and processing"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-4-2-2",
+              "title": "Integration Testing",
+              "estimatedHours": 32,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-2-2-1",
+                  "title": "Test database integrations",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Integration Testing",
+                    "requirements": ["Integration testing", "Service testing", "End-to-end testing"],
+                    "context": "Test integration between all system components"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-2-2",
+                  "title": "Test CDN integration",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "CDN Testing",
+                    "requirements": ["CDN testing", "Performance testing", "Network testing"],
+                    "context": "Test CDN integration and file delivery"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-2-3",
+                  "title": "Test multi-tenancy",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Multi-tenancy Testing",
+                    "requirements": ["Tenant isolation", "Security testing", "Data segregation"],
+                    "context": "Test tenant isolation and security"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-2-4",
+                  "title": "Test caching systems",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Cache Testing",
+                    "requirements": ["Cache testing", "Redis testing", "Performance validation"],
+                    "context": "Test caching systems and cache invalidation"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-4-2-3",
+              "title": "End-to-End Testing",
+              "estimatedHours": 32,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-2-3-1",
+                  "title": "Test user workflows",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "E2E Testing",
+                    "requirements": ["E2E testing", "User simulation", "Workflow testing"],
+                    "context": "Test complete user workflows from start to finish"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-3-2",
+                  "title": "Test admin workflows",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Admin Testing",
+                    "requirements": ["Admin interface testing", "Permission testing", "Workflow testing"],
+                    "context": "Test admin interface and approval workflows"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-3-3",
+                  "title": "Test content publishing",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Publishing Testing",
+                    "requirements": ["Publishing workflows", "Content deployment", "Status testing"],
+                    "context": "Test content publishing and deployment workflows"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-4-2-4",
+              "title": "Performance & Load Testing",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-2-4-1",
+                  "title": "Database performance testing",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "performance-engineer",
+                    "specialization": "Database Performance",
+                    "requirements": ["Database performance", "Load testing", "Query optimization"],
+                    "context": "Test database performance under load"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-4-2",
+                  "title": "API performance testing",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "performance-engineer",
+                    "specialization": "API Performance",
+                    "requirements": ["API performance", "Load testing", "Response time testing"],
+                    "context": "Test API performance and scalability"
+                  }
+                },
+                {
+                  "id": "microtask-4-2-4-3",
+                  "title": "Media performance testing",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "performance-engineer",
+                    "specialization": "Media Performance",
+                    "requirements": ["Media performance", "CDN performance", "Load time testing"],
+                    "context": "Test media delivery performance"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-4-3",
+          "title": "Bug Fixing & Optimization",
+          "priority": "high",
+          "estimatedHours": 40,
+          "status": "planned",
+          "deliverables": [
+            "Bug fixes",
+            "Performance optimizations",
+            "Security hardening"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-4-3-1",
+              "title": "Bug Fixing",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-3-1-1",
+                  "title": "Fix critical bugs",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "debugger",
+                    "specialization": "Bug Resolution",
+                    "requirements": ["Bug analysis", "Problem solving", "Code debugging"],
+                    "context": "Fix critical bugs identified during testing"
+                  }
+                },
+                {
+                  "id": "microtask-4-3-1-2",
+                  "title": "Fix minor issues",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "debugger",
+                    "specialization": "Issue Resolution",
+                    "requirements": ["Issue tracking", "Problem resolution", "Code quality"],
+                    "context": "Fix minor issues and improve code quality"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-4-3-2",
+              "title": "Performance Optimization",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-3-2-1",
+                  "title": "Optimize database queries",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-optimizer",
+                    "specialization": "Query Optimization",
+                    "requirements": ["Query optimization", "Index tuning", "Performance tuning"],
+                    "context": "Optimize slow database queries"
+                  }
+                },
+                {
+                  "id": "microtask-4-3-2-2",
+                  "title": "Optimize API responses",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "performance-engineer",
+                    "specialization": "API Optimization",
+                    "requirements": ["API optimization", "Response optimization", "Caching strategies"],
+                    "context": "Optimize API response times and efficiency"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-4-3-3",
+              "title": "Security Hardening",
+              "estimatedHours": 8,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-4-3-3-1",
+                  "title": "Security audit fixes",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "security-auditor",
+                    "specialization": "Security Hardening",
+                    "requirements": ["Security analysis", "Vulnerability fixing", "Security best practices"],
+                    "context": "Fix security vulnerabilities and harden system"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Enterprise Admin Interface",
+      "duration": "6 weeks",
+      "startDate": "2025-02-11",
+      "endDate": "2025-03-24",
+      "status": "planned",
+      "objective": "Build comprehensive admin interface for content management",
+      "tasks": [
+        {
+          "id": "task-5-1",
+          "title": "Admin Dashboard & Navigation",
+          "priority": "critical",
+          "estimatedHours": 80,
+          "status": "planned",
+          "deliverables": [
+            "Admin dashboard",
+            "Navigation system",
+            "User authentication"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-5-1-1",
+              "title": "Admin Dashboard Development",
+              "estimatedHours": 32,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-1-1-1",
+                  "title": "Create dashboard layout",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "React Dashboard Development",
+                    "requirements": ["React 19", "Dashboard components", "Responsive design"],
+                    "context": "Create modern, responsive admin dashboard layout"
+                  }
+                },
+                {
+                  "id": "microtask-5-1-1-2",
+                  "title": "Implement widgets system",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Widget Systems",
+                    "requirements": ["Widget development", "Dynamic components", "Data visualization"],
+                    "context": "Create customizable widget system for dashboard"
+                  }
+                },
+                {
+                  "id": "microtask-5-1-1-3",
+                  "title": "Add real-time updates",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Real-time UI",
+                    "requirements": ["WebSocket integration", "Real-time updates", "Live data"],
+                    "context": "Add real-time updates to dashboard widgets"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-5-1-2",
+              "title": "Admin Navigation System",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-1-2-1",
+                  "title": "Create navigation structure",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Navigation Development",
+                    "requirements": ["Navigation components", "Menu systems", "UX design"],
+                    "context": "Create intuitive admin navigation structure"
+                  }
+                },
+                {
+                  "id": "microtask-5-1-2-2",
+                  "title": "Implement breadcrumb system",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Navigation UX",
+                    "requirements": ["Breadcrumb components", "Navigation UX", "User experience"],
+                    "context": "Implement breadcrumb navigation for better UX"
+                  }
+                },
+                {
+                  "id": "microtask-5-1-2-3",
+                  "title": "Add quick actions",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "UI/UX Design",
+                    "requirements": ["Action components", "User experience", "Efficiency tools"],
+                    "context": "Add quick action buttons for common tasks"
+                  }
+                },
+                {
+                  "id": "microtask-5-1-2-4",
+                  "title": "Implement search functionality",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Search UI",
+                    "requirements": ["Search interfaces", "Search UX", "Filter systems"],
+                    "context": "Add global search functionality to admin interface"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-5-1-3",
+              "title": "Authentication & Authorization",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-1-3-1",
+                  "title": "Implement login system",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-security-coder",
+                    "specialization": "Authentication UI",
+                    "requirements": ["Login forms", "Authentication UX", "Security UI"],
+                    "context": "Create secure and user-friendly login interface"
+                  }
+                },
+                {
+                  "id": "microtask-5-1-3-2",
+                  "title": "Add permission-based UI",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-security-coder",
+                    "specialization": "Authorization UI",
+                    "requirements": ["Permission-based UI", "Role-based access", "Security UI"],
+                    "context": "Implement permission-based UI elements"
+                  }
+                },
+                {
+                  "id": "microtask-5-1-3-3",
+                  "title": "Add session management",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-security-coder",
+                    "specialization": "Session Management",
+                    "requirements": ["Session handling", "Security UI", "User sessions"],
+                    "context": "Create session management interface"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-5-2",
+          "title": "Content Management Interface",
+          "priority": "critical",
+          "estimatedHours": 120,
+          "status": "planned",
+          "deliverables": [
+            "Page editor",
+            "Content builder",
+            "Media library"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-5-2-1",
+              "title": "Page Editor Development",
+              "estimatedHours": 48,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-2-1-1",
+                  "title": "Create rich text editor",
+                  "estimatedHours": 16,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Rich Text Editors",
+                    "requirements": ["Rich text editing", "WYSIWYG editors", "Content editing"],
+                    "context": "Create advanced rich text editor with formatting options"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-1-2",
+                  "title": "Implement page builder",
+                  "estimatedHours": 16,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Page Builders",
+                    "requirements": ["Drag-and-drop", "Page building", "Component systems"],
+                    "context": "Create drag-and-drop page builder with components"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-1-3",
+                  "title": "Add preview functionality",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Preview Systems",
+                    "requirements": ["Preview functionality", "Real-time preview", "Content preview"],
+                    "context": "Add real-time preview of content changes"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-1-4",
+                  "title": "Implement version control UI",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Version Control UI",
+                    "requirements": ["Version control UI", "Diff visualization", "Rollback interfaces"],
+                    "context": "Create interface for managing content versions"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-5-2-2",
+              "title": "Content Block System",
+              "estimatedHours": 36,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-2-2-1",
+                  "title": "Create block library",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Component Libraries",
+                    "requirements": ["Component development", "Reusable components", "Design systems"],
+                    "context": "Create library of reusable content blocks"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-2-2",
+                  "title": "Implement block editor",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Block Editors",
+                    "requirements": ["Block editing", "Component editing", "Visual editing"],
+                    "context": "Create editor for customizing content blocks"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-2-3",
+                  "title": "Add block templates",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Template Systems",
+                    "requirements": ["Template creation", "Template management", "Reusable layouts"],
+                    "context": "Create system for managing block templates"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-2-4",
+                  "title": "Implement block scheduling",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Scheduling UI",
+                    "requirements": ["Scheduling interfaces", "Time management", "Content scheduling"],
+                    "context": "Create UI for scheduling content blocks"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-5-2-3",
+              "title": "Media Library Interface",
+              "estimatedHours": 36,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-2-3-1",
+                  "title": "Create media browser",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Media Browsers",
+                    "requirements": ["Media browsing", "File management", "Media UI"],
+                    "context": "Create intuitive media browsing interface"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-3-2",
+                  "title": "Implement upload interface",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Upload Interfaces",
+                    "requirements": ["File upload UI", "Progress tracking", "Upload UX"],
+                    "context": "Create user-friendly file upload interface"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-3-3",
+                  "title": "Add media editing tools",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Media Editing",
+                    "requirements": ["Image editing", "Media manipulation", "Editing tools"],
+                    "context": "Add basic image editing and manipulation tools"
+                  }
+                },
+                {
+                  "id": "microtask-5-2-3-4",
+                  "title": "Implement media organization",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Media Organization",
+                    "requirements": ["File organization", "Folder management", "Tag systems"],
+                    "context": "Create tools for organizing and managing media"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-5-3",
+          "title": "Workflow & Approval Interface",
+          "priority": "high",
+          "estimatedHours": 80,
+          "status": "planned",
+          "deliverables": [
+            "Approval dashboard",
+            "Notification system",
+            "User management"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-5-3-1",
+              "title": "Approval Workflow Interface",
+              "estimatedHours": 32,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-3-1-1",
+                  "title": "Create approval dashboard",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Workflow Dashboards",
+                    "requirements": ["Workflow UI", "Dashboard development", "Process visualization"],
+                    "context": "Create dashboard for managing approval workflows"
+                  }
+                },
+                {
+                  "id": "microtask-5-3-1-2",
+                  "title": "Implement review interface",
+                  "estimatedHours": 10,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Review Interfaces",
+                    "requirements": ["Review UI", "Comparison tools", "Approval interfaces"],
+                    "context": "Create interface for reviewing and approving content"
+                  }
+                },
+                {
+                  "id": "microtask-5-3-1-3",
+                  "title": "Add workflow configuration",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Configuration UI",
+                    "requirements": ["Configuration interfaces", "Workflow setup", "Admin tools"],
+                    "context": "Create interface for configuring approval workflows"
+                  }
+                },
+                {
+                  "id": "microtask-5-3-1-4",
+                  "title": "Implement delegation UI",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Delegation UI",
+                    "requirements": ["Delegation interfaces", "Permission management", "User management"],
+                    "context": "Create interface for delegating approval responsibilities"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-5-3-2",
+              "title": "Notification System",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-3-2-1",
+                  "title": "Create notification center",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Notification UI",
+                    "requirements": ["Notification systems", "Real-time UI", "Alert management"],
+                    "context": "Create central notification center"
+                  }
+                },
+                {
+                  "id": "microtask-5-3-2-2",
+                  "title": "Implement real-time notifications",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Real-time Notifications",
+                    "requirements": ["WebSocket UI", "Real-time updates", "Push notifications"],
+                    "context": "Add real-time notification delivery"
+                  }
+                },
+                {
+                  "id": "microtask-5-3-2-3",
+                  "title": "Add notification preferences",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Preference Management",
+                    "requirements": ["Settings UI", "Preference management", "User configuration"],
+                    "context": "Create interface for managing notification preferences"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-5-3-3",
+              "title": "User Management Interface",
+              "estimatedHours": 24,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-5-3-3-1",
+                  "title": "Create user management dashboard",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "User Management UI",
+                    "requirements": ["User management", "Admin interfaces", "User administration"],
+                    "context": "Create comprehensive user management interface"
+                  }
+                },
+                {
+                  "id": "microtask-5-3-3-2",
+                  "title": "Implement role management",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Role Management UI",
+                    "requirements": ["Role management", "Permission systems", "Access control"],
+                    "context": "Create interface for managing user roles and permissions"
+                  }
+                },
+                {
+                  "id": "microtask-5-3-3-3",
+                  "title": "Add activity tracking",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "frontend-developer",
+                    "specialization": "Activity Tracking UI",
+                    "requirements": ["Activity logging", "Audit trails", "User tracking"],
+                    "context": "Create interface for tracking user activity and audit logs"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-6",
+      "name": "Staging & UAT",
+      "duration": "2 weeks",
+      "startDate": "2025-03-25",
+      "endDate": "2025-04-07",
+      "status": "planned",
+      "objective": "Deploy to staging environment and conduct user acceptance testing",
+      "tasks": [
+        {
+          "id": "task-6-1",
+          "title": "Staging Deployment",
+          "priority": "critical",
+          "estimatedHours": 40,
+          "status": "planned",
+          "deliverables": [
+            "Staging environment",
+            "Deployment automation",
+            "Monitoring setup"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-6-1-1",
+              "title": "Environment Setup",
+              "estimatedHours": 16,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-6-1-1-1",
+                  "title": "Setup staging infrastructure",
+                  "estimatedHours": 8,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "devops-troubleshooter",
+                    "specialization": "Infrastructure Setup",
+                    "requirements": ["Infrastructure as code", "Environment setup", "DevOps practices"],
+                    "context": "Setup staging environment with all required services"
+                  }
+                },
+                {
+                  "id": "microtask-6-1-1-2",
+                  "title": "Configure databases",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Database Deployment",
+                    "requirements": ["Database setup", "Migration scripts", "Database configuration"],
+                    "context": "Setup and configure staging databases"
+                  }
+                },
+                {
+                  "id": "microtask-6-1-1-3",
+                  "title": "Setup monitoring",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "observability-engineer",
+                    "specialization": "Monitoring Setup",
+                    "requirements": ["Monitoring setup", "Alert configuration", "Metrics collection"],
+                    "context": "Setup monitoring and alerting for staging"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-6-1-2",
+              "title": "Deployment Automation",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-6-1-2-1",
+                  "title": "Create deployment scripts",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "deployment-engineer",
+                    "specialization": "Deployment Automation",
+                    "requirements": ["CI/CD pipelines", "Deployment scripts", "Automation"],
+                    "context": "Create automated deployment scripts for staging"
+                  }
+                },
+                {
+                  "id": "microtask-6-1-2-2",
+                  "title": "Setup rollback procedures",
+                  "estimatedHours": 3,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "deployment-engineer",
+                    "specialization": "Rollback Procedures",
+                    "requirements": ["Rollback scripts", "Recovery procedures", "Deployment safety"],
+                    "context": "Create rollback procedures for staging deployments"
+                  }
+                },
+                {
+                  "id": "microtask-6-1-2-3",
+                  "title": "Add deployment validation",
+                  "estimatedHours": 3,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "deployment-engineer",
+                    "specialization": "Deployment Validation",
+                    "requirements": ["Health checks", "Deployment validation", "Testing automation"],
+                    "context": "Add automated validation after deployment"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-6-1-3",
+              "title": "Data Migration to Staging",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-6-1-3-1",
+                  "title": "Migrate database to staging",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Database Migration",
+                    "requirements": ["Database migration", "Data synchronization", "Migration validation"],
+                    "context": "Migrate database to staging environment"
+                  }
+                },
+                {
+                  "id": "microtask-6-1-3-2",
+                  "title": "Migrate media files",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "cloud-architect",
+                    "specialization": "Media Migration",
+                    "requirements": ["File migration", "Storage migration", "CDN setup"],
+                    "context": "Migrate media files to staging storage"
+                  }
+                },
+                {
+                  "id": "microtask-6-1-3-3",
+                  "title": "Validate migration integrity",
+                  "estimatedHours": 2,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Migration Validation",
+                    "requirements": ["Data validation", "Integrity checks", "Migration verification"],
+                    "context": "Validate migration integrity to staging"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "task-6-2",
+          "title": "User Acceptance Testing",
+          "priority": "critical",
+          "estimatedHours": 40,
+          "status": "planned",
+          "deliverables": [
+            "UAT test plan",
+            "User feedback",
+            "Issue resolution"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-6-2-1",
+              "title": "UAT Planning",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-6-2-1-1",
+                  "title": "Create UAT test plan",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "UAT Planning",
+                    "requirements": ["Test planning", "UAT methodologies", "User testing"],
+                    "context": "Create comprehensive UAT test plan"
+                  }
+                },
+                {
+                  "id": "microtask-6-2-1-2",
+                  "title": "Prepare test scenarios",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Test Scenarios",
+                    "requirements": ["Test scenario design", "User journey mapping", "Test case creation"],
+                    "context": "Prepare realistic test scenarios for UAT"
+                  }
+                },
+                {
+                  "id": "microtask-6-2-1-3",
+                  "title": "Setup feedback collection",
+                  "estimatedHours": 2,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Feedback Systems",
+                    "requirements": ["Feedback collection", "Survey systems", "User feedback"],
+                    "context": "Setup systems for collecting user feedback"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-6-2-2",
+              "title": "UAT Execution",
+              "estimatedHours": 20,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-6-2-2-1",
+                  "title": "Conduct user testing sessions",
+                  "estimatedHours": 12,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "User Testing",
+                    "requirements": ["User testing", "Facilitation", "Test execution"],
+                    "context": "Conduct user testing sessions"
+                  }
+                },
+                {
+                  "id": "microtask-6-2-2-2",
+                  "title": "Collect and analyze feedback",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Feedback Analysis",
+                    "requirements": ["Feedback analysis", "Data analysis", "User research"],
+                    "context": "Collect and analyze user feedback"
+                  }
+                },
+                {
+                  "id": "microtask-6-2-2-3",
+                  "title": "Document issues and improvements",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "docs-architect",
+                    "specialization": "Test Documentation",
+                    "requirements": ["Test documentation", "Issue tracking", "Improvement documentation"],
+                    "context": "Document issues and improvement suggestions"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-6-2-3",
+              "title": "Issue Resolution",
+              "estimatedHours": 8,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-6-2-3-1",
+                  "title": "Prioritize and fix critical issues",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "debugger",
+                    "specialization": "Issue Resolution",
+                    "requirements": ["Bug fixing", "Issue prioritization", "Problem resolution"],
+                    "context": "Fix critical issues identified during UAT"
+                  }
+                },
+                {
+                  "id": "microtask-6-2-3-2",
+                  "title": "Validate fixes",
+                  "estimatedHours": 2,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "test-automator",
+                    "specialization": "Fix Validation",
+                    "requirements": ["Fix validation", "Regression testing", "Quality assurance"],
+                    "context": "Validate that fixes resolve the issues"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase-7",
+      "name": "Production Deployment",
+      "duration": "1 week",
+      "startDate": "2025-04-08",
+      "endDate": "2025-04-15",
+      "status": "planned",
+      "objective": "Deploy to production environment and go live",
+      "tasks": [
+        {
+          "id": "task-7-1",
+          "title": "Production Deployment",
+          "priority": "critical",
+          "estimatedHours": 32,
+          "status": "planned",
+          "deliverables": [
+            "Production environment",
+            "Go-live deployment",
+            "Post-launch monitoring"
+          ],
+          "subtasks": [
+            {
+              "id": "subtask-7-1-1",
+              "title": "Production Environment Setup",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-7-1-1-1",
+                  "title": "Setup Supabase production",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "deployment-engineer",
+                    "specialization": "Supabase Deployment",
+                    "requirements": ["Supabase setup", "Production configuration", "Database migration"],
+                    "context": "Setup Supabase production environment"
+                  }
+                },
+                {
+                  "id": "microtask-7-1-1-2",
+                  "title": "Configure production services",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "deployment-engineer",
+                    "specialization": "Production Configuration",
+                    "requirements": ["Production setup", "Service configuration", "Environment variables"],
+                    "context": "Configure all production services"
+                  }
+                },
+                {
+                  "id": "microtask-7-1-1-3",
+                  "title": "Setup production monitoring",
+                  "estimatedHours": 2,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "observability-engineer",
+                    "specialization": "Production Monitoring",
+                    "requirements": ["Production monitoring", "Alert setup", "Performance monitoring"],
+                    "context": "Setup comprehensive production monitoring"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-7-1-2",
+              "title": "Go-Live Deployment",
+              "estimatedHours": 12,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-7-1-2-1",
+                  "title": "Execute production migration",
+                  "estimatedHours": 6,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "database-admin",
+                    "specialization": "Production Migration",
+                    "requirements": ["Production migration", "Data migration", "Migration validation"],
+                    "context": "Execute final production migration"
+                  }
+                },
+                {
+                  "id": "microtask-7-1-2-2",
+                  "title": "Deploy application",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "deployment-engineer",
+                    "specialization": "Production Deployment",
+                    "requirements": ["Production deployment", "Zero-downtime deployment", "Rollback planning"],
+                    "context": "Deploy application to production"
+                  }
+                },
+                {
+                  "id": "microtask-7-1-2-3",
+                  "title": "Verify deployment",
+                  "estimatedHours": 2,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "deployment-engineer",
+                    "specialization": "Deployment Verification",
+                    "requirements": ["Deployment verification", "Health checks", "Functionality testing"],
+                    "context": "Verify successful production deployment"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "subtask-7-1-3",
+              "title": "Post-Launch Support",
+              "estimatedHours": 8,
+              "status": "planned",
+              "microtasks": [
+                {
+                  "id": "microtask-7-1-3-1",
+                  "title": "Monitor system performance",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "observability-engineer",
+                    "specialization": "Performance Monitoring",
+                    "requirements": ["Performance monitoring", "System health", "Issue detection"],
+                    "context": "Monitor system performance after launch"
+                  }
+                },
+                {
+                  "id": "microtask-7-1-3-2",
+                  "title": "Address immediate issues",
+                  "estimatedHours": 4,
+                  "status": "planned",
+                  "codingAgent": {
+                    "type": "devops-troubleshooter",
+                    "specialization": "Incident Response",
+                    "requirements": ["Incident response", "Problem solving", "Issue resolution"],
+                    "context": "Address any immediate post-launch issues"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "teamStructure": {
+    "projectManager": {
+      "role": "Project Manager",
+      "responsibilities": ["Overall project coordination", "Timeline management", "Stakeholder communication"],
+      "codingAgent": "project-manager"
+    },
+    "techLead": {
+      "role": "Technical Lead",
+      "responsibilities": ["Technical architecture", "Code review", "Technical decisions"],
+      "codingAgent": "backend-architect"
+    },
+    "backendDevelopers": [
+      {
+        "role": "Senior Backend Developer",
+        "responsibilities": ["API development", "Database design", "System architecture"],
+        "codingAgent": "backend-architect"
+      },
+      {
+        "role": "Backend Developer",
+        "responsibilities": ["API implementation", "Business logic", "Integration"],
+        "codingAgent": "fastapi-pro"
+      }
+    ],
+    "frontendDevelopers": [
+      {
+        "role": "Senior Frontend Developer",
+        "responsibilities": ["UI/UX architecture", "Component design", "State management"],
+        "codingAgent": "frontend-developer"
+      },
+      {
+        "role": "Frontend Developer",
+        "responsibilities": ["Component implementation", "UI development", "User experience"],
+        "codingAgent": "frontend-developer"
+      }
+    ],
+    "databaseSpecialists": [
+      {
+        "role": "Database Architect",
+        "responsibilities": ["Database design", "Schema optimization", "Performance tuning"],
+        "codingAgent": "database-admin"
+      },
+      {
+        "role": "Database Administrator",
+        "responsibilities": ["Database administration", "Migration management", "Backup strategies"],
+        "codingAgent": "database-admin"
+      }
+    ],
+    "qaEngineers": [
+      {
+        "role": "QA Lead",
+        "responsibilities": ["Test strategy", "Quality assurance", "Test automation"],
+        "codingAgent": "test-automator"
+      },
+      {
+        "role": "QA Engineer",
+        "responsibilities": ["Test execution", "Bug reporting", "Test documentation"],
+        "codingAgent": "test-automator"
+      }
+    ],
+    "devOpsEngineer": {
+      "role": "DevOps Engineer",
+      "responsibilities": ["Deployment automation", "Infrastructure management", "Monitoring"],
+      "codingAgent": "devops-troubleshooter"
+    }
+  },
+  "successMetrics": {
+    "technical": [
+      {
+        "metric": "Page Load Time",
+        "target": "< 2 seconds",
+        "measurement": "Performance testing"
+      },
+      {
+        "metric": "System Availability",
+        "target": "99.9%",
+        "measurement": "Monitoring tools"
+      },
+      {
+        "metric": "API Response Time",
+        "target": "< 500ms",
+        "measurement": "API monitoring"
+      },
+      {
+        "metric": "Database Query Performance",
+        "target": "< 100ms",
+        "measurement": "Database monitoring"
+      }
+    ],
+    "business": [
+      {
+        "metric": "Content Management Efficiency",
+        "target": "80% reduction in development time",
+        "measurement": "Time tracking"
+      },
+      {
+        "metric": "User Satisfaction",
+        "target": "4.5/5 rating",
+        "measurement": "User surveys"
+      },
+      {
+        "metric": "Content Publishing Speed",
+        "target": "50% faster",
+        "measurement": "Process metrics"
+      },
+      {
+        "metric": "System Adoption",
+        "target": "90% user adoption",
+        "measurement": "Usage analytics"
+      }
+    ],
+    "quality": [
+      {
+        "metric": "Code Coverage",
+        "target": "> 85%",
+        "measurement": "Code coverage tools"
+      },
+      {
+        "metric": "Bug Density",
+        "target": "< 1 bug per 1000 lines",
+        "measurement": "Bug tracking"
+      },
+      {
+        "metric": "Security Vulnerabilities",
+        "target": "Zero critical vulnerabilities",
+        "measurement": "Security scans"
+      }
+    ]
+  },
+  "risks": [
+    {
+      "risk": "Scope Creep",
+      "probability": "Medium",
+      "impact": "High",
+      "mitigation": "Strict scope management, regular stakeholder reviews",
+      "owner": "Project Manager"
+    },
+    {
+      "risk": "Technical Complexity",
+      "probability": "High",
+      "impact": "High",
+      "mitigation": "Proof of concepts, regular technical reviews",
+      "owner": "Technical Lead"
+    },
+    {
+      "risk": "Resource Availability",
+      "probability": "Medium",
+      "impact": "High",
+      "mitigation": "Cross-training, flexible resource allocation",
+      "owner": "Project Manager"
+    },
+    {
+      "risk": "Migration Issues",
+      "probability": "Medium",
+      "impact": "High",
+      "mitigation": "Comprehensive testing, rollback procedures",
+      "owner": "Database Administrator"
+    },
+    {
+      "risk": "User Adoption",
+      "probability": "Low",
+      "impact": "Medium",
+      "mitigation": "User training, comprehensive documentation",
+      "owner": "Project Manager"
+    }
+  ],
+  "qualityAssurance": {
+    "codeReviews": {
+      "frequency": "Every pull request",
+      "participants": ["Technical Lead", "Senior Developer"],
+      "checklist": ["Security", "Performance", "Maintainability", "Testing"]
+    },
+    "testing": {
+      "unitTests": {
+        "coverage": "> 85%",
+        "automation": "100%"
+      },
+      "integrationTests": {
+        "coverage": "All critical paths",
+        "automation": "100%"
+      },
+      "e2eTests": {
+        "coverage": "All user workflows",
+        "automation": "100%"
+      },
+      "performanceTests": {
+        "frequency": "Weekly",
+        "automation": "100%"
+      }
+    },
+    "documentation": {
+      "technical": {
+        "requirement": "All APIs and components",
+        "review": "Technical Lead"
+      },
+      "user": {
+        "requirement": "All user-facing features",
+        "review": "QA Lead"
+      }
+    }
+  },
+  "communication": {
+    "standups": {
+      "frequency": "Daily",
+      "participants": "All team members",
+      "duration": "15 minutes"
+    },
+    "sprintPlanning": {
+      "frequency": "Bi-weekly",
+      "participants": "All team members",
+      "duration": "2 hours"
+    },
+    "stakeholderReviews": {
+      "frequency": "Bi-weekly",
+      "participants": ["Project Manager", "Technical Lead", "Stakeholders"],
+      "duration": "1 hour"
+    },
+    "retrospectives": {
+      "frequency": "Bi-weekly",
+      "participants": "All team members",
+      "duration": "1 hour"
+    }
+  },
+  "tools": {
+    "development": [
+      "VS Code",
+      "Git",
+      "Docker",
+      "PostgreSQL",
+      "Redis",
+      "Node.js",
+      "React",
+      "TypeScript",
+      "Prisma"
+    ],
+    "testing": [
+      "Jest",
+      "Cypress",
+      "Postman",
+      "K6",
+      "Artillery"
+    ],
+    "deployment": [
+      "GitHub Actions",
+      "Supabase",
+      "Vercel",
+      "Cloudflare"
+    ],
+    "monitoring": [
+      "Grafana",
+      "Prometheus",
+      "Sentry",
+      "LogRocket"
+    ],
+    "projectManagement": [
+      "Jira",
+      "Confluence",
+      "Slack",
+      "Notion"
+    ]
+  }
+}

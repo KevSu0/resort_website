@@ -1,4 +1,5 @@
 import type { Config } from 'jest'
+import * as path from 'node:path'
 
 export default {
   rootDir: '..',
@@ -30,7 +31,7 @@ export default {
 
   // Transform configuration
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: path.resolve(__dirname, 'babel.config.cjs') }],
   },
 
   // Module file extensions

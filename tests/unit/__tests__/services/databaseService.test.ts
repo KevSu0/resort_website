@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { DatabaseService } from '../../services/databaseService';
+import { DatabaseService } from '@/services/databaseService';
 // import { OBJECT_STORES } from '../../services/databaseService'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 describe('DatabaseService', () => {

@@ -32,8 +32,7 @@
       "@/utils/*": ["./src/utils/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/types/*": ["./src/types/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/admin/*": ["./src/admin/*"]
+      "@/components/*": ["./src/components/*"]
     }
   },
   "include": ["../../src"],

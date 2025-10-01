@@ -1,4 +1,4 @@
-import { type Property, type RoomType, type Place, type Enquiry, type Admin, type Offer, type PromoCode, type Referrer } from '../types';
+import { type Property, type RoomType, type Place, type Enquiry, type Offer, type PromoCode, type Referrer } from '../types';
 
 export class LocalStorageService {
   private readonly STORAGE_KEYS = {
@@ -6,11 +6,9 @@ export class LocalStorageService {
     ROOMS: 'resort_rooms',
     PLACES: 'resort_places',
     ENQUIRIES: 'resort_enquiries',
-    ADMINS: 'resort_admins',
     OFFERS: 'resort_offers',
     PROMO_CODES: 'resort_promo_codes',
     REFERRERS: 'resort_referrers',
-    ADMIN_AUTH: 'resort_admin_auth',
   };
 
   // Helper methods
@@ -112,42 +110,7 @@ export class LocalStorageService {
     return enquiries.find(e => e.refCode === refCode);
   }
 
-  // Admin
-  getAdmins(): Admin[] {
-    return this.getStorageData(this.STORAGE_KEYS.ADMINS, []);
-  }
-
-  saveAdmins(admins: Admin[]): void {
-    this.setStorageData(this.STORAGE_KEYS.ADMINS, admins);
-  }
-
-  getAdminByEmail(email: string): Admin | undefined {
-    const admins = this.getAdmins();
-    return admins.find(a => a.email === email);
-  }
-
-  // Auth
-  getAdminAuth(): { token: string; admin: Admin } | null {
-    try {
-      const authData = localStorage.getItem(this.STORAGE_KEYS.ADMIN_AUTH);
-      return authData ? JSON.parse(authData) : null;
-    } catch {
-      return null;
-    }
-  }
-
-  setAdminAuth(auth: { token: string; admin: Admin }): void {
-    try {
-      localStorage.setItem(this.STORAGE_KEYS.ADMIN_AUTH, JSON.stringify(auth));
-    } catch (error) {
-      console.error('Error saving admin auth:', error);
-    }
-  }
-
-  clearAdminAuth(): void {
-    localStorage.removeItem(this.STORAGE_KEYS.ADMIN_AUTH);
-  }
-
+  
   // Offers
   getOffers(): Offer[] {
     return this.getStorageData(this.STORAGE_KEYS.OFFERS, []);

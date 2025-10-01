@@ -1,7 +1,8 @@
 import { Users, Square, Coffee, Shield, Heart } from 'lucide-react';
 import { type RoomType } from '@/types';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, fallbackImageHandler } from '@/utils';
 import { RoomComparison } from './RoomComparison';
+import { IMAGE_PLACEHOLDER } from '@/constants/images';
 
 interface RoomTypesProps {
   rooms: RoomType[];
@@ -80,9 +81,10 @@ export const RoomTypes: React.FC<RoomTypesProps> = ({
                 <div className="aspect-video md:aspect-square bg-gray-100 overflow-hidden relative">
                   {room.photos && room.photos.length > 0 ? (
                     <img
-                      src={room.photos[0]}
+                      src={room.photos[0] || IMAGE_PLACEHOLDER}
                       alt={room.name}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-200">

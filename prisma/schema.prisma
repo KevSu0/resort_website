@@ -1,0 +1,567 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Multi-Tenant Enterprise CMS Database Schema
+// Supporting brands, sites, content lifecycle management, and enterprise features
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// MULTI-TENANCY FOUNDATION
+// =============================================================================
+
+model Brand {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  description       String?
+  logo              String?
+  primaryColor      String?  @default("#000000")
+  secondaryColor    String?  @default("#ffffff")
+  accentColor       String?
+  domain            String?  @unique
+  subdomain         String?
+  settings          Json?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  sites             Site[]
+  users             User[]
+  brandSettings     BrandSetting[]
+
+  @@map("brands")
+  @@index([slug])
+  @@index([domain])
+  @@index([isActive])
+}
+
+model Site {
+  id                String   @id @default(cuid())
+  brandId           String
+  name              String
+  slug              String
+  title             String
+  description       String?
+  domain            String?  @unique
+  subdomain         String?
+  language          String   @default("en")
+  timezone          String   @default("UTC")
+  theme             Json?
+  settings          Json?
+  isActive          Boolean  @default(true)
+  isDefault         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  pages             Page[]
+  navigation        Navigation[]
+  contentBlocks     ContentBlock[]
+  media             Media[]
+  siteUsers         SiteUser[]
+  siteSettings      SiteSetting[]
+
+  @@map("sites")
+  @@unique([brandId, slug])
+  @@index([brandId])
+  @@index([slug])
+  @@index([isActive])
+  @@index([isDefault])
+}
+
+// =============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+// =============================================================================
+
+model SiteUser {
+  id                String   @id @default(cuid())
+  userId            String
+  siteId            String
+  role              UserRole @default(USER)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("site_users")
+  @@unique([userId, siteId])
+  @@index([userId])
+  @@index([siteId])
+  @@index([role])
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  username          String?  @unique
+  firstName         String
+  lastName          String
+  avatar            String?
+  role              UserRole @default(USER)
+  status            UserStatus @default(ACTIVE)
+  emailVerified     Boolean  @default(false)
+  emailVerifiedAt   DateTime?
+  lastLoginAt       DateTime?
+  passwordHash      String
+  resetToken        String?
+  resetTokenExpires DateTime?
+  preferences       Json?
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Multi-tenancy
+  brandId           String
+  siteIds           String[] // Array of site IDs this user has access to
+
+  // Relationships
+  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  siteUsers         SiteUser[]
+  sessions          Session[]
+  contentVersions   ContentVersion[]
+  workflowSteps     WorkflowStep[]
+  auditLogs         AuditLog[]
+
+  @@map("users")
+  @@index([email])
+  @@index([username])
+  @@index([brandId])
+  @@index([role])
+  @@index([status])
+}
+
+model Session {
+  id                String   @id @default(cuid())
+  userId            String
+  token             String   @unique
+  refreshToken      String?  @unique
+  userAgent         String?
+  ipAddress         String?
+  isActive          Boolean  @default(true)
+  expiresAt         DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@index([isActive])
+}
+
+// =============================================================================
+// CONTENT MANAGEMENT SYSTEM
+// =============================================================================
+
+model Page {
+  id                String           @id @default(cuid())
+  siteId            String
+  title             String
+  slug              String
+  path              String
+  content           Json?
+  metaTitle         String?
+  metaDescription   String?
+  metaKeywords      String?
+  ogImage           String?
+  canonicalUrl      String?
+  template          String?
+  layout            Json?
+  status            ContentStatus    @default(DRAFT)
+  visibility        PageVisibility   @default(PUBLIC)
+  publishedAt       DateTime?
+  scheduledFor      DateTime?
+  parentId          String?
+  sortOrder         Int              @default(0)
+  tags              String[]
+  settings          Json?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parent            Page?            @relation("PageHierarchy", fields: [parentId], references: [id])
+  children          Page[]           @relation("PageHierarchy")
+  contentBlocks     ContentBlock[]
+  versions          ContentVersion[] @relation("PageVersions")
+  workflowItems     WorkflowItem[]
+  navigationItems   NavigationItem[]
+
+  @@map("pages")
+  @@unique([siteId, slug])
+  @@unique([siteId, path])
+  @@index([siteId])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([parentId])
+  @@index([sortOrder])
+}
+
+model ContentBlock {
+  id                String           @id @default(cuid())
+  siteId            String
+  pageId            String?
+  name              String
+  type              String
+  content           Json
+  configuration     Json?
+  order             Int              @default(0)
+  container         String?
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  page              Page?            @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  versions          ContentVersion[] @relation("ContentBlockVersions")
+
+  @@map("content_blocks")
+  @@index([siteId])
+  @@index([pageId])
+  @@index([type])
+  @@index([order])
+  @@index([isActive])
+}
+
+// =============================================================================
+// NAVIGATION MANAGEMENT
+// =============================================================================
+
+model Navigation {
+  id                String           @id @default(cuid())
+  siteId            String
+  name              String
+  handle            String
+  description       String?
+  structure         Json             @default("[]")
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  items             NavigationItem[]
+
+  @@map("navigation")
+  @@unique([siteId, handle])
+  @@index([siteId])
+  @@index([isActive])
+}
+
+model NavigationItem {
+  id                String           @id @default(cuid())
+  navigationId      String
+  pageId            String?
+  label             String
+  url               String?
+  target            String           @default("_self")
+  order             Int              @default(0)
+  parentId          String?
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  navigation        Navigation       @relation(fields: [navigationId], references: [id], onDelete: Cascade)
+  page              Page?            @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  parent            NavigationItem?  @relation("NavigationHierarchy", fields: [parentId], references: [id])
+  children          NavigationItem[] @relation("NavigationHierarchy")
+
+  @@map("navigation_items")
+  @@index([navigationId])
+  @@index([pageId])
+  @@index([order])
+  @@index([parentId])
+  @@index([isActive])
+}
+
+// =============================================================================
+// MEDIA MANAGEMENT
+// =============================================================================
+
+model Media {
+  id                String           @id @default(cuid())
+  siteId            String
+  filename          String
+  originalName      String
+  mimeType          String
+  size              Int
+  width             Int?
+  height            Int?
+  alt               String?
+  caption           String?
+  description       String?
+  tags              String[]
+  folder            String?
+  url               String
+  thumbnails        Json?
+  metadata          Json?
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("media")
+  @@index([siteId])
+  @@index([mimeType])
+  @@index([folder])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+// =============================================================================
+// CONTENT LIFECYCLE & VERSION CONTROL
+// =============================================================================
+
+model ContentVersion {
+  id                String           @id @default(cuid())
+  entityId          String
+  entityType        VersionEntityType
+  version           Int
+  data              Json
+  changes           Json?
+  authorId          String
+  message           String?
+  status            VersionStatus    @default(DRAFT)
+  publishedAt       DateTime?
+  createdAt         DateTime         @default(now())
+
+  // Relationships
+  author            User             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  page              Page?            @relation("PageVersions", fields: [entityId], references: [id], onDelete: Cascade, map: "content_versions_page_id_fkey")
+  contentBlock      ContentBlock?    @relation("ContentBlockVersions", fields: [entityId], references: [id], onDelete: Cascade, map: "content_versions_content_block_id_fkey")
+
+  @@map("content_versions")
+  @@unique([entityId, entityType, version])
+  @@index([entityId])
+  @@index([entityType])
+  @@index([authorId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// =============================================================================
+// WORKFLOW & APPROVAL SYSTEM
+// =============================================================================
+
+model Workflow {
+  id                String           @id @default(cuid())
+  siteId            String
+  name              String
+  description       String?
+  definition        Json
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@map("workflows")
+  @@index([siteId])
+  @@index([isActive])
+}
+
+model WorkflowItem {
+  id                String           @id @default(cuid())
+  workflowId        String
+  entityId          String
+  entityType        WorkflowEntityType
+  currentStep       Int              @default(1)
+  status            WorkflowStatus   @default(PENDING)
+  data              Json?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  page              Page?            @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  steps             WorkflowStep[]
+
+  @@map("workflow_items")
+  @@index([workflowId])
+  @@index([entityId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model WorkflowStep {
+  id                String           @id @default(cuid())
+  workflowItemId    String
+  stepNumber        Int
+  name              String
+  assignedToId      String?
+  status            StepStatus       @default(PENDING)
+  dueDate           DateTime?
+  completedAt       DateTime?
+  comments          String?
+  data              Json?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  workflowItem      WorkflowItem     @relation(fields: [workflowItemId], references: [id], onDelete: Cascade)
+  assignedTo        User?            @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@map("workflow_steps")
+  @@unique([workflowItemId, stepNumber])
+  @@index([workflowItemId])
+  @@index([assignedToId])
+  @@index([status])
+}
+
+// =============================================================================
+// SETTINGS & CONFIGURATION
+// =============================================================================
+
+model BrandSetting {
+  id                String           @id @default(cuid())
+  brandId           String
+  key               String
+  value             Json
+  description       String?
+  isPublic          Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  brand             Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@map("brand_settings")
+  @@unique([brandId, key])
+  @@index([brandId])
+  @@index([key])
+  @@index([isPublic])
+}
+
+model SiteSetting {
+  id                String           @id @default(cuid())
+  siteId            String
+  key               String
+  value             Json
+  description       String?
+  isPublic          Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("site_settings")
+  @@unique([siteId, key])
+  @@index([siteId])
+  @@index([key])
+  @@index([isPublic])
+}
+
+// =============================================================================
+// AUDIT LOGGING
+// =============================================================================
+
+model AuditLog {
+  id                String           @id @default(cuid())
+  userId            String?
+  siteId            String?
+  action            String
+  resourceType      String
+  resourceId        String
+  details           Json?
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime         @default(now())
+
+  // Relationships
+  user              User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([siteId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([resourceId])
+  @@index([createdAt])
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum UserRole {
+  SUPER_ADMIN
+  BRAND_ADMIN
+  SITE_ADMIN
+  EDITOR
+  AUTHOR
+  VIEWER
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PageVisibility {
+  PUBLIC
+  PRIVATE
+  PASSWORD_PROTECTED
+}
+
+enum VersionEntityType {
+  PAGE
+  CONTENT_BLOCK
+  NAVIGATION
+  MEDIA
+}
+
+enum VersionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum WorkflowEntityType {
+  PAGE
+  CONTENT_BLOCK
+}
+
+enum WorkflowStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum StepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}

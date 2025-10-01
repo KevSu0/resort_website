@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Star, MapPin, Users, Wifi, Car } from 'lucide-react';
 import { type Property } from '@/types';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, fallbackImageHandler } from '@/utils';
+import { IMAGE_PLACEHOLDER } from '@/constants/images';
 
 interface PropertyCardProps {
   property: Property;
@@ -39,9 +40,10 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
       {/* Image Gallery */}
       <div className="relative h-64 overflow-hidden">
         <img
-          src={property.gallery[currentImageIndex]}
+          src={property.gallery[currentImageIndex] || property.heroImage || IMAGE_PLACEHOLDER}
           alt={property.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
         />
 
         {/* Image Navigation */}

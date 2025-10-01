@@ -47,7 +47,6 @@ export default defineConfig(({ mode }) => {
         '@/lib': path.resolve(__dirname, '../src/lib'),
         '@/types': path.resolve(__dirname, '../src/types'),
         '@/components': path.resolve(__dirname, '../src/components'),
-        '@/admin': path.resolve(__dirname, '../src/admin'),
       },
     },
     define: {
@@ -55,5 +54,11 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_SITE_EMAIL_FROM': JSON.stringify(env.SITE_EMAIL_FROM || ''),
       'import.meta.env.VITE_WHATSAPP_CONTACT_NUMBER': JSON.stringify(env.WHATSAPP_CONTACT_NUMBER || ''),
     },
+    server: {
+      headers: {
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://images.unsplash.com; connect-src 'self' blob:; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';"
+      }
+    }
   }
 })
+

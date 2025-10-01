@@ -1,5 +1,7 @@
 import { MapPin, Car } from 'lucide-react';
 import { type Place } from '@/types';
+import { fallbackImageHandler } from '@/utils';
+import { IMAGE_PLACEHOLDER } from '@/constants/images';
 
 interface NearbyPlacesProps {
   places: Place[];
@@ -32,6 +34,7 @@ export const NearbyPlaces: React.FC<NearbyPlacesProps> = ({
                 src={place.photo}
                 alt={place.name}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
               />
             </div>
 

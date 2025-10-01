@@ -116,12 +116,9 @@ export const useErrorHandler = () => {
 
 // HOC for adding error handling to components
 export function withErrorHandling<P extends object>(
-  Component: React.ComponentType<P>,
-  errorContext?: string
+  Component: React.ComponentType<P>
 ) {
   return function WithErrorHandling(props: P) {
-    const { handleError } = useErrorHandler();
-
     return (
       <ErrorBoundary
         fallback={

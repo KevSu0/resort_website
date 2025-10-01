@@ -22,13 +22,13 @@ export const Footer: React.FC = () => {
                 unforgettable experiences amidst the pristine beauty of Wayanad.
               </p>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 hover:scale-110 transition-all duration-fast ease-out">
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 hover:scale-110 transition-all duration-fast ease-out">
                   <Instagram className="w-5 h-5" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary-600 hover:scale-110 transition-all duration-fast ease-out">
                   <Twitter className="w-5 h-5" />
                 </a>
               </div>
@@ -39,22 +39,22 @@ export const Footer: React.FC = () => {
               <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/" className="text-gray-400 hover:text-white transition-colors">
+                  <Link to="/" className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-fast ease-out">
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link to="/#featured" className="text-gray-400 hover:text-white transition-colors">
+                  <Link to="/#featured" className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-fast ease-out">
                     Our Properties
                   </Link>
                 </li>
                 <li>
-                  <Link to="/#about" className="text-gray-400 hover:text-white transition-colors">
+                  <Link to="/#about" className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-fast ease-out">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link to="/#contact" className="text-gray-400 hover:text-white transition-colors">
+                  <Link to="/#contact" className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-fast ease-out">
                     Contact
                   </Link>
                 </li>
@@ -100,13 +100,13 @@ export const Footer: React.FC = () => {
               © 2024 Wayanad Nature Resorts. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm">
-              <Link to="#" className="text-gray-400 hover:text-white transition-colors">
+              <Link to="#" className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-fast ease-out">
                 Privacy Policy
               </Link>
-              <Link to="#" className="text-gray-400 hover:text-white transition-colors">
+              <Link to="#" className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-fast ease-out">
                 Terms of Service
               </Link>
-              <Link to="#" className="text-gray-400 hover:text-white transition-colors">
+              <Link to="#" className="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-fast ease-out">
                 Cancellation Policy
               </Link>
             </div>

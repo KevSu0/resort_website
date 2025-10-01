@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, MapPin } from 'lucide-react';
+import { fallbackImageHandler } from '@/utils';
+import { IMAGE_PLACEHOLDER } from '@/constants/images';
 
 interface HeroSectionProps {
   onBrowseProperties?: () => void;
@@ -38,6 +40,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onBrowseProperties }) 
               src={image}
               alt={`Wayanad nature resort ${index + 1}`}
               className="w-full h-full object-cover"
+              onError={(event) => fallbackImageHandler(event, IMAGE_PLACEHOLDER)}
             />
             <div className="absolute inset-0 bg-black bg-opacity-40" />
           </div>
