@@ -18,65 +18,77 @@ datasource db {
 // =============================================================================
 
 model Brand {
-  id                String   @id @default(cuid())
-  name              String
-  slug              String   @unique
-  description       String?
-  logo              String?
-  primaryColor      String?  @default("#000000")
-  secondaryColor    String?  @default("#ffffff")
-  accentColor       String?
-  domain            String?  @unique
-  subdomain         String?
-  settings          Json?
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String?
+  logo           String?
+  primaryColor   String?  @default("#000000")
+  secondaryColor String?  @default("#ffffff")
+  accentColor    String?
+  domain         String?  @unique
+  subdomain      String?
+  settings       Json?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relationships
-  sites             Site[]
-  users             User[]
-  brandSettings     BrandSetting[]
+  sites         Site[]
+  users         User[]
+  brandSettings BrandSetting[]
 
-  @@map("brands")
   @@index([slug])
   @@index([domain])
   @@index([isActive])
+  @@map("brands")
 }
 
 model Site {
-  id                String   @id @default(cuid())
-  brandId           String
-  name              String
-  slug              String
-  title             String
-  description       String?
-  domain            String?  @unique
-  subdomain         String?
-  language          String   @default("en")
-  timezone          String   @default("UTC")
-  theme             Json?
-  settings          Json?
-  isActive          Boolean  @default(true)
-  isDefault         Boolean  @default(false)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id          String   @id @default(cuid())
+  brandId     String
+  name        String
+  slug        String
+  title       String
+  description String?
+  domain      String?  @unique
+  subdomain   String?
+  language    String   @default("en")
+  timezone    String   @default("UTC")
+  theme       Json?
+  settings    Json?
+  isActive    Boolean  @default(true)
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relationships
-  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  pages             Page[]
-  navigation        Navigation[]
-  contentBlocks     ContentBlock[]
-  media             Media[]
-  siteUsers         SiteUser[]
-  siteSettings      SiteSetting[]
+  brand                  Brand                   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  pages                  Page[]
+  navigation             Navigation[]
+  contentBlocks          ContentBlock[]
+  media                  Media[]
+  siteUsers              SiteUser[]
+  siteSettings           SiteSetting[]
+  properties             Property[]
+  bookingInterests       BookingInterest[]
+  propertyViews          PropertyView[]
+  propertyConfigs        PropertyConfig[]
+  bookingConfigs         BookingConfig[]
+  operationalConfigs     OperationalConfig[]
+  guestExperienceConfigs GuestExperienceConfig[]
+  configSnapshots        ConfigSnapshot[]        @relation("ConfigSnapshots")
+  snapshotRestores       SnapshotRestore[]       @relation("SnapshotRestores")
+  configTemplates        ConfigTemplate[]        @relation("ConfigTemplates")
+  templateUsage          ConfigTemplateUsage[]   @relation("TemplateUsage")
+  configAuditLogs        ConfigAuditLog[]        @relation("ConfigAuditLogs")
 
-  @@map("sites")
   @@unique([brandId, slug])
   @@index([brandId])
   @@index([slug])
   @@index([isActive])
   @@index([isDefault])
+  @@map("sites")
 }
 
 // =============================================================================
@@ -84,35 +96,35 @@ model Site {
 // =============================================================================
 
 model SiteUser {
-  id                String   @id @default(cuid())
-  userId            String
-  siteId            String
-  role              UserRole @default(USER)
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  siteId    String
+  role      UserRole @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
-  @@map("site_users")
   @@unique([userId, siteId])
   @@index([userId])
   @@index([siteId])
   @@index([role])
+  @@map("site_users")
 }
 
 model User {
-  id                String   @id @default(cuid())
-  email             String   @unique
-  username          String?  @unique
+  id                String     @id @default(cuid())
+  email             String     @unique
+  username          String?    @unique
   firstName         String
   lastName          String
   avatar            String?
-  role              UserRole @default(USER)
+  role              UserRole   @default(USER)
   status            UserStatus @default(ACTIVE)
-  emailVerified     Boolean  @default(false)
+  emailVerified     Boolean    @default(false)
   emailVerifiedAt   DateTime?
   lastLoginAt       DateTime?
   passwordHash      String
@@ -120,49 +132,56 @@ model User {
   resetTokenExpires DateTime?
   preferences       Json?
   metadata          Json?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   // Multi-tenancy
-  brandId           String
-  siteIds           String[] // Array of site IDs this user has access to
+  brandId String
+  siteIds String[] // Array of site IDs this user has access to
 
   // Relationships
-  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  siteUsers         SiteUser[]
-  sessions          Session[]
-  contentVersions   ContentVersion[]
-  workflowSteps     WorkflowStep[]
-  auditLogs         AuditLog[]
+  brand              Brand                     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  siteUsers          SiteUser[]
+  sessions           Session[]
+  contentVersions    ContentVersion[]
+  workflowSteps      WorkflowStep[]
+  auditLogs          AuditLog[]
+  assignedLeads      BookingInterest[]         @relation("AssignedLeads")
+  leadActivities     BookingInterestActivity[] @relation("LeadActivities")
+  createdSnapshots   ConfigSnapshot[]          @relation("CreatedSnapshots")
+  performedRestores  SnapshotRestore[]         @relation("PerformedRestores")
+  createdTemplates   ConfigTemplate[]          @relation("CreatedTemplates")
+  appliedTemplates   ConfigTemplateUsage[]     @relation("AppliedTemplates")
+  configAuditChanges ConfigAuditLog[]          @relation("ConfigAuditChanges")
 
-  @@map("users")
   @@index([email])
   @@index([username])
   @@index([brandId])
   @@index([role])
   @@index([status])
+  @@map("users")
 }
 
 model Session {
-  id                String   @id @default(cuid())
-  userId            String
-  token             String   @unique
-  refreshToken      String?  @unique
-  userAgent         String?
-  ipAddress         String?
-  isActive          Boolean  @default(true)
-  expiresAt         DateTime
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String?  @unique
+  userAgent    String?
+  ipAddress    String?
+  isActive     Boolean  @default(true)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relationships
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sessions")
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
   @@index([isActive])
+  @@map("sessions")
 }
 
 // =============================================================================
@@ -170,40 +189,40 @@ model Session {
 // =============================================================================
 
 model Page {
-  id                String           @id @default(cuid())
-  siteId            String
-  title             String
-  slug              String
-  path              String
-  content           Json?
-  metaTitle         String?
-  metaDescription   String?
-  metaKeywords      String?
-  ogImage           String?
-  canonicalUrl      String?
-  template          String?
-  layout            Json?
-  status            ContentStatus    @default(DRAFT)
-  visibility        PageVisibility   @default(PUBLIC)
-  publishedAt       DateTime?
-  scheduledFor      DateTime?
-  parentId          String?
-  sortOrder         Int              @default(0)
-  tags              String[]
-  settings          Json?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id              String         @id @default(cuid())
+  siteId          String
+  title           String
+  slug            String
+  path            String
+  content         Json?
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  ogImage         String?
+  canonicalUrl    String?
+  template        String?
+  layout          Json?
+  status          ContentStatus  @default(DRAFT)
+  visibility      PageVisibility @default(PUBLIC)
+  publishedAt     DateTime?
+  scheduledFor    DateTime?
+  parentId        String?
+  sortOrder       Int            @default(0)
+  tags            String[]
+  settings        Json?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   // Relationships
-  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  parent            Page?            @relation("PageHierarchy", fields: [parentId], references: [id])
-  children          Page[]           @relation("PageHierarchy")
-  contentBlocks     ContentBlock[]
-  versions          ContentVersion[] @relation("PageVersions")
-  workflowItems     WorkflowItem[]
-  navigationItems   NavigationItem[]
+  site            Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parent          Page?            @relation("PageHierarchy", fields: [parentId], references: [id])
+  children        Page[]           @relation("PageHierarchy")
+  contentBlocks   ContentBlock[]
+  versions        ContentVersion[] @relation("PageVersions")
+  workflowItems   WorkflowItem[]
+  navigationItems NavigationItem[]
+  seoMetadata     SeoMetadata?
 
-  @@map("pages")
   @@unique([siteId, slug])
   @@unique([siteId, path])
   @@index([siteId])
@@ -211,33 +230,47 @@ model Page {
   @@index([publishedAt])
   @@index([parentId])
   @@index([sortOrder])
+  // DB-005-2a: Index cms_pages on (siteId, status, slug) for optimized content queries
+  @@index([siteId, status, slug])
+  // DB-005-2a: Additional performance indexes for publish workflow
+  @@index([siteId, status, publishedAt(sort: Desc)])
+  @@index([siteId, visibility, publishedAt(sort: Desc)])
+  @@index([siteId, scheduledFor, status]) // For scheduled content queries
+  @@map("pages")
 }
 
 model ContentBlock {
-  id                String           @id @default(cuid())
-  siteId            String
-  pageId            String?
-  name              String
-  type              String
-  content           Json
-  configuration     Json?
-  order             Int              @default(0)
-  container         String?
-  isActive          Boolean          @default(true)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id            String   @id @default(cuid())
+  siteId        String
+  pageId        String?
+  name          String
+  type          String
+  content       Json
+  configuration Json?
+  order         Int      @default(0)
+  container     String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relationships
-  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  page              Page?            @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  versions          ContentVersion[] @relation("ContentBlockVersions")
+  site     Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  page     Page?            @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  versions ContentVersion[] @relation("ContentBlockVersions")
+  // Note: GIN indexes for JSONB fields should be created manually via migration:
+  // CREATE INDEX idx_content_blocks_content_gin ON content_blocks USING GIN (content);
+  // CREATE INDEX idx_content_blocks_configuration_gin ON content_blocks USING GIN (configuration);
 
-  @@map("content_blocks")
   @@index([siteId])
   @@index([pageId])
   @@index([type])
   @@index([order])
   @@index([isActive])
+  // DB-005-2b: Performance indexes for content block queries
+  @@index([siteId, pageId, order(sort: Asc)])
+  @@index([siteId, type, isActive])
+  @@index([pageId, order(sort: Asc)]) // For ordered block retrieval
+  @@map("content_blocks")
 }
 
 // =============================================================================
@@ -245,51 +278,51 @@ model ContentBlock {
 // =============================================================================
 
 model Navigation {
-  id                String           @id @default(cuid())
-  siteId            String
-  name              String
-  handle            String
-  description       String?
-  structure         Json             @default("[]")
-  isActive          Boolean          @default(true)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id          String   @id @default(cuid())
+  siteId      String
+  name        String
+  handle      String
+  description String?
+  structure   Json     @default("[]")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relationships
-  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  items             NavigationItem[]
+  site  Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  items NavigationItem[]
 
-  @@map("navigation")
   @@unique([siteId, handle])
   @@index([siteId])
   @@index([isActive])
+  @@map("navigation")
 }
 
 model NavigationItem {
-  id                String           @id @default(cuid())
-  navigationId      String
-  pageId            String?
-  label             String
-  url               String?
-  target            String           @default("_self")
-  order             Int              @default(0)
-  parentId          String?
-  isActive          Boolean          @default(true)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id           String   @id @default(cuid())
+  navigationId String
+  pageId       String?
+  label        String
+  url          String?
+  target       String   @default("_self")
+  order        Int      @default(0)
+  parentId     String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relationships
-  navigation        Navigation       @relation(fields: [navigationId], references: [id], onDelete: Cascade)
-  page              Page?            @relation(fields: [pageId], references: [id], onDelete: SetNull)
-  parent            NavigationItem?  @relation("NavigationHierarchy", fields: [parentId], references: [id])
-  children          NavigationItem[] @relation("NavigationHierarchy")
+  navigation Navigation       @relation(fields: [navigationId], references: [id], onDelete: Cascade)
+  page       Page?            @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  parent     NavigationItem?  @relation("NavigationHierarchy", fields: [parentId], references: [id])
+  children   NavigationItem[] @relation("NavigationHierarchy")
 
-  @@map("navigation_items")
   @@index([navigationId])
   @@index([pageId])
   @@index([order])
   @@index([parentId])
   @@index([isActive])
+  @@map("navigation_items")
 }
 
 // =============================================================================
@@ -297,35 +330,35 @@ model NavigationItem {
 // =============================================================================
 
 model Media {
-  id                String           @id @default(cuid())
-  siteId            String
-  filename          String
-  originalName      String
-  mimeType          String
-  size              Int
-  width             Int?
-  height            Int?
-  alt               String?
-  caption           String?
-  description       String?
-  tags              String[]
-  folder            String?
-  url               String
-  thumbnails        Json?
-  metadata          Json?
-  isActive          Boolean          @default(true)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id           String   @id @default(cuid())
+  siteId       String
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  width        Int?
+  height       Int?
+  alt          String?
+  caption      String?
+  description  String?
+  tags         String[]
+  folder       String?
+  url          String
+  thumbnails   Json?
+  metadata     Json?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relationships
-  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
-  @@map("media")
   @@index([siteId])
   @@index([mimeType])
   @@index([folder])
   @@index([isActive])
   @@index([createdAt])
+  @@map("media")
 }
 
 // =============================================================================
@@ -333,30 +366,73 @@ model Media {
 // =============================================================================
 
 model ContentVersion {
-  id                String           @id @default(cuid())
-  entityId          String
-  entityType        VersionEntityType
-  version           Int
-  data              Json
-  changes           Json?
-  authorId          String
-  message           String?
-  status            VersionStatus    @default(DRAFT)
-  publishedAt       DateTime?
-  createdAt         DateTime         @default(now())
+  id          String            @id @default(cuid())
+  entityId    String
+  entityType  VersionEntityType
+  version     Int
+  data        Json
+  changes     Json?
+  authorId    String
+  message     String?
+  status      VersionStatus     @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime          @default(now())
 
   // Relationships
-  author            User             @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  page              Page?            @relation("PageVersions", fields: [entityId], references: [id], onDelete: Cascade, map: "content_versions_page_id_fkey")
-  contentBlock      ContentBlock?    @relation("ContentBlockVersions", fields: [entityId], references: [id], onDelete: Cascade, map: "content_versions_content_block_id_fkey")
+  author       User          @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  page         Page?         @relation("PageVersions", fields: [entityId], references: [id], onDelete: Cascade, map: "content_versions_page_id_fkey")
+  contentBlock ContentBlock? @relation("ContentBlockVersions", fields: [entityId], references: [id], onDelete: Cascade, map: "content_versions_content_block_id_fkey")
 
-  @@map("content_versions")
   @@unique([entityId, entityType, version])
   @@index([entityId])
   @@index([entityType])
   @@index([authorId])
   @@index([status])
   @@index([createdAt])
+  // DB-005-1c: Enhanced version control indexes for performance
+  @@index([entityId, entityType, version(sort: Desc)])
+  @@index([authorId, createdAt(sort: Desc)])
+  @@index([entityType, status, createdAt(sort: Desc)])
+  @@map("content_versions")
+}
+
+// =============================================================================
+// SEO METADATA MANAGEMENT (DB-005-2c)
+// =============================================================================
+
+model SeoMetadata {
+  id                 String    @id @default(cuid())
+  pageId             String    @unique
+  title              String?
+  description        String?
+  keywords           String[]
+  ogTitle            String?
+  ogDescription      String?
+  ogImage            String?
+  ogType             String    @default("website")
+  twitterCard        String    @default("summary_large_image")
+  twitterTitle       String?
+  twitterDescription String?
+  twitterImage       String?
+  canonicalUrl       String?
+  robots             String?   @default("index, follow")
+  structuredData     Json? // JSON-LD structured data
+  customMeta         Json? // Custom meta tags
+  lastReviewed       DateTime?
+  reviewScore        Int? // SEO score 0-100
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relationships
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@index([reviewScore], map: "idx_seo_metadata_review_score")
+  @@index([lastReviewed], map: "idx_seo_metadata_last_reviewed")
+  // DB-005-2c: Performance indexes for SEO optimization queries
+  @@index([reviewScore(sort: Desc)], map: "idx_seo_metadata_review_score_desc")
+  @@index([lastReviewed(sort: Desc)], map: "idx_seo_metadata_last_reviewed_desc")
+  @@map("seo_metadata")
 }
 
 // =============================================================================
@@ -364,65 +440,65 @@ model ContentVersion {
 // =============================================================================
 
 model Workflow {
-  id                String           @id @default(cuid())
-  siteId            String
-  name              String
-  description       String?
-  definition        Json
-  isActive          Boolean          @default(true)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id          String   @id @default(cuid())
+  siteId      String
+  name        String
+  description String?
+  definition  Json
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("workflows")
   @@index([siteId])
   @@index([isActive])
+  @@map("workflows")
 }
 
 model WorkflowItem {
-  id                String           @id @default(cuid())
-  workflowId        String
-  entityId          String
-  entityType        WorkflowEntityType
-  currentStep       Int              @default(1)
-  status            WorkflowStatus   @default(PENDING)
-  data              Json?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id          String             @id @default(cuid())
+  workflowId  String
+  entityId    String
+  entityType  WorkflowEntityType
+  currentStep Int                @default(1)
+  status      WorkflowStatus     @default(PENDING)
+  data        Json?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
   // Relationships
-  page              Page?            @relation(fields: [entityId], references: [id], onDelete: Cascade)
-  steps             WorkflowStep[]
+  page  Page?          @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  steps WorkflowStep[]
 
-  @@map("workflow_items")
   @@index([workflowId])
   @@index([entityId])
   @@index([status])
   @@index([createdAt])
+  @@map("workflow_items")
 }
 
 model WorkflowStep {
-  id                String           @id @default(cuid())
-  workflowItemId    String
-  stepNumber        Int
-  name              String
-  assignedToId      String?
-  status            StepStatus       @default(PENDING)
-  dueDate           DateTime?
-  completedAt       DateTime?
-  comments          String?
-  data              Json?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id             String     @id @default(cuid())
+  workflowItemId String
+  stepNumber     Int
+  name           String
+  assignedToId   String?
+  status         StepStatus @default(PENDING)
+  dueDate        DateTime?
+  completedAt    DateTime?
+  comments       String?
+  data           Json?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
   // Relationships
-  workflowItem      WorkflowItem     @relation(fields: [workflowItemId], references: [id], onDelete: Cascade)
-  assignedTo        User?            @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  workflowItem WorkflowItem @relation(fields: [workflowItemId], references: [id], onDelete: Cascade)
+  assignedTo   User?        @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
 
-  @@map("workflow_steps")
   @@unique([workflowItemId, stepNumber])
   @@index([workflowItemId])
   @@index([assignedToId])
   @@index([status])
+  @@map("workflow_steps")
 }
 
 // =============================================================================
@@ -430,43 +506,206 @@ model WorkflowStep {
 // =============================================================================
 
 model BrandSetting {
-  id                String           @id @default(cuid())
-  brandId           String
-  key               String
-  value             Json
-  description       String?
-  isPublic          Boolean          @default(false)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id          String   @id @default(cuid())
+  brandId     String
+  key         String
+  value       Json
+  description String?
+  isPublic    Boolean  @default(false)
+  version     Int      @default(1) // DB-008-1b: Optimistic lock version column
+  category    String? // DB-008-1a: Configuration category for grouping
+  validation  Json? // DB-008-1a: Validation rules for the setting value
+  isEncrypted Boolean  @default(false) // DB-008-5: Secure storage for credentials
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relationships
-  brand             Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
-  @@map("brand_settings")
   @@unique([brandId, key])
   @@index([brandId])
   @@index([key])
   @@index([isPublic])
+  @@index([category]) // DB-008-1a: Index for category-based queries
+  @@index([version]) // DB-008-1b: Index for version checking
+  @@map("brand_settings")
 }
 
 model SiteSetting {
-  id                String           @id @default(cuid())
-  siteId            String
-  key               String
-  value             Json
-  description       String?
-  isPublic          Boolean          @default(false)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id           String   @id @default(cuid())
+  siteId       String // DB-008-1c: Ensure each settings table includes siteId foreign keys
+  key          String
+  value        Json
+  description  String?
+  isPublic     Boolean  @default(false)
+  version      Int      @default(1) // DB-008-1b: Optimistic lock version column
+  category     String? // DB-008-1a: Configuration category for grouping
+  validation   Json? // DB-008-1a: Validation rules for the setting value
+  isEncrypted  Boolean  @default(false) // DB-008-5: Secure storage for credentials
+  inheritsFrom String? // Parent site ID for configuration inheritance
+  isOverridden Boolean  @default(false) // Whether this setting overrides inherited value
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relationships
-  site              Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
-  @@map("site_settings")
   @@unique([siteId, key])
   @@index([siteId])
   @@index([key])
   @@index([isPublic])
+  @@index([category]) // DB-008-1a: Index for category-based queries
+  @@index([version]) // DB-008-1b: Index for version checking
+  @@index([inheritsFrom]) // DB-008-3: Index for configuration inheritance
+  @@map("site_settings")
+}
+
+// =============================================================================
+// DB-008: RESORT-SPECIFIC CONFIGURATION MODELS
+// =============================================================================
+
+// DB-008-2a: Property Management Configuration
+model PropertyConfig {
+  id            String         @id @default(cuid())
+  siteId        String // DB-008-1c: siteId foreign key
+  propertyId    String? // Optional: property-specific config
+  category      ConfigCategory
+  key           String
+  value         Json // DB-008-1a: JSONB for flexible configuration
+  description   String?
+  version       Int            @default(1) // DB-008-1b: Optimistic lock version
+  isActive      Boolean        @default(true)
+  validation    Json? // DB-008-1a: Validation rules
+  isEncrypted   Boolean        @default(false) // DB-008-5: Secure storage
+  priority      Int            @default(0) // Priority for override resolution
+  appliesTo     String[] // Property types/IDs this config applies to
+  effectiveFrom DateTime?
+  effectiveTo   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relationships
+  site     Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, propertyId, category, key])
+  @@index([siteId])
+  @@index([propertyId])
+  @@index([category])
+  @@index([key])
+  @@index([version])
+  @@index([isActive])
+  @@index([priority])
+  @@index([effectiveFrom, effectiveTo])
+  @@index([siteId, category, isActive]) // Performance for category-based queries
+  @@map("property_configs")
+}
+
+// DB-008-2a: Booking System Configuration
+model BookingConfig {
+  id           String                @id @default(cuid())
+  siteId       String // DB-008-1c: siteId foreign key
+  category     BookingConfigCategory
+  key          String
+  value        Json // DB-008-1a: JSONB for flexible configuration
+  description  String?
+  version      Int                   @default(1) // DB-008-1b: Optimistic lock version
+  isActive     Boolean               @default(true)
+  validation   Json? // DB-008-1a: Validation rules
+  isEncrypted  Boolean               @default(false) // DB-008-5: Secure storage
+  channel      String? // Booking channel this applies to
+  propertyType String? // Property type this applies to
+  minStay      Int?
+  maxStay      Int?
+  guestSegment String? // Guest segment (business, leisure, etc.)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  // Relationships
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, category, key])
+  @@index([siteId])
+  @@index([category])
+  @@index([key])
+  @@index([version])
+  @@index([isActive])
+  @@index([channel])
+  @@index([propertyType])
+  @@index([guestSegment])
+  @@index([siteId, category, isActive]) // Performance for category-based queries
+  @@map("booking_configs")
+}
+
+// DB-008-2a: Resort Operational Configuration
+model OperationalConfig {
+  id          String              @id @default(cuid())
+  siteId      String // DB-008-1c: siteId foreign key
+  department  String // Housekeeping, Maintenance, F&B, etc.
+  category    OperationalCategory
+  key         String
+  value       Json // DB-008-1a: JSONB for flexible configuration
+  description String?
+  version     Int                 @default(1) // DB-008-1b: Optimistic lock version
+  isActive    Boolean             @default(true)
+  validation  Json? // DB-008-1a: Validation rules
+  isEncrypted Boolean             @default(false) // DB-008-5: Secure storage
+  priority    Int                 @default(0) // Priority for conflict resolution
+  schedule    Json? // When this config is active (hours/days)
+  location    String? // Specific area/property this applies to
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // Relationships
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, department, category, key])
+  @@index([siteId])
+  @@index([department])
+  @@index([category])
+  @@index([key])
+  @@index([version])
+  @@index([isActive])
+  @@index([priority])
+  @@index([location])
+  @@index([siteId, department, isActive]) // Performance for department queries
+  @@map("operational_configs")
+}
+
+// DB-008-2a: Guest Experience Configuration
+model GuestExperienceConfig {
+  id           String                  @id @default(cuid())
+  siteId       String // DB-008-1c: siteId foreign key
+  category     GuestExperienceCategory
+  key          String
+  value        Json // DB-008-1a: JSONB for flexible configuration
+  description  String?
+  version      Int                     @default(1) // DB-008-1b: Optimistic lock version
+  isActive     Boolean                 @default(true)
+  validation   Json? // DB-008-1a: Validation rules
+  isEncrypted  Boolean                 @default(false) // DB-008-5: Secure storage
+  guestSegment String? // VIP, business, family, etc.
+  propertyType String? // Property type this applies to
+  season       String? // Seasonal configuration
+  language     String? // Language-specific config
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  // Relationships
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, category, key])
+  @@index([siteId])
+  @@index([category])
+  @@index([key])
+  @@index([version])
+  @@index([isActive])
+  @@index([guestSegment])
+  @@index([propertyType])
+  @@index([season])
+  @@index([language])
+  @@index([siteId, category, isActive]) // Performance for category queries
+  @@map("guest_experience_configs")
 }
 
 // =============================================================================
@@ -474,31 +713,1530 @@ model SiteSetting {
 // =============================================================================
 
 model AuditLog {
-  id                String           @id @default(cuid())
-  userId            String?
-  siteId            String?
-  action            String
-  resourceType      String
-  resourceId        String
-  details           Json?
-  ipAddress         String?
-  userAgent         String?
-  createdAt         DateTime         @default(now())
+  id           String   @id @default(cuid())
+  userId       String?
+  siteId       String?
+  action       String
+  resourceType String
+  resourceId   String
+  details      Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
 
   // Relationships
-  user              User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@map("audit_logs")
   @@index([userId])
   @@index([siteId])
   @@index([action])
   @@index([resourceType])
   @@index([resourceId])
   @@index([createdAt])
+  @@map("audit_logs")
 }
 
 // =============================================================================
-// ENUMS
+// DB-008: SETTINGS SNAPSHOTS AND BACKUP TRACKING
+// =============================================================================
+
+// DB-008-2a: Settings snapshots with backup metadata
+model ConfigSnapshot {
+  id          String         @id @default(cuid())
+  siteId      String // DB-008-2a: Site identification
+  name        String // Snapshot name/identifier
+  description String?
+  type        SnapshotType   @default(MANUAL)
+  status      SnapshotStatus @default(CREATING)
+  version     Int            @default(1)
+
+  // Configuration data references
+  brandSettings          Json? // BrandSetting IDs and versions
+  siteSettings           Json? // SiteSetting IDs and versions
+  propertyConfigs        Json? // PropertyConfig IDs and versions
+  bookingConfigs         Json? // BookingConfig IDs and versions
+  operationalConfigs     Json? // OperationalConfig IDs and versions
+  guestExperienceConfigs Json? // GuestExperienceConfig IDs and versions
+
+  // Metadata
+  createdBy        String? // User who created the snapshot
+  backupReason     String? // Reason for backup
+  tags             String[] // Tags for organization
+  checksum         String? // Data integrity checksum
+  compressedSize   Int? // Size after compression
+  uncompressedSize Int? // Original size
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime? // Auto-cleanup expiration
+  restoredAt  DateTime? // When this snapshot was last restored
+
+  // Relationships
+  site           Site              @relation("ConfigSnapshots", fields: [siteId], references: [id], onDelete: Cascade)
+  creator        User?             @relation("CreatedSnapshots", fields: [createdBy], references: [id], onDelete: SetNull)
+  restoreHistory SnapshotRestore[]
+  configChanges  ConfigAuditLog[]  @relation("SnapshotConfigChanges")
+
+  @@unique([siteId, name, version])
+  @@index([siteId])
+  @@index([type])
+  @@index([status])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([expiresAt])
+  // DB-008-2c: Index settings snapshots by (siteId, createdAt)
+  @@index([siteId, createdAt(sort: Desc)])
+  @@index([siteId, type, status])
+  @@index([checksum]) // For integrity verification
+  @@map("config_snapshots")
+}
+
+// DB-008-2a: Snapshot restore tracking
+model SnapshotRestore {
+  id          String      @id @default(cuid())
+  snapshotId  String
+  siteId      String // Target site for restore
+  restoredBy  String? // User who performed restore
+  restoreType RestoreType @default(FULL)
+
+  // Restore configuration
+  selectedConfigs  Json? // Which configs to restore (partial restore)
+  conflictStrategy ConflictStrategy @default(SNAPSHOT_WINS)
+  dryRun           Boolean          @default(false)
+
+  // Results
+  status        RestoreStatus @default(IN_PROGRESS)
+  itemsRestored Int           @default(0)
+  itemsSkipped  Int           @default(0)
+  itemsFailed   Int           @default(0)
+  errors        Json? // Restore errors
+
+  // Timestamps
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  // Relationships
+  snapshot ConfigSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  site     Site           @relation("SnapshotRestores", fields: [siteId], references: [id], onDelete: Cascade)
+  restorer User?          @relation("PerformedRestores", fields: [restoredBy], references: [id], onDelete: SetNull)
+
+  @@index([snapshotId])
+  @@index([siteId])
+  @@index([restoredBy])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@map("snapshot_restores")
+}
+
+// DB-008-3: Configuration templates for inheritance
+model ConfigTemplate {
+  id          String  @id @default(cuid())
+  siteId      String // Template owner site
+  name        String
+  description String?
+  category    String // Property, Booking, Operational, Guest Experience
+  isPublic    Boolean @default(false) // Available to other sites
+  version     Int     @default(1)
+  isActive    Boolean @default(true)
+
+  // Template configuration data
+  configData Json // Template configuration values
+  variables  Json? // Template variables for customization
+
+  // Usage tracking
+  usageCount Int       @default(0)
+  lastUsedAt DateTime?
+
+  // Metadata
+  tags      String[]
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  site          Site                  @relation("ConfigTemplates", fields: [siteId], references: [id], onDelete: Cascade)
+  creator       User?                 @relation("CreatedTemplates", fields: [createdBy], references: [id], onDelete: SetNull)
+  templateUsage ConfigTemplateUsage[]
+  configChanges ConfigAuditLog[]      @relation("TemplateConfigChanges")
+
+  @@unique([siteId, name, version])
+  @@index([siteId])
+  @@index([category])
+  @@index([isPublic])
+  @@index([isActive])
+  @@index([usageCount])
+  @@index([createdAt])
+  @@map("config_templates")
+}
+
+// DB-008-3: Template usage tracking
+model ConfigTemplateUsage {
+  id         String   @id @default(cuid())
+  templateId String
+  siteId     String // Site using the template
+  appliedBy  String?
+  variables  Json? // Variable values used
+  configType String // Type of config applied
+  appliedAt  DateTime @default(now())
+
+  // Relationships
+  template ConfigTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  site     Site           @relation("TemplateUsage", fields: [siteId], references: [id], onDelete: Cascade)
+  applier  User?          @relation("AppliedTemplates", fields: [appliedBy], references: [id], onDelete: SetNull)
+
+  @@index([templateId])
+  @@index([siteId])
+  @@index([appliedBy])
+  @@index([appliedAt])
+  @@map("config_template_usage")
+}
+
+// DB-008-2b: Configuration-specific audit logging
+model ConfigAuditLog {
+  id            String          @id @default(cuid())
+  siteId        String
+  configType    ConfigAuditType // Type of configuration changed
+  configId      String // ID of the configuration record
+  configKey     String // Configuration key for identification
+  action        ConfigAction // CREATE, UPDATE, DELETE, RESTORE
+  oldValue      Json? // Previous configuration value
+  newValue      Json? // New configuration value
+  changedFields Json? // List of fields that changed
+  version       Int? // Version before change
+  newVersion    Int? // Version after change
+
+  // Change context
+  userId    String? // User who made the change
+  sessionId String? // Session ID for tracking
+  reason    String? // Reason for the change
+  source    String? // API, Admin Panel, Migration, etc.
+  batchId   String? // For batch operations
+
+  // System context
+  ipAddress String?
+  userAgent String?
+  requestId String? // For distributed tracing
+
+  // Snapshot/restore context
+  snapshotId String? // If change was from snapshot restore
+  templateId String? // If change was from template application
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relationships
+  site     Site            @relation("ConfigAuditLogs", fields: [siteId], references: [id], onDelete: Cascade)
+  user     User?           @relation("ConfigAuditChanges", fields: [userId], references: [id], onDelete: SetNull)
+  snapshot ConfigSnapshot? @relation("SnapshotConfigChanges", fields: [snapshotId], references: [id], onDelete: SetNull)
+  template ConfigTemplate? @relation("TemplateConfigChanges", fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([siteId])
+  @@index([configType])
+  @@index([configId])
+  @@index([configKey])
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([batchId])
+  @@index([snapshotId])
+  @@index([templateId])
+  // Performance indexes for audit queries
+  @@index([siteId, configType, createdAt(sort: Desc)])
+  @@index([configId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@map("config_audit_logs")
+}
+
+// =============================================================================
+// RESORT MANAGEMENT SYSTEM
+// =============================================================================
+
+// Resort Properties - Core business entity for resort management
+model Property {
+  id           String         @id @default(cuid())
+  siteId       String
+  name         String
+  description  String
+  type         PropertyType
+  category     String
+  status       PropertyStatus @default(DRAFT)
+  capacity     Int
+  basePrice    Decimal
+  currency     String         @default("USD")
+  address      Json
+  coordinates  Json?
+  images       String[]
+  amenities    String[]
+  policies     Json?
+  checkInTime  String         @default("15:00")
+  checkOutTime String         @default("11:00")
+  minStay      Int            @default(1)
+  maxStay      Int?
+  isActive     Boolean        @default(true)
+  sortOrder    Int?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Relationships
+  site             Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  rooms            Room[]
+  bookingInterests BookingInterest[]
+  availability     Availability[]
+  pricing          Pricing[]
+  reviews          Review[]
+  propertyViews    PropertyView[]
+  propertyConfigs  PropertyConfig[]
+
+  @@index([siteId])
+  @@index([type])
+  @@index([status])
+  @@index([isActive])
+  @@index([capacity])
+  @@index([basePrice])
+  @@map("properties")
+}
+
+model Room {
+  id         String   @id @default(cuid())
+  propertyId String
+  name       String
+  type       String
+  capacity   Int
+  basePrice  Decimal
+  size       Int?
+  bedType    String?
+  amenities  String[]
+  images     String[]
+  isActive   Boolean  @default(true)
+  sortOrder  Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relationships
+  property         Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  bookingInterests BookingInterest[]
+  availability     Availability[]
+
+  @@index([propertyId])
+  @@index([type])
+  @@index([capacity])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("rooms")
+}
+
+model Availability {
+  id            String             @id @default(cuid())
+  propertyId    String
+  roomId        String?
+  date          DateTime
+  available     Boolean            @default(true)
+  bookedCount   Int                @default(0)
+  maxBookings   Int                @default(1)
+  priceOverride Decimal?
+  status        AvailabilityStatus @default(AVAILABLE)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  // Relationships
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  room     Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, roomId, date])
+  @@index([propertyId])
+  @@index([roomId])
+  @@index([date])
+  @@index([status])
+  @@map("availability")
+}
+
+model Pricing {
+  id            String      @id @default(cuid())
+  propertyId    String
+  roomId        String?
+  name          String
+  type          PricingType @default(STANDARD)
+  amount        Decimal
+  currency      String      @default("USD")
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  season        String?
+  minStay       Int?
+  maxStay       Int?
+  dayOfWeek     Int? // 0-6 (Sunday to Saturday)
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relationships
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([roomId])
+  @@index([type])
+  @@index([effectiveFrom])
+  @@index([effectiveTo])
+  @@index([isActive])
+  @@map("pricing")
+}
+
+// DB-003: Enhanced Booking Interest System - Lead generation and follow-up tracking
+model BookingInterest {
+  id            String @id @default(cuid())
+  referenceCode String @unique
+  siteId        String
+
+  // DB-003-1a: Enhanced Customer Information
+  customerFirstName   String
+  customerLastName    String
+  customerEmail       String
+  customerPhone       String
+  customerNationality String?
+  customerCountry     String?
+  preferredLanguage   String  @default("en")
+
+  // DB-003-1a: Enhanced Booking Details
+  propertyId      String
+  roomId          String?
+  checkInDate     DateTime
+  checkOutDate    DateTime
+  adults          Int      @default(0)
+  children        Int      @default(0)
+  infants         Int      @default(0)
+  totalGuests     Int
+  budget          Decimal? @db.Decimal(10, 2)
+  currency        String   @default("USD")
+  specialRequests String?
+
+  // DB-003-1b: Status Management with Enhanced Tracking
+  status            InterestStatus @default(NEW)
+  priority          LeadPriority   @default(MEDIUM)
+  source            LeadSource     @default(DIRECT)
+  campaign          String?
+  assignedTo        String? // Admin user ID assigned to follow up
+  adminNotes        String?
+  lastContactedAt   DateTime?
+  followUpScheduled DateTime?
+  expiresAt         DateTime? // Lead expiration for follow-up
+  confirmedAt       DateTime?
+  archivedAt        DateTime?
+  lostReason        String? // Reason for lost lead
+  estimatedValue    Decimal?       @db.Decimal(10, 2) // Estimated booking value
+
+  // Metadata
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
+  // Relationships
+  site         Site                      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  property     Property                  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  room         Room?                     @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  assignedUser User?                     @relation("AssignedLeads", fields: [assignedTo], references: [id], onDelete: SetNull)
+  activities   BookingInterestActivity[]
+
+  // Valid date ranges check (handled at application level)
+  // @@index([checkInDate, checkOutDate]) // Already covered above
+
+  @@index([siteId])
+  @@index([referenceCode])
+  @@index([propertyId])
+  @@index([roomId])
+  @@index([status])
+  @@index([priority])
+  @@index([source])
+  @@index([assignedTo])
+  @@index([submittedAt])
+  @@index([checkInDate])
+  @@index([checkOutDate])
+  @@index([lastContactedAt])
+  @@index([followUpScheduled])
+  @@index([expiresAt])
+  @@index([customerEmail])
+  @@index([customerPhone])
+  // DB-003-2b: Performance indexes for lead management
+  @@index([siteId, status, submittedAt(sort: Desc)]) // Site-scoped lead pipeline
+  @@index([siteId, priority, status, submittedAt(sort: Desc)]) // Priority-based views
+  @@index([assignedTo, status, followUpScheduled(sort: Asc)]) // User assignment and follow-up
+  @@index([status, expiresAt(sort: Asc)]) // Lead expiration tracking
+  @@index([propertyId, status, submittedAt(sort: Desc)], map: "idx_booking_interests_property_status_date") // Property lead performance
+  @@index([checkInDate, status, submittedAt(sort: Desc)], map: "idx_booking_interests_checkin_status_date") // Booking timeline analysis
+  // DB-001-2a: Dashboard metrics optimization indexes (preserved)
+  @@index([siteId, submittedAt(sort: Desc)], map: "idx_booking_interests_site_date")
+  @@index([propertyId, status, submittedAt(sort: Desc)], map: "idx_booking_interests_property_status_date_v2")
+  // Constraints for data integrity
+  @@index([siteId, referenceCode]) // DB-003-1b: Unique reference code per site
+  @@map("booking_interests")
+}
+
+// DB-003-2a: Enhanced Activity Tracking for Follow-up Performance
+model BookingInterestActivity {
+  id                String           @id @default(cuid())
+  bookingInterestId String
+  type              ActivityType     @default(NOTE)
+  action            String
+  description       String?
+  performedBy       String?
+  performedAt       DateTime         @default(now())
+  duration          Int? // Duration in minutes (for calls, meetings)
+  outcome           ActivityOutcome?
+  nextAction        String? // Planned next action
+  nextActionAt      DateTime? // When next action should occur
+  metadata          Json?
+
+  // Relationships
+  bookingInterest BookingInterest @relation(fields: [bookingInterestId], references: [id], onDelete: Cascade)
+  performedByUser User?           @relation("LeadActivities", fields: [performedBy], references: [id], onDelete: SetNull)
+
+  @@index([bookingInterestId])
+  @@index([type])
+  @@index([action])
+  @@index([performedBy])
+  @@index([performedAt])
+  @@index([outcome])
+  @@index([nextActionAt])
+  // DB-003-2b: Performance tracking indexes
+  @@index([bookingInterestId, performedAt(sort: Desc)]) // Lead activity timeline
+  @@index([performedBy, performedAt(sort: Desc)]) // User activity performance
+  @@index([type, performedAt(sort: Desc)]) // Activity type analytics
+  @@index([outcome, performedAt(sort: Desc)]) // Success rate tracking
+  @@map("booking_interest_activities")
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  propertyId  String
+  guestName   String
+  guestEmail  String?
+  rating      Int // 1-5 stars
+  title       String?
+  content     String
+  isApproved  Boolean   @default(false)
+  isPublic    Boolean   @default(false)
+  response    String?
+  respondedBy String?
+  respondedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relationships
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([rating])
+  @@index([isApproved])
+  @@index([isPublic])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+model PropertyView {
+  id         String   @id @default(cuid())
+  propertyId String
+  siteId     String
+  sessionId  String?
+  ipAddress  String?
+  userAgent  String?
+  referrer   String?
+  viewedAt   DateTime @default(now())
+
+  // Relationships
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  site     Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([siteId])
+  @@index([viewedAt])
+  @@index([sessionId])
+  // DB-001-2b: Daily rollup analytics indexes
+  @@index([siteId, viewedAt(sort: Desc)]) // For daily rollup queries
+  @@index([propertyId, viewedAt(sort: Desc)]) // For property analytics
+  @@index([siteId, propertyId, viewedAt(sort: Desc)]) // For site-property analytics
+  @@map("property_views")
+}
+
+// =============================================================================
+// SYSTEM HEALTH & ANALYTICS FOR RESORT OPERATIONS
+// =============================================================================
+
+// DB-009-1a: Enhanced System Health model for comprehensive monitoring
+model SystemHealth {
+  id             String       @id @default(cuid())
+  siteId         String?
+  service        String
+  serviceType    ServiceType @default(APPLICATION)
+  instance       String? // Service instance identifier (for clustered services)
+  environment    String? // Production, staging, development
+  region         String? // Geographic region
+  status         HealthStatus @default(HEALTHY)
+
+  // Performance metrics
+  responseTime   Int? // in milliseconds
+  cpuUsage       Float? // CPU usage percentage
+  memoryUsage    Float? // Memory usage percentage
+  diskUsage      Float? // Disk usage percentage
+  networkLatency Int? // Network latency in milliseconds
+
+  // Health check details
+  lastChecked    DateTime     @default(now())
+  checkedAt      DateTime     @default(now())
+  nextCheckAt    DateTime?
+  checkInterval  Int          @default(300) // Check interval in seconds
+  timeout        Int          @default(30) // Timeout in seconds
+
+  // Error tracking
+  errorMessage   String?
+  errorCount     Int          @default(0)
+  consecutiveFailures Int     @default(0)
+  lastFailureAt  DateTime?
+
+  // Service dependencies
+  dependencies   String[] // Array of service names this service depends on
+  dependents     String[] // Array of service names that depend on this service
+
+  // Alerting thresholds and configuration
+  alertThresholds Json? // Custom alert thresholds
+  notificationChannels String[] // Channels to send alerts to
+
+  // Additional metadata
+  metadata        Json?
+  tags            String[] // Service tags for categorization
+  version         String? // Service version
+  buildInfo       Json? // Build and deployment information
+
+  // Relationships
+  healthHistory   SystemHealthHistory[]
+  maintenanceJobs MaintenanceJob[]
+  healthAlerts    HealthAlert[]
+
+  @@unique([service, siteId, instance], map: "system_health_service_site_instance_key")
+  @@index([siteId])
+  @@index([service])
+  @@index([serviceType])
+  @@index([status])
+  @@index([environment])
+  @@index([region])
+  @@index([lastChecked])
+  @@index([nextCheckAt])
+  @@index([siteId, service, status, lastChecked(sort: Desc)]) // For health dashboard queries
+  @@index([serviceType, status, lastChecked(sort: Desc)]) // For service-type health monitoring
+  @@index([environment, status, lastChecked(sort: Desc)]) // For environment-specific monitoring
+  @@index([consecutiveFailures(sort: Desc)]) // For reliability tracking
+  @@index([tags], map: "idx_system_health_tags") // GIN index for array tags
+  @@map("system_health")
+}
+
+// DB-009-1b: Comprehensive system logging with structured levels and context
+model SystemLog {
+  id            String         @id @default(cuid())
+  siteId        String?
+
+  // Log level and categorization
+  level         LogLevel       @default(INFO)
+  category      LogCategory    @default(APPLICATION)
+  subcategory   String?        // More specific categorization
+
+  // Log content
+  message       String
+  details       Json?          // Detailed log data
+  context       Json?          // Additional context information
+
+  // Correlation and tracing
+  correlationId String?        // Correlate related logs across services
+  traceId       String?        // Distributed trace ID
+  spanId        String?        // Individual span ID
+  sessionId     String?        // User session ID
+  requestId     String?        // HTTP request ID
+
+  // Source information
+  service       String?        // Service that generated the log
+  component     String?        // Component/module within service
+  function      String?        // Function or method name
+  file          String?        // Source file
+  line          Int?           // Line number
+
+  // User information
+  userId        String?        // User ID if applicable
+  ipAddress     String?        // Client IP address
+  userAgent     String?        // Client user agent
+
+  // Performance metrics
+  duration      Int?           // Duration in milliseconds
+  memoryUsage   Int?           // Memory usage in bytes
+  cpuUsage      Float?         // CPU usage percentage
+
+  // Error information
+  errorCode     String?        // Error code
+  errorType     String?        // Error type
+  stackTrace    String?        // Stack trace
+  cause         String?        // Root cause
+
+  // Timestamps
+  timestamp     DateTime       @default(now())
+
+  // Retention and archiving
+  retentionDays Int            @default(90)
+  archivedAt    DateTime?
+
+  // Tags for categorization and filtering
+  tags          String[]
+
+  @@index([siteId])
+  @@index([level])
+  @@index([category])
+  @@index([service])
+  @@index([timestamp], map: "idx_system_logs_timestamp")
+  @@index([correlationId])
+  @@index([traceId])
+  @@index([userId])
+  @@index([errorCode])
+  @@index([retentionDays])
+  @@index([archivedAt])
+  // Performance indexes for log queries
+  @@index([siteId, level, timestamp(sort: Desc)]) // Site-specific log monitoring
+  @@index([service, level, timestamp(sort: Desc)]) // Service-specific log monitoring
+  @@index([category, subcategory, timestamp(sort: Desc)]) // Category-based log analysis
+  @@index([correlationId, timestamp(sort: Asc)]) // Trace reconstruction
+  @@index([timestamp(sort: Desc)], map: "idx_system_logs_timestamp_desc") // Recent logs lookup
+  @@index([archivedAt, retentionDays]) // Retention policy enforcement
+  @@index([tags], map: "idx_system_log_tags") // GIN index for array tags
+  @@map("system_logs")
+}
+
+// DB-009-1c: System health history for trending and analysis
+model SystemHealthHistory {
+  id            String       @id @default(cuid())
+  systemHealthId String
+
+  // Historical status snapshot
+  status        HealthStatus
+  responseTime  Int? // in milliseconds
+  cpuUsage      Float?
+  memoryUsage   Float?
+  diskUsage     Float?
+  networkLatency Int?
+  errorMessage  String?
+  errorCount    Int
+
+  // Check metadata
+  checkedAt     DateTime @default(now())
+  checkDuration Int? // Duration of health check in milliseconds
+
+  // Performance snapshot
+  metadata      Json?
+
+  // Relationships
+  systemHealth  SystemHealth @relation(fields: [systemHealthId], references: [id], onDelete: Cascade)
+
+  @@index([systemHealthId])
+  @@index([status])
+  @@index([checkedAt])
+  @@index([systemHealthId, checkedAt(sort: Desc)]) // Historical health trending
+  @@map("system_health_history")
+}
+
+// DB-009-1c: Health alert system for proactive monitoring
+model HealthAlert {
+  id             String       @id @default(cuid())
+  systemHealthId String
+
+  // Alert details
+  alertType      AlertType    @default(HEALTH_CHECK_FAILED)
+  severity       AlertSeverity @default(MEDIUM)
+  title          String
+  message        String
+  details        Json?
+
+  // Alert status
+  status         AlertStatus  @default(ACTIVE)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  resolvedBy     String?
+  resolvedAt     DateTime?
+
+  // Alert configuration
+  threshold      Json?        // Alert threshold that was triggered
+  condition      String?      // Condition that triggered the alert
+
+  // Notification tracking
+  notificationChannels String[] // Channels where alert was sent
+  notificationStatus   Json?    // Status of notifications per channel
+
+  // Timestamps
+  triggeredAt     DateTime @default(now())
+  lastNotifiedAt  DateTime?
+  expiresAt       DateTime? // Auto-expire alert
+
+  // Escalation
+  escalationLevel Int       @default(1)
+  escalatedAt     DateTime?
+
+  // Relationships
+  systemHealth    SystemHealth @relation(fields: [systemHealthId], references: [id], onDelete: Cascade)
+
+  @@index([systemHealthId])
+  @@index([alertType])
+  @@index([severity])
+  @@index([status])
+  @@index([triggeredAt])
+  @@index([acknowledgedAt])
+  @@index([resolvedAt])
+  @@index([expiresAt])
+  @@index([severity, status, triggeredAt(sort: Desc)]) // Active alerts by severity
+  @@index([systemHealthId, status, triggeredAt(sort: Desc)]) // Service alert history
+  @@map("health_alerts")
+}
+
+// DB-009-1c: Maintenance job management for automated system maintenance
+model MaintenanceJob {
+  id               String           @id @default(cuid())
+  siteId           String?
+
+  // Job identification and categorization
+  name             String
+  description      String?
+  category         MaintenanceCategory @default(GENERAL)
+  type             MaintenanceType  @default(SCHEDULED)
+  priority         MaintenancePriority @default(NORMAL)
+
+  // Scheduling information
+  schedule         Json?            // Cron expression or scheduling configuration
+  timezone         String           @default("UTC")
+  nextRunAt        DateTime?
+  lastRunAt        DateTime?
+  isRecurring      Boolean          @default(false)
+  recurrenceRule   Json?            // RRULE or custom recurrence
+
+  // Job configuration
+  configuration    Json             // Job configuration parameters
+  serviceIds       String[]         // Services this job affects
+  systemHealthId   String?          // System health entry this job monitors
+
+  // Relationships
+  systemHealth     SystemHealth?    @relation(fields: [systemHealthId], references: [id], onDelete: SetNull)
+
+  // Execution tracking
+  status           MaintenanceStatus @default(PENDING)
+  executionCount   Int              @default(0)
+  successCount     Int              @default(0)
+  failureCount     Int              @default(0)
+  averageDuration  Int?             // Average execution time in milliseconds
+
+  // Dependencies and conditions
+  dependencies     String[]         // Jobs that must complete first
+  conditions       Json?            // Conditions for job execution
+  requiresApproval Boolean          @default(false)
+
+  // Approval workflow
+  requestedBy      String?
+  approvedBy       String?
+  approvedAt       DateTime?
+  rejectionReason  String?
+
+  // Execution limits and constraints
+  maxRetries       Int              @default(3)
+  retryDelay       Int              @default(300) // Retry delay in seconds
+  timeout          Int?             // Timeout in seconds
+  resourceLimits   Json?            // CPU, memory, disk limits
+
+  // Notification settings
+  notificationChannels String[]     // Channels to send notifications to
+  notifyOnSuccess  Boolean          @default(true)
+  notifyOnFailure  Boolean          @default(true)
+  notifyOnTimeout  Boolean          @default(true)
+
+  // Maintenance window
+  maintenanceWindow Json?            // Allowed maintenance window
+  businessHoursOnly Boolean          @default(false)
+
+  // Backup and rollback
+  requiresBackup   Boolean          @default(false)
+  backupLocation   String?
+  rollbackEnabled  Boolean          @default(false)
+  rollbackScript   String?
+
+  // Metadata
+  metadata         Json?
+  tags             String[]
+  version          Int              @default(1)
+
+  // Timestamps
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  activatedAt      DateTime?
+  deactivatedAt    DateTime?
+  expiresAt        DateTime?
+
+  // Relationships
+  executions       MaintenanceExecution[]
+  approvals        MaintenanceApproval[]
+  notifications     MaintenanceNotification[]
+
+  @@index([siteId])
+  @@index([category])
+  @@index([type])
+  @@index([priority])
+  @@index([status])
+  @@index([nextRunAt])
+  @@index([lastRunAt])
+  @@index([isRecurring])
+  @@index([requiresApproval])
+  @@index([expiresAt])
+  @@index([deactivatedAt])
+  // Performance indexes for maintenance queries
+  @@index([siteId, status, nextRunAt(sort: Asc)]) // Scheduled jobs by site
+  @@index([category, status, priority(sort: Desc)]) // High-priority pending jobs
+  @@index([type, status, nextRunAt(sort: Asc)]) // Scheduled jobs by type
+  @@index([systemHealthId]) // Service health relationship index
+  @@index([tags], map: "idx_maintenance_jobs_tags") // GIN index for tags
+  @@map("maintenance_jobs")
+}
+
+// Maintenance job execution history
+model MaintenanceExecution {
+  id               String               @id @default(cuid())
+  maintenanceJobId String
+
+  // Execution details
+  executionNumber  Int                  // Sequential execution number
+  status           MaintenanceExecutionStatus @default(PENDING)
+  startedAt        DateTime             @default(now())
+  completedAt      DateTime?
+  duration         Int?                 // Duration in milliseconds
+
+  // Execution context
+  triggeredBy      String?              // User or system that triggered execution
+  triggerType      ExecutionTriggerType @default(SCHEDULED)
+  triggerDetails   Json?                // Additional trigger context
+
+  // Configuration snapshot
+  configuration    Json                 // Job configuration at time of execution
+  environment      Json?                // Environment variables and context
+
+  // Resource usage
+  cpuUsage         Float?               // CPU usage percentage
+  memoryUsage      Int?                 // Memory usage in bytes
+  diskUsage        Int?                 // Disk usage in bytes
+  networkUsage     Int?                 // Network usage in bytes
+
+  // Results and output
+  result           Json?                // Execution result data
+  output           String?              // Standard output
+  errorOutput      String?              // Error output
+  exitCode         Int?
+  exitMessage      String?
+
+  // Performance metrics
+  performance      Json?                // Performance metrics and benchmarks
+
+  // Backup and rollback
+  backupCreated    Boolean              @default(false)
+  backupLocation   String?
+  rollbackAvailable Boolean             @default(false)
+  rollbackExecuted Boolean             @default(false)
+  rollbackAt       DateTime?
+
+  // Retry information
+  retryAttempt     Int                  @default(0)
+  retryReason      String?
+  nextRetryAt      DateTime?
+
+  // Notification tracking
+  notificationsSent Json?               // Status of notifications sent
+
+  // Metadata
+  metadata         Json?
+  logs             String[]             // Log entries during execution
+
+  // Relationships
+  maintenanceJob   MaintenanceJob       @relation(fields: [maintenanceJobId], references: [id], onDelete: Cascade)
+
+  @@index([maintenanceJobId])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@index([triggerType])
+  @@index([triggeredBy])
+  @@index([exitCode])
+  @@index([retryAttempt])
+  @@index([rollbackExecuted])
+  @@index([maintenanceJobId, startedAt(sort: Desc)]) // Job execution history
+  @@index([status, startedAt(sort: Desc)]) // Execution status tracking
+  @@index([triggerType, startedAt(sort: Desc)]) // Trigger type analysis
+  @@map("maintenance_executions")
+}
+
+// Maintenance approval workflow
+model MaintenanceApproval {
+  id               String               @id @default(cuid())
+  maintenanceJobId String
+
+  // Approval details
+  requestedBy      String               // User who requested approval
+  approvedBy       String?              // User who approved/rejected
+  status           ApprovalStatus       @default(PENDING)
+  reason           String?              // Reason for request or rejection
+
+  // Approval configuration
+  requiredApprovers Int                 @default(1)
+  currentApprovers  Int                 @default(0)
+  approvers         String[]            // List of required approvers
+  approvalChain     Json?               // Approval chain configuration
+
+  // Approval criteria
+  criteria          Json?               // Approval criteria and checks
+  riskLevel         RiskLevel           @default(LOW)
+  impact            MaintenanceImpact   @default(LOW)
+
+  // Timestamps
+  requestedAt       DateTime            @default(now())
+  reviewedAt        DateTime?
+  expiresAt         DateTime?
+
+  // Metadata
+  metadata          Json?
+  comments          String[]
+
+  // Relationships
+  maintenanceJob    MaintenanceJob     @relation(fields: [maintenanceJobId], references: [id], onDelete: Cascade)
+
+  @@index([maintenanceJobId])
+  @@index([requestedBy])
+  @@index([approvedBy])
+  @@index([status])
+  @@index([riskLevel])
+  @@index([impact])
+  @@index([requestedAt])
+  @@index([reviewedAt])
+  @@index([expiresAt])
+  @@index([status, requestedAt(sort: Desc)]) // Pending approvals
+  @@index([requestedBy, status, requestedAt(sort: Desc)]) // User's approval requests
+  @@map("maintenance_approvals")
+}
+
+// Maintenance notification system
+model MaintenanceNotification {
+  id               String                       @id @default(cuid())
+  maintenanceJobId String?
+
+  // Notification details
+  type             MaintenanceNotificationType @default(INFO)
+  channel          MaintenanceNotificationChannel @default(EMAIL)
+  recipient        String                       // Recipient email/phone/user ID
+  subject          String?
+  message          String
+  template         String?                      // Notification template used
+
+  // Delivery status
+  status           MaintenanceNotificationStatus @default(PENDING)
+  sentAt           DateTime?
+  deliveredAt      DateTime?
+  readAt           DateTime?
+  failedAt         DateTime?
+  failureReason    String?
+
+  // Retry mechanism
+  retryCount       Int                          @default(0)
+  maxRetries       Int                          @default(3)
+  nextRetryAt      DateTime?
+
+  // Content
+  content          Json?                        // Rich content (HTML, attachments, etc.)
+  attachments      Json?                        // File attachments
+
+  // Context
+  context          Json?                        // Additional context for personalization
+  correlationId    String?                      // Correlate related notifications
+
+  // Metadata
+  metadata         Json?
+  priority         MaintenanceNotificationPriority @default(NORMAL)
+
+  // Timestamps
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+
+  // Relationships
+  maintenanceJob   MaintenanceJob?              @relation(fields: [maintenanceJobId], references: [id], onDelete: SetNull)
+
+  @@index([maintenanceJobId])
+  @@index([type])
+  @@index([channel])
+  @@index([recipient])
+  @@index([status])
+  @@index([sentAt])
+  @@index([deliveredAt])
+  @@index([failedAt])
+  @@index([nextRetryAt])
+  @@index([correlationId])
+  @@index([priority])
+  @@index([status, createdAt(sort: Desc)]) // Recent notifications by status
+  @@index([channel, status, nextRetryAt(sort: Asc)]) // Retry queue
+  @@map("maintenance_notifications")
+}
+
+// DB-009-4: System performance monitoring and resource tracking
+model SystemPerformance {
+  id         String   @id @default(cuid())
+  siteId     String?
+  service    String?
+  instance   String?
+  environment String?
+
+  // CPU metrics
+  cpuUsage   Float    // CPU usage percentage
+  cpuCores   Int?     // Number of CPU cores
+  cpuLoad    Float?   // System load average
+  cpuTemp    Float?   // CPU temperature
+
+  // Memory metrics
+  memoryUsed Int      // Memory used in bytes
+  memoryTotal Int     // Total memory in bytes
+  memoryUsage Float   // Memory usage percentage
+  swapUsed   Int?     // Swap used in bytes
+  swapTotal  Int?     // Total swap in bytes
+
+  // Disk metrics
+  diskUsed   Int      // Disk used in bytes
+  diskTotal  Int      // Total disk in bytes
+  diskUsage  Float    // Disk usage percentage
+  diskReadOps Int?    // Disk read operations
+  diskWriteOps Int?   // Disk write operations
+  diskReadBytes Int?  // Disk read in bytes
+  diskWriteBytes Int? // Disk write in bytes
+
+  // Network metrics
+  networkRxBytes Int?  // Network received bytes
+  networkTxBytes Int?  // Network transmitted bytes
+  networkRxPackets Int? // Network received packets
+  networkTxPackets Int? // Network transmitted packets
+  networkLatency Int?   // Network latency in milliseconds
+
+  // Application metrics
+  activeConnections Int? // Active connections
+  requestRate Float?     // Requests per second
+  responseTime Float?    // Average response time in milliseconds
+  errorRate Float?       // Error rate percentage
+
+  // Database metrics
+  dbConnections Int?     // Database connections
+  dbQueriesPerSecond Float? // Database queries per second
+  dbSlowQueries Int?     // Slow queries count
+  dbCacheHitRate Float?  // Database cache hit rate
+
+  // Cache metrics
+  cacheHitRate Float?    // Cache hit rate percentage
+  cacheSize Int?         // Cache size in bytes
+  cacheEvictions Int?    // Cache evictions
+
+  // Queue metrics
+  queueSize Int?         // Queue size
+  queueProcessingRate Float? // Queue processing rate
+  queueErrors Int?       // Queue processing errors
+
+  // Custom metrics
+  customMetrics Json?    // Custom application metrics
+
+  // Timestamp
+  timestamp DateTime @default(now())
+
+  // Metadata
+  tags String[]          // Tags for categorization
+  metadata Json?
+
+  @@index([siteId])
+  @@index([service])
+  @@index([instance])
+  @@index([environment])
+  @@index([timestamp], map: "idx_system_performance_timestamp")
+  @@index([cpuUsage])
+  @@index([memoryUsage])
+  @@index([diskUsage])
+  // Performance indexes for monitoring queries
+  @@index([siteId, service, timestamp(sort: Desc)]) // Service performance by site
+  @@index([service, timestamp(sort: Desc)]) // Service performance trending
+  @@index([environment, timestamp(sort: Desc)]) // Environment performance
+  @@index([timestamp(sort: Desc)], map: "idx_system_performance_timestamp_desc") // Latest metrics
+  @@index([tags], map: "idx_system_performance_tags") // GIN index for tags
+  @@map("system_performance")
+}
+
+// DB-009-5: Resort-specific operational monitoring
+model ResortOperationalMetrics {
+  id           String   @id @default(cuid())
+  siteId       String
+  propertyId   String?
+  category     OperationalMetricCategory @default(GENERAL)
+  subcategory  String?
+
+  // Booking metrics
+  totalBookings Int?     // Total bookings
+  activeBookings Int?    // Active bookings
+  pendingBookings Int?   // Pending bookings
+  cancelledBookings Int? // Cancelled bookings
+  bookingRate Float?     // Bookings per day
+  occupancyRate Float?   // Occupancy rate percentage
+  averageStay Float?     // Average stay duration
+
+  // Revenue metrics
+  totalRevenue Decimal?  @db.Decimal(15, 2) // Total revenue
+  dailyRevenue Decimal?  @db.Decimal(15, 2) // Daily revenue
+  averageBookingValue Decimal? @db.Decimal(10, 2) // Average booking value
+  revenuePerRoom Decimal? @db.Decimal(10, 2) // Revenue per room
+
+  // Guest service metrics
+  checkInCount Int?      // Check-ins today
+  checkOutCount Int?     // Check-outs today
+  averageCheckInTime Int? // Average check-in time in minutes
+  averageCheckOutTime Int? // Average check-out time in minutes
+  guestSatisfactionScore Float? // Guest satisfaction score 1-5
+  guestComplaints Int?   // Guest complaints count
+  guestRequests Int?     // Guest requests count
+  responseTime Int?      // Average response time in minutes
+
+  // Property metrics
+  availableRooms Int?    // Available rooms
+  occupiedRooms Int?     // Occupied rooms
+  maintenanceRooms Int?  // Rooms under maintenance
+  cleaningRooms Int?     // Rooms being cleaned
+  roomTurnoverTime Int?  // Average room turnover time in minutes
+  propertyUtilization Float? // Property utilization percentage
+
+  // Staff metrics
+  staffOnDuty Int?       // Staff currently on duty
+  staffProductivity Float? // Staff productivity score
+  staffSatisfaction Float? // Staff satisfaction score
+
+  // Service metrics
+  restaurantOccupancy Float? // Restaurant occupancy percentage
+  spaUtilization Float?      // Spa utilization percentage
+  facilityUsage Json?        // Usage metrics for various facilities
+  equipmentStatus Json?      // Status of equipment and systems
+
+  // System metrics
+  systemUptime Float?       // System uptime percentage
+  systemResponseTime Int?   // System response time in milliseconds
+  errorRate Float?          // Error rate percentage
+  dataProcessingRate Float? // Data processing rate
+
+  // Custom metrics
+  customMetrics Json?       // Custom operational metrics
+
+  // Timestamp
+  timestamp DateTime @default(now())
+
+  // Period information
+  periodStart DateTime       // Start of measurement period
+  periodEnd   DateTime       // End of measurement period
+  periodType  PeriodType @default(HOURLY) // Measurement period type
+
+  // Metadata
+  tags String[]             // Tags for categorization
+  metadata Json?
+  dataSource String?        // Source of the metrics
+  qualityScore Float?       // Data quality score
+
+  @@index([siteId])
+  @@index([propertyId])
+  @@index([category])
+  @@index([timestamp])
+  @@index([periodStart, periodEnd])
+  @@index([periodType])
+  @@index([occupancyRate])
+  @@index([guestSatisfactionScore])
+  @@index([systemUptime])
+  // Performance indexes for operational queries
+  @@index([siteId, category, timestamp(sort: Desc)]) // Category trends by site
+  @@index([siteId, propertyId, timestamp(sort: Desc)]) // Property-specific metrics
+  @@index([category, timestamp(sort: Desc)]) // Category-specific trending
+  @@index([periodType, timestamp(sort: Desc)]) // Period-based analysis
+  @@index([siteId, periodStart, periodEnd]) // Period range queries
+  @@index([tags], map: "idx_resort_operational_metrics_tags") // GIN index for tags
+  @@map("resort_operational_metrics")
+}
+
+// DB-009-5: Guest service performance monitoring
+model GuestServiceMetrics {
+  id           String   @id @default(cuid())
+  siteId       String
+  serviceType  GuestServiceType @default(GENERAL)
+  bookingId    String?
+  guestId      String?
+
+  // Service performance
+  serviceStartTime DateTime
+  serviceEndTime DateTime?
+  responseTime   Int?     // Response time in minutes
+  resolutionTime Int?     // Resolution time in minutes
+  waitTime       Int?     // Wait time in minutes
+
+  // Service quality
+  satisfactionScore Float? // Satisfaction score 1-5
+  qualityRating     String? // Quality rating (excellent, good, fair, poor)
+  complaintsCount   Int     @default(0)
+  complimentsCount  Int     @default(0)
+
+  // Service details
+  serviceCategory  String?  // Service category
+  serviceLevel     String?  // Service level (basic, premium, VIP)
+  staffAssigned    String?  // Staff member assigned
+  department       String?  // Department responsible
+
+  // Communication metrics
+  contactsCount    Int      @default(0) // Number of contacts
+  responseAccuracy Float?   // Response accuracy percentage
+  firstContactResolution Boolean @default(false)
+
+  // Cost metrics
+  serviceCost      Decimal? @db.Decimal(10, 2) // Cost of service
+  laborCost        Decimal? @db.Decimal(10, 2) // Labor cost
+  resourceCost     Decimal? @db.Decimal(10, 2) // Resource cost
+
+  // Feedback and outcomes
+  feedback         String?  // Guest feedback
+  followUpRequired Boolean  @default(false)
+  followUpCompleted Boolean @default(false)
+  escalationLevel  Int      @default(0)
+
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Metadata
+  metadata         Json?
+  tags             String[]
+
+  @@index([siteId])
+  @@index([serviceType])
+  @@index([bookingId])
+  @@index([guestId])
+  @@index([serviceStartTime])
+  @@index([satisfactionScore])
+  @@index([responseTime])
+  @@index([qualityRating])
+  @@index([department])
+  @@index([followUpRequired])
+  // Performance indexes for service analysis
+  @@index([siteId, serviceType, serviceStartTime(sort: Desc)]) // Service type performance
+  @@index([serviceType, satisfactionScore(sort: Desc)]) // Quality analysis
+  @@index([department, responseTime(sort: Asc)]) // Department efficiency
+  @@index([followUpRequired, followUpCompleted]) // Follow-up tracking
+  @@index([tags], map: "idx_guest_service_metrics_tags") // GIN index for tags
+  @@map("guest_service_metrics")
+}
+
+// DB-009-5: Anomaly detection and alerting
+model SystemAnomaly {
+  id           String   @id @default(cuid())
+  siteId       String?
+  service      String?
+  metricType   AnomalyMetricType
+  metricName   String
+  anomalyType  AnomalyType
+  severity     AnomalySeverity @default(MEDIUM)
+
+  // Anomaly details
+  currentValue Float?   // Current metric value
+  expectedValue Float?  // Expected value
+  threshold    Float?   // Threshold that was breached
+  deviation    Float?   // Deviation from expected
+  confidence   Float?   // Confidence score 0-1
+
+  // Context
+  context      Json?    // Additional context information
+  patterns     Json?    // Detected patterns
+  correlations Json?    // Correlated anomalies
+
+  // Time information
+  detectedAt   DateTime @default(now())
+  startedAt    DateTime?
+  endedAt      DateTime?
+  duration     Int?     // Duration in minutes
+
+  // Alert status
+  status       AnomalyStatus @default(ACTIVE)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  resolution     String?
+
+  // Impact assessment
+  impactLevel  ImpactLevel @default(LOW)
+  affectedServices String[] // Services affected
+  affectedUsers Int?        // Number of affected users
+
+  // Response actions
+  autoResponse  Boolean  @default(false)
+  responseActions Json?   // Actions taken
+  escalationTriggered Boolean @default(false)
+
+  // Learning and improvement
+  falsePositive Boolean  @default(false)
+  feedbackScore Float?   // Feedback score for accuracy
+  improvementSuggestions Json?
+
+  // Metadata
+  metadata     Json?
+  tags         String[]
+
+  @@index([siteId])
+  @@index([service])
+  @@index([metricType])
+  @@index([anomalyType])
+  @@index([severity])
+  @@index([status])
+  @@index([detectedAt])
+  @@index([acknowledgedAt])
+  @@index([resolvedAt])
+  @@index([impactLevel])
+  @@index([falsePositive])
+  // Performance indexes for anomaly tracking
+  @@index([siteId, severity, status, detectedAt(sort: Desc)]) // Active anomalies by severity
+  @@index([service, anomalyType, detectedAt(sort: Desc)]) // Service anomaly patterns
+  @@index([metricType, metricName, detectedAt(sort: Desc)]) // Metric anomaly history
+  @@index([status, detectedAt(sort: Desc)]) // Anomaly status tracking
+  @@index([tags], map: "idx_system_anomaly_tags") // GIN index for tags
+  @@map("system_anomalies")
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  siteId     String
+  sessionId  String?
+  userId     String?
+  eventType  String
+  eventName  String
+  entityId   String?
+  entityType String?
+  properties Json?
+  timestamp  DateTime @default(now())
+
+  @@index([siteId])
+  @@index([eventType])
+  @@index([eventName])
+  @@index([entityId])
+  @@index([entityType])
+  @@index([timestamp])
+  @@map("analytics_events")
+}
+
+// =============================================================================
+// ENUMS FOR RESORT MANAGEMENT
+// =============================================================================
+
+enum PropertyType {
+  RESORT
+  HOTEL
+  VILLA
+  APARTMENT
+  COTTAGE
+  SUITE
+  STUDIO
+  PENTHOUSE
+  CABIN
+  LODGE
+}
+
+enum PropertyStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+  MAINTENANCE
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  UNAVAILABLE
+  LIMITED
+  BLOCKED
+  MAINTENANCE
+}
+
+enum PricingType {
+  STANDARD
+  SEASONAL
+  PROMOTIONAL
+  WEEKEND
+  HOLIDAY
+  CORPORATE
+}
+
+enum InterestStatus {
+  NEW
+  CONTACTED
+  CONFIRMED
+  ARCHIVED
+  LOST
+  HOT
+  WARM
+  COLD
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum LeadSource {
+  DIRECT
+  WEBSITE
+  PHONE
+  EMAIL
+  REFERRAL
+  SOCIAL_MEDIA
+  SEARCH_ENGINE
+  PAID_ADVERTISING
+  PARTNER
+  EVENT
+  WALK_IN
+}
+
+enum ActivityType {
+  NOTE
+  PHONE_CALL
+  EMAIL
+  SMS
+  MEETING
+  QUOTE_SENT
+  FOLLOW_UP
+  REMINDER
+  STATUS_CHANGE
+  ASSIGNMENT
+}
+
+enum ActivityOutcome {
+  SUCCESS
+  FAILED
+  PENDING
+  NO_ANSWER
+  LEFT_MESSAGE
+  CALLBACK_REQUESTED
+  NOT_INTERESTED
+  QUOTE_REQUESTED
+  BOOKING_CONFIRMED
+}
+
+enum HealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+  DOWN
+}
+
+// =============================================================================
+// EXISTING ENUMS (Preserved from CMS foundation)
 // =============================================================================
 
 enum UserRole {
@@ -563,4 +2301,503 @@ enum StepStatus {
   IN_PROGRESS
   COMPLETED
   SKIPPED
+}
+
+// =============================================================================
+// DB-008: CONFIGURATION SYSTEM ENUMS
+// =============================================================================
+
+// Configuration categories for different types of resort settings
+enum ConfigCategory {
+  PROPERTY_SETUP
+  PRICING_RULES
+  AVAILABILITY_RULES
+  AMENITIES
+  POLICIES
+  RESTRICTIONS
+  CHECKIN_CHECKOUT
+  HOUSEKEEPING
+  MAINTENANCE
+}
+
+enum BookingConfigCategory {
+  BOOKING_RULES
+  PAYMENT_SETTINGS
+  CANCELLATION_POLICIES
+  MODIFICATION_RULES
+  CONFIRMATION_SETTINGS
+  NOTIFICATION_CONFIGS
+  CHANNEL_MANAGEMENT
+  RATE_MANAGEMENT
+  DISCOUNT_RULES
+  TAX_CONFIGURATIONS
+}
+
+enum OperationalCategory {
+  HOUSEKEEPING
+  MAINTENANCE
+  FRONT_DESK
+  SECURITY
+  FOOD_BEVERAGE
+  RECREATION
+  TRANSPORTATION
+  HOUSEKEEPING_SCHEDULES
+  MAINTENANCE_SCHEDULES
+  STAFF_MANAGEMENT
+  INVENTORY_MANAGEMENT
+}
+
+enum GuestExperienceCategory {
+  CHECKIN_EXPERIENCE
+  ROOM_FEATURES
+  SERVICE_OFFERINGS
+  ENTERTAINMENT
+  DINING_OPTIONS
+  WELLNESS_SERVICES
+  CONCIERGE_SERVICES
+  LOYALTY_PROGRAM
+  PERSONALIZATION
+  ACCESSIBILITY
+  LANGUAGE_PREFERENCES
+}
+
+// Snapshot management enums
+enum SnapshotType {
+  MANUAL // User-initiated backup
+  SCHEDULED // Automated scheduled backup
+  PRE_DEPLOYMENT // Backup before deployment
+  POST_DEPLOYMENT // Backup after deployment
+  EMERGENCY // Emergency backup before critical changes
+  MIGRATION // Backup during data migration
+}
+
+enum SnapshotStatus {
+  CREATING // Snapshot is being created
+  COMPLETED // Snapshot successfully created
+  FAILED // Snapshot creation failed
+  EXPIRED // Snapshot has expired
+  DELETING // Snapshot is being deleted
+  CORRUPTED // Snapshot data is corrupted
+}
+
+enum RestoreType {
+  FULL // Restore all configurations
+  PARTIAL // Restore selected configurations
+  PROPERTY_SPECIFIC // Restore property-specific configs
+  CATEGORY_SPECIFIC // Restore specific categories
+}
+
+enum ConflictStrategy {
+  SNAPSHOT_WINS // Use snapshot values for conflicts
+  CURRENT_WINS // Keep current values for conflicts
+  MANUAL_RESOLVE // Require manual conflict resolution
+  MERGE // Attempt to merge conflicting values
+}
+
+enum RestoreStatus {
+  IN_PROGRESS // Restore is running
+  COMPLETED // Restore completed successfully
+  FAILED // Restore failed
+  CANCELLED // Restore was cancelled
+  PARTIAL_SUCCESS // Some items restored successfully
+  ROLLED_BACK // Restore was rolled back due to errors
+}
+
+// Configuration audit types
+enum ConfigAuditType {
+  BRAND_SETTING
+  SITE_SETTING
+  PROPERTY_CONFIG
+  BOOKING_CONFIG
+  OPERATIONAL_CONFIG
+  GUEST_EXPERIENCE_CONFIG
+  CONFIG_SNAPSHOT
+  CONFIG_TEMPLATE
+}
+
+enum ConfigAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+  BULK_CREATE
+  BULK_UPDATE
+  BULK_DELETE
+  IMPORT
+  EXPORT
+}
+
+// =============================================================================
+// DB-009: SYSTEM MAINTENANCE ENUMS
+// =============================================================================
+
+// Service types for health monitoring
+enum ServiceType {
+  APPLICATION      // Application services
+  DATABASE         // Database services
+  CACHE           // Cache services (Redis, Memcached)
+  QUEUE           // Message queue services
+  SEARCH          // Search services (Elasticsearch)
+  STORAGE         // Storage services
+  NETWORK         // Network services
+  SECURITY        // Security services
+  MONITORING      // Monitoring services
+  BACKUP          // Backup services
+  EXTERNAL_API    // External API dependencies
+  INFRASTRUCTURE  // Infrastructure components
+}
+
+// Log levels for system logging
+enum LogLevel {
+  TRACE           // Very detailed information, typically only of interest when diagnosing problems
+  DEBUG           // Detailed information on the flow through the system
+  INFO            // Interesting runtime events (startup/shutdown)
+  WARN            // Use of deprecated APIs, poor use of API, 'almost' errors, other runtime situations that are undesirable or unexpected
+  ERROR           // Runtime errors or unexpected conditions
+  FATAL           // Very severe error events that will presumably lead the application to abort
+}
+
+// Log categories for organizing system logs
+enum LogCategory {
+  APPLICATION      // Application-level logs
+  DATABASE         // Database operation logs
+  AUTHENTICATION   // Authentication and authorization logs
+  AUTHORIZATION    // Authorization logs
+  API             // API request/response logs
+  BACKGROUND_JOBS // Background job execution logs
+  CACHE           // Cache operation logs
+  EMAIL           // Email sending logs
+  SMS             // SMS sending logs
+  PAYMENT         // Payment processing logs
+  BOOKING         // Booking system logs
+  MAINTENANCE     // Maintenance operation logs
+  MONITORING      // Monitoring and health check logs
+  SECURITY        // Security-related logs
+  PERFORMANCE     // Performance monitoring logs
+  ERROR           // Error tracking logs
+  AUDIT           // Audit trail logs
+  SYSTEM          // System-level logs
+  NETWORK         // Network operation logs
+  STORAGE         // Storage operation logs
+  BACKUP          // Backup operation logs
+  MIGRATION       // Data migration logs
+}
+
+// Alert types for health monitoring
+enum AlertType {
+  HEALTH_CHECK_FAILED      // Health check failed
+  HIGH_CPU_USAGE          // High CPU usage alert
+  HIGH_MEMORY_USAGE       // High memory usage alert
+  HIGH_DISK_USAGE         // High disk usage alert
+  NETWORK_LATENCY_HIGH    // High network latency alert
+  DATABASE_CONNECTIONS_HIGH // High database connections
+  ERROR_RATE_HIGH         // High error rate alert
+  RESPONSE_TIME_HIGH      // High response time alert
+  SERVICE_UNAVAILABLE     // Service unavailable alert
+  CACHE_HIT_RATE_LOW      // Low cache hit rate alert
+  QUEUE_SIZE_HIGH         // High queue size alert
+  BACKUP_FAILED           // Backup operation failed
+  MAINTENANCE_REQUIRED    // Maintenance required alert
+  SECURITY_BREACH         // Security breach alert
+  ANOMALY_DETECTED        // Anomaly detected alert
+  CUSTOM                  // Custom alert type
+}
+
+// Alert severity levels
+enum AlertSeverity {
+  LOW                     // Low severity, informational
+  MEDIUM                  // Medium severity, needs attention
+  HIGH                    // High severity, urgent attention required
+  CRITICAL                // Critical severity, immediate action required
+}
+
+// Alert status tracking
+enum AlertStatus {
+  ACTIVE                  // Alert is currently active
+  ACKNOWLEDGED            // Alert has been acknowledged
+  RESOLVED                // Alert has been resolved
+  SUPPRESSED              // Alert is suppressed
+  EXPIRED                 // Alert has expired
+}
+
+// Maintenance job categories
+enum MaintenanceCategory {
+  GENERAL                 // General maintenance
+  DATABASE                // Database maintenance
+  BACKUP                  // Backup operations
+  SECURITY                // Security maintenance
+  PERFORMANCE             // Performance optimization
+  CLEANUP                 // Cleanup operations
+  MONITORING              // Monitoring system maintenance
+  INFRASTRUCTURE          // Infrastructure maintenance
+  APPLICATION             // Application maintenance
+  API                     // API maintenance
+  CACHE                   // Cache maintenance
+  QUEUE                   // Queue maintenance
+  STORAGE                 // Storage maintenance
+  NETWORK                 // Network maintenance
+  SECURITY_PATCH          // Security patching
+  SYSTEM_UPDATE           // System updates
+  LOG_ROTATION            // Log rotation and cleanup
+  DATA_ARCHIVAL           // Data archival
+  INDEX_REBUILD           // Index rebuilding
+}
+
+// Maintenance job types
+enum MaintenanceType {
+  SCHEDULED               // Scheduled maintenance
+  MANUAL                  // Manual maintenance
+  EMERGENCY               // Emergency maintenance
+  REACTIVE                // Reactive maintenance
+  PREVENTIVE              // Preventive maintenance
+  CORRECTIVE              // Corrective maintenance
+  PREDICTIVE              // Predictive maintenance
+  AUTOMATED               // Automated maintenance
+}
+
+// Maintenance job priorities
+enum MaintenancePriority {
+  LOW                     // Low priority
+  NORMAL                  // Normal priority
+  HIGH                    // High priority
+  URGENT                  // Urgent priority
+  CRITICAL                // Critical priority
+}
+
+// Maintenance job status
+enum MaintenanceStatus {
+  PENDING                 // Job is pending execution
+  RUNNING                 // Job is currently running
+  COMPLETED               // Job completed successfully
+  FAILED                  // Job failed
+  CANCELLED               // Job was cancelled
+  PAUSED                  // Job is paused
+  SKIPPED                 // Job was skipped
+  RETRYING                // Job is retrying after failure
+  APPROVAL_REQUIRED       // Job requires approval
+  APPROVED                // Job has been approved
+  REJECTED                // Job was rejected
+  EXPIRED                 // Job has expired
+  DISABLED                // Job is disabled
+}
+
+// Maintenance execution status
+enum MaintenanceExecutionStatus {
+  PENDING                 // Execution is pending
+  RUNNING                 // Execution is running
+  COMPLETED               // Execution completed successfully
+  FAILED                  // Execution failed
+  CANCELLED               // Execution was cancelled
+  TIMEOUT                 // Execution timed out
+  SKIPPED                 // Execution was skipped
+  ROLLBACK_SUCCESSFUL     // Rollback was successful
+  ROLLBACK_FAILED         // Rollback failed
+}
+
+// Execution trigger types
+enum ExecutionTriggerType {
+  SCHEDULED               // Triggered by schedule
+  MANUAL                  // Triggered manually
+  API                     // Triggered via API
+  WEBHOOK                 // Triggered by webhook
+  DEPENDENCY              // Triggered by dependency
+  ALERT                   // Triggered by alert
+  SYSTEM_EVENT            // Triggered by system event
+  RETRY                   // Triggered by retry logic
+}
+
+// Approval workflow status
+enum ApprovalStatus {
+  PENDING                 // Approval is pending
+  APPROVED                // Request was approved
+  REJECTED                // Request was rejected
+  EXPIRED                 // Approval request expired
+  CANCELLED               // Request was cancelled
+}
+
+// Risk levels for maintenance operations
+enum RiskLevel {
+  LOW                     // Low risk operation
+  MEDIUM                  // Medium risk operation
+  HIGH                    // High risk operation
+  CRITICAL                // Critical risk operation
+}
+
+// Maintenance impact levels
+enum MaintenanceImpact {
+  LOW                     // Low impact on operations
+  MEDIUM                  // Medium impact on operations
+  HIGH                    // High impact on operations
+  CRITICAL                // Critical impact on operations
+}
+
+// Notification priority levels
+enum NotificationPriority {
+  LOW                     // Low priority notification
+  NORMAL                  // Normal priority notification
+  HIGH                    // High priority notification
+  URGENT                  // Urgent priority notification
+}
+
+// Operational metric categories
+enum OperationalMetricCategory {
+  GENERAL                 // General operational metrics
+  BOOKING                 // Booking-related metrics
+  REVENUE                 // Revenue-related metrics
+  GUEST_SERVICE           // Guest service metrics
+  PROPERTY                // Property-related metrics
+  STAFF                   // Staff-related metrics
+  SERVICE                 // Service utilization metrics
+  SYSTEM                  // System performance metrics
+  FACILITY                // Facility utilization metrics
+  EQUIPMENT               // Equipment status metrics
+  MAINTENANCE             // Maintenance operation metrics
+  SECURITY                // Security-related metrics
+  COMPLIANCE              // Compliance-related metrics
+  QUALITY                 // Quality metrics
+  EFFICIENCY              // Efficiency metrics
+}
+
+// Period types for metric collection
+enum PeriodType {
+  REALTIME               // Real-time metrics
+  MINUTELY               // Minute-level metrics
+  HOURLY                 // Hour-level metrics
+  DAILY                  // Daily metrics
+  WEEKLY                 // Weekly metrics
+  MONTHLY                // Monthly metrics
+  QUARTERLY              // Quarterly metrics
+  YEARLY                 // Yearly metrics
+}
+
+// Guest service types
+enum GuestServiceType {
+  GENERAL                 // General guest services
+  CHECKIN                 // Check-in service
+  CHECKOUT                // Checkout service
+  HOUSEKEEPING            // Housekeeping service
+  ROOM_SERVICE            // Room service
+  CONCIERGE               // Concierge service
+  RESTAURANT              // Restaurant service
+  SPA                     // Spa service
+  TRANSPORTATION          // Transportation service
+  ENTERTAINMENT           // Entertainment service
+  MAINTENANCE_REQUEST     // Maintenance request
+  COMPLAINT               // Guest complaint
+  INFORMATION             // Information request
+  RESERVATION             // Reservation service
+  PAYMENT                 // Payment service
+  SUPPORT                 // Technical support
+  EMERGENCY               // Emergency service
+}
+
+// Anomaly metric types
+enum AnomalyMetricType {
+  PERFORMANCE             // Performance metrics
+  AVAILABILITY            // Availability metrics
+  SECURITY                // Security metrics
+  BUSINESS                // Business metrics
+  OPERATIONAL             // Operational metrics
+  SYSTEM                  // System metrics
+  NETWORK                 // Network metrics
+  DATABASE                // Database metrics
+  APPLICATION             // Application metrics
+  USER_BEHAVIOR           // User behavior metrics
+  REVENUE                 // Revenue metrics
+  BOOKING                 // Booking metrics
+  GUEST_SATISFACTION      // Guest satisfaction metrics
+  STAFF_PERFORMANCE       // Staff performance metrics
+}
+
+// Anomaly types
+enum AnomalyType {
+  SPIKE                   // Spike in metric value
+  DROP                    // Drop in metric value
+  TREND                   // Unusual trend
+  OUTLIER                 // Statistical outlier
+  PATTERN                 // Unusual pattern
+  CORRELATION             // Correlated anomaly
+  THRESHOLD               // Threshold breach
+  MISSING_DATA            // Missing data
+  STAGNATION              // Metric stagnation
+  VOLATILITY              // High volatility
+  SEASONAL                // Seasonal anomaly
+  DRIFT                   // Metric drift
+  BURST                   // Burst activity
+}
+
+// Anomaly severity levels
+enum AnomalySeverity {
+  LOW                     // Low severity anomaly
+  MEDIUM                  // Medium severity anomaly
+  HIGH                    // High severity anomaly
+  CRITICAL                // Critical severity anomaly
+}
+
+// Anomaly status tracking
+enum AnomalyStatus {
+  ACTIVE                  // Anomaly is currently active
+  ACKNOWLEDGED            // Anomaly has been acknowledged
+  RESOLVED                // Anomaly has been resolved
+  FALSE_POSITIVE          // Anomaly was false positive
+  INVESTIGATING           // Anomaly is under investigation
+  SUPPRESSED              // Anomaly is suppressed
+  ESCALATED               // Anomaly has been escalated
+}
+
+// Impact levels for anomalies
+enum ImpactLevel {
+  NONE                    // No impact
+  LOW                     // Low impact
+  MEDIUM                  // Medium impact
+  HIGH                    // High impact
+  CRITICAL                // Critical impact
+}
+
+// Maintenance notification types
+enum MaintenanceNotificationType {
+  INFO                    // Informational notification
+  SUCCESS                 // Success notification
+  WARNING                 // Warning notification
+  ERROR                   // Error notification
+  ALERT                   // Alert notification
+  REMINDER                // Reminder notification
+  SCHEDULED               // Scheduled maintenance notification
+  COMPLETED               // Maintenance completed notification
+  FAILED                  // Maintenance failed notification
+  APPROVAL_REQUIRED       // Approval required notification
+  APPROVED                // Approval granted notification
+  REJECTED                // Approval rejected notification
+  ESCALATED               // Escalated notification
+}
+
+// Maintenance notification channels
+enum MaintenanceNotificationChannel {
+  EMAIL                   // Email notification
+  SMS                     // SMS notification
+  PUSH                    // Push notification
+  WEBHOOK                 // Webhook notification
+  SLACK                   // Slack notification
+  TEAMS                   // Microsoft Teams notification
+  DISCORD                 // Discord notification
+  IN_APP                  // In-app notification
+}
+
+// Maintenance notification status
+enum MaintenanceNotificationStatus {
+  PENDING                 // Notification is pending
+  SENT                    // Notification has been sent
+  DELIVERED               // Notification has been delivered
+  READ                    // Notification has been read
+  FAILED                  // Notification failed to send
+  CANCELLED               // Notification was cancelled
+  RETRYING                // Notification is being retried
+}
+
+// Maintenance notification priority
+enum MaintenanceNotificationPriority {
+  LOW                     // Low priority notification
+  NORMAL                  // Normal priority notification
+  HIGH                    // High priority notification
+  URGENT                  // Urgent priority notification
 }

@@ -1,0 +1,487 @@
+# =============================================================================
+# BOOKING SYSTEM DATABASE MODELS
+# =============================================================================
+
+model Property {
+  id                String   @id @default(cuid())
+  siteId            String
+  name              String
+  type              PropertyType
+  description       String?
+  basePrice         Decimal  @db.Decimal(10, 2)
+  maxOccupancy      Int
+  size              Int?     // in square meters
+  bedConfiguration  Json?    // e.g., { "king": 1, "queen": 2 }
+  amenities         String[]
+  images            String[]
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  rooms             Room[]
+  bookings          Booking[]
+  availabilityRules AvailabilityRule[]
+  pricingRules      PricingRule[]
+
+  @@map("properties")
+  @@index([siteId])
+  @@index([type])
+  @@index([isActive])
+}
+
+model Room {
+  id                String   @id @default(cuid())
+  propertyId        String
+  name              String
+  roomNumber        String
+  floor             Int?
+  basePrice         Decimal  @db.Decimal(10, 2)
+  maxOccupancy      Int
+  size              Int?     // in square meters
+  bedConfiguration  Json?
+  amenities         String[]
+  images            String[]
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  property          Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  bookings          BookingRoom[]
+  availability      RoomAvailability[]
+
+  @@map("rooms")
+  @@unique([propertyId, roomNumber])
+  @@index([propertyId])
+  @@index([isActive])
+}
+
+model Booking {
+  id                String        @id @default(cuid())
+  siteId            String
+  propertyId        String
+  guestId           String?
+  bookingNumber     String        @unique
+  status            BookingStatus @default(PENDING)
+  source            BookingSource @default(DIRECT)
+
+  // Guest Information
+  guestInfo         Json          // firstName, lastName, email, phone, etc.
+
+  // Booking Details
+  checkInDate       DateTime
+  checkOutDate      DateTime
+  nights            Int
+  adults            Int
+  children          Int           @default(0)
+  infants           Int           @default(0)
+
+  // Pricing
+  basePrice         Decimal       @db.Decimal(10, 2)
+  totalAmount       Decimal       @db.Decimal(10, 2)
+  paidAmount        Decimal       @db.Decimal(10, 2) @default(0)
+  currency          String        @default("USD")
+
+  // Additional Services
+  services          Json?         // Array of additional services
+
+  // Special Requests
+  specialRequests   String?
+  preferences       Json?
+
+  // Payment Information
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentMethod     String?
+  paymentId         String?
+
+  // Cancellation
+  cancellationPolicy CancellationPolicy?
+  cancelledAt       DateTime?
+  cancellationReason String?
+  refundAmount      Decimal?      @db.Decimal(10, 2)
+  refundStatus      RefundStatus?
+
+  // Timestamps
+  confirmedAt       DateTime?
+  checkedInAt       DateTime?
+  checkedOutAt      DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relationships
+  site              Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  property          Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guest             User?         @relation("GuestBookings", fields: [guestId], references: [id])
+  rooms             BookingRoom[]
+  payments          Payment[]
+  notifications     BookingNotification[]
+  auditLogs         BookingAuditLog[]
+
+  @@map("bookings")
+  @@index([siteId])
+  @@index([propertyId])
+  @@index([guestId])
+  @@index([status])
+  @@index([checkInDate, checkOutDate])
+  @@index([bookingNumber])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model BookingRoom {
+  id                String   @id @default(cuid())
+  bookingId         String
+  roomId            String
+  roomName          String
+  basePrice         Decimal  @db.Decimal(10, 2)
+  price             Decimal  @db.Decimal(10, 2)
+  adults            Int
+  children          Int      @default(0)
+  infants           Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  // Relationships
+  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  room              Room     @relation(fields: [roomId], references: [id])
+
+  @@map("booking_rooms")
+  @@unique([bookingId, roomId])
+  @@index([bookingId])
+  @@index([roomId])
+}
+
+model Payment {
+  id                String           @id @default(cuid())
+  bookingId         String
+  amount            Decimal          @db.Decimal(10, 2)
+  currency          String           @default("USD")
+  status            PaymentStatus    @default(PENDING)
+  method            PaymentMethod
+  provider          String?          // stripe, paypal, etc.
+  providerId        String?          // External payment ID
+  gatewayResponse   Json?            // Payment gateway response
+  fees              Decimal?         @db.Decimal(10, 2)
+  netAmount         Decimal?         @db.Decimal(10, 2)
+  refundedAmount    Decimal?         @db.Decimal(10, 2) @default(0)
+  createdAt         DateTime         @default(now())
+  processedAt       DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+
+  // Relationships
+  booking           Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  refundRequests    RefundRequest[]
+
+  @@map("payments")
+  @@index([bookingId])
+  @@index([status])
+  @@index([method])
+  @@index([provider])
+  @@index([createdAt])
+}
+
+model RefundRequest {
+  id                String           @id @default(cuid())
+  paymentId         String
+  amount            Decimal          @db.Decimal(10, 2)
+  reason            String
+  status            RefundStatus     @default(PENDING)
+  processedBy       String?
+  processedAt       DateTime?
+  notes             String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Relationships
+  payment           Payment          @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@map("refund_requests")
+  @@index([paymentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AvailabilityRule {
+  id                String   @id @default(cuid())
+  propertyId        String
+  name              String
+  type              AvailabilityType
+  startDate         DateTime
+  endDate           DateTime
+  minStay           Int?
+  maxStay           Int?
+  checkInDays       Int[]    // Days of week allowed for check-in (0-6, 0=Sunday)
+  checkOutDays      Int[]    // Days of week allowed for check-out
+  priceAdjustment   Decimal? @db.Decimal(5, 2) // Percentage adjustment
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  property          Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("availability_rules")
+  @@index([propertyId])
+  @@index([type])
+  @@index([isActive])
+  @@index([startDate, endDate])
+}
+
+model PricingRule {
+  id                String   @id @default(cuid())
+  propertyId        String
+  name              String
+  type              PricingType
+  startDate         DateTime
+  endDate           DateTime
+  amount            Decimal  @db.Decimal(10, 2)
+  isPercentage      Boolean  @default(false)
+  minStay           Int?
+  maxOccupancy      Int?
+  appliesTo         String[] // Room types or specific rooms
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  property          Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("pricing_rules")
+  @@index([propertyId])
+  @@index([type])
+  @@index([isActive])
+  @@index([startDate, endDate])
+}
+
+model RoomAvailability {
+  id                String   @id @default(cuid())
+  roomId            String
+  date              DateTime
+  available         Boolean  @default(true)
+  price             Decimal? @db.Decimal(10, 2)
+  minStay           Int?
+  maxOccupancy      Int?
+  blockedReason     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  room              Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("room_availability")
+  @@unique([roomId, date])
+  @@index([roomId])
+  @@index([date])
+  @@index([available])
+}
+
+model BookingNotification {
+  id                String               @id @default(cuid())
+  bookingId         String
+  type              NotificationType
+  recipient         String               // Email or phone
+  channel           NotificationChannel
+  status            NotificationStatus   @default(PENDING)
+  content           Json                 // Email/SMS content
+  scheduledFor      DateTime?
+  sentAt            DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  retryCount        Int                  @default(0)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  // Relationships
+  booking           Booking              @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_notifications")
+  @@index([bookingId])
+  @@index([type])
+  @@index([status])
+  @@index([scheduledFor])
+}
+
+model BookingAuditLog {
+  id                String           @id @default(cuid())
+  bookingId         String
+  action            BookingAuditAction
+  oldValues         Json?
+  newValues         Json?
+  reason            String?
+  userId            String?
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime         @default(now())
+
+  // Relationships
+  booking           Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_audit_logs")
+  @@index([bookingId])
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model WaitlistEntry {
+  id                String   @id @default(cuid())
+  propertyId        String
+  guestInfo         Json     // Guest contact information
+  checkInDate       DateTime
+  checkOutDate      DateTime
+  adults            Int
+  children          Int      @default(0)
+  preferences       Json?
+  status            WaitlistStatus @default(ACTIVE)
+  notifiedAt        DateTime?
+  expiresAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("waitlist_entries")
+  @@index([propertyId])
+  @@index([status])
+  @@index([checkInDate, checkOutDate])
+  @@index([expiresAt])
+}
+
+// =============================================================================
+# BOOKING ENUMS
+# =============================================================================
+
+enum PropertyType {
+  ROOM
+  SUITE
+  VILLA
+  APARTMENT
+  COTTAGE
+  STUDIO
+}
+
+enum BookingStatus {
+  PENDING          // Awaiting confirmation
+  CONFIRMED        // Booking confirmed
+  CHECKED_IN       // Guest has checked in
+  CHECKED_OUT      // Guest has checked out
+  CANCELLED        // Booking cancelled
+  NO_SHOW          // Guest didn't arrive
+  COMPLETED        // Booking successfully completed
+  REFUNDED         // Booking refunded
+}
+
+enum BookingSource {
+  DIRECT           // Direct booking on website
+  PHONE            // Phone booking
+  EMAIL            // Email booking
+  WALK_IN          // Walk-in guest
+  OTA              // Online Travel Agency
+  TRAVEL_AGENT     // Travel agent
+  CORPORATE        // Corporate booking
+  GROUP            // Group booking
+}
+
+enum PaymentStatus {
+  PENDING          // Awaiting payment
+  PARTIAL          // Partial payment received
+  PAID             // Fully paid
+  FAILED           // Payment failed
+  REFUNDED         // Payment refunded
+  PARTIAL_REFUND   // Partial refund
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  CASH
+  CHECK
+  CRYPTO
+  MOBILE_PAYMENT
+  VOUCHER
+  POINTS
+}
+
+enum CancellationPolicy {
+  FLEXIBLE         // Free cancellation up to 24h before
+  MODERATE         // Free cancellation up to 48h before
+  STRICT           // Free cancellation up to 7 days before
+  SUPER_STRICT     // No free cancellation
+  CUSTOM           // Custom policy
+}
+
+enum RefundStatus {
+  PENDING          // Awaiting processing
+  APPROVED         // Refund approved
+  PROCESSED        // Refund sent to payment processor
+  COMPLETED        // Refund completed
+  REJECTED         // Refund request rejected
+  FAILED           // Refund failed
+}
+
+enum AvailabilityType {
+  BLOCKED          // Dates are blocked
+  MIN_STAY         // Minimum stay requirement
+  MAX_STAY         // Maximum stay limitation
+  CHECKIN_ONLY     // Specific check-in days
+  CHECKOUT_ONLY    // Specific check-out days
+  SEASONAL         // Seasonal availability
+}
+
+enum PricingType {
+  FIXED_AMOUNT     // Fixed amount adjustment
+  PERCENTAGE       // Percentage-based adjustment
+  PER_NIGHT        // Per night adjustment
+  PER_PERSON       // Per person adjustment
+  PACKAGE          // Package deal
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMATION
+  BOOKING_REMINDER
+  PAYMENT_CONFIRMATION
+  PAYMENT_FAILED
+  CANCELLATION_CONFIRMATION
+  CHECKIN_REMINDER
+  CHECKOUT_REMINDER
+  POST_STAY_REVIEW
+  WAITLIST_AVAILABLE
+  MARKETING
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum BookingAuditAction {
+  CREATED
+  UPDATED
+  CANCELLED
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  PAYMENT_ADDED
+  PAYMENT_FAILED
+  REFUND_PROCESSED
+  MODIFIED
+  NOTE_ADDED
+}
+
+enum WaitlistStatus {
+  ACTIVE
+  NOTIFIED
+  EXPIRED
+  CONVERTED
+  CANCELLED
+}

@@ -1,0 +1,555 @@
+# =============================================================================
+# DB-007: ANALYTICS AND REPORTING STORAGE FOR RESORT MANAGEMENT
+# =============================================================================
+
+# This schema file implements comprehensive analytics and reporting storage
+# for resort management operations, including enhanced event tracking,
+# custom reporting infrastructure, and performance optimizations.
+
+# =============================================================================
+# DB-007-1: ENHANCED ANALYTICS EVENTS SYSTEM
+# =============================================================================
+
+# Enhanced Analytics Events with resort-specific categorization
+model AnalyticsEvent {
+  id                String   @id @default(cuid())
+  siteId            String
+  sessionId         String?
+  userId            String?
+
+  # Event Classification
+  category          AnalyticsCategory
+  eventType         AnalyticsEventType
+  eventName         String
+  severity          EventSeverity @default(INFO)
+
+  # Entity Context
+  entityId          String?
+  entityType        String?
+  propertyId        String?
+
+  # Event Data
+  properties        Json?
+  metrics           Json?    // Numeric metrics for aggregation
+  dimensions        Json?    // Categorical dimensions
+  userIdentity      Json?    // User context (role, permissions, etc.)
+
+  # Temporal Data
+  occurredAt        DateTime @default(now())
+  processedAt       DateTime?
+
+  # Processing Metadata
+  batchId           String?
+  source            String?  // Event source (web, mobile, api, etc.)
+  version           String?  // Event schema version
+  isValid           Boolean  @default(true)
+  validationErrors  Json?
+
+  # Analytics Processing
+  isProcessed       Boolean  @default(false)
+  processingStage   ProcessingStage @default(RAW)
+
+  @@map("analytics_events")
+  @@index([siteId])
+  @@index([category])
+  @@index([eventType])
+  @@index([eventName])
+  @@index([propertyId])
+  @@index([entityId, entityType])
+  @@index([occurredAt])
+  @@index([processedAt])
+  @@index([isProcessed])
+  @@index([processingStage])
+  @@index([severity])
+  # Performance indexes for time-series queries
+  @@index([siteId, occurredAt(sort: Desc)])
+  @@index([siteId, category, occurredAt(sort: Desc)])
+  @@index([propertyId, occurredAt(sort: Desc)])
+  @@index([eventType, occurredAt(sort: Desc)])
+  # Composite indexes for common analytics queries
+  @@index([siteId, category, eventType, occurredAt(sort: Desc)])
+  @@index([siteId, propertyId, eventType, occurredAt(sort: Desc)])
+  # Partition key for monthly partitioning (PostgreSQL)
+  # PARTITION BY RANGE (occurred_at);
+}
+
+# DB-007-1b: Report Definitions for custom reports
+model ReportDefinition {
+  id                String   @id @default(cuid())
+  siteId            String
+  name              String
+  description       String?
+  category          ReportCategory @default(GENERAL)
+
+  # Report Configuration
+  type              ReportType
+  template          String?  // Built-in template identifier
+  config            Json     // Report configuration (queries, filters, etc.)
+
+  # Data Sources
+  dataSources       Json     // Array of data sources and configurations
+
+  # Scheduling
+  scheduleType      ScheduleType @default(MANUAL)
+  scheduleConfig    Json?    // Cron expression, interval, etc.
+  timezone          String   @default("UTC")
+
+  # Output Configuration
+  outputFormats     OutputFormat[] @default([PDF])
+  outputConfig      Json?    // Output formatting options
+
+  # Access Control
+  isPublic          Boolean  @default(false)
+  allowedRoles      String[] // Roles that can access this report
+  allowedUsers      String[] // Specific users that can access this report
+
+  # Metadata
+  tags              String[]
+  version           Int      @default(1)
+  isActive          Boolean  @default(true)
+  createdBy         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  # Relationships
+  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  creator           User     @relation("ReportCreator", fields: [createdBy], references: [id])
+  runs              ReportRun[]
+  visualizations    ReportVisualization[]
+
+  @@map("report_definitions")
+  @@unique([siteId, name])
+  @@index([siteId])
+  @@index([category])
+  @@index([type])
+  @@index([scheduleType])
+  @@index([isActive])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([tags]) // PostgreSQL GIN index for array search
+}
+
+# DB-007-1b: Report Runs for execution tracking
+model ReportRun {
+  id                String   @id @default(cuid())
+  reportDefinitionId String
+
+  # Run Configuration
+  parameters        Json?    // Runtime parameters override
+  filters           Json?    // Applied filters for this run
+
+  # Execution Details
+  status            RunStatus @default(PENDING)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  duration          Int?     // Duration in milliseconds
+
+  # Data Processing
+  totalRecords      Int?
+  processedRecords  Int?
+
+  # Output
+  outputFormat      OutputFormat
+  outputFiles       Json?    // Array of generated file metadata
+  fileSize          Int?     // Total file size in bytes
+
+  # Error Handling
+  errorMessage      String?
+  errorDetails      Json?
+  retryCount        Int      @default(0)
+  maxRetries        Int      @default(3)
+
+  # Metadata
+  triggeredBy       String?  // User or system that triggered the run
+  triggeredAt       DateTime @default(now())
+
+  # Relationships
+  reportDefinition  ReportDefinition @relation(fields: [reportDefinitionId], references: [id], onDelete: Cascade)
+
+  @@map("report_runs")
+  @@index([reportDefinitionId])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@index([triggeredAt])
+  @@index([triggeredBy])
+  # Performance indexes for monitoring
+  @@index([reportDefinitionId, status, startedAt(sort: Desc)])
+  @@index([status, startedAt(sort: Desc)])
+}
+
+# DB-007-1c: Report Visualizations for saved chart configurations
+model ReportVisualization {
+  id                String   @id @default(cuid())
+  reportDefinitionId String
+  name              String
+  description       String?
+
+  # Visualization Configuration
+  type              VisualizationType
+  config            Json     // Chart configuration (axes, colors, etc.)
+  dataSource        Json     // Data source binding for this visualization
+
+  # Layout and Display
+  position          Json?    // Position in dashboard (x, y, width, height)
+  layout            Json?    // Layout configuration
+
+  # Interaction
+  isInteractive     Boolean  @default(false)
+  drilldownConfig   Json?    // Drill-down configuration
+
+  # Metadata
+  isActive          Boolean  @default(true)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  # Relationships
+  reportDefinition  ReportDefinition @relation(fields: [reportDefinitionId], references: [id], onDelete: Cascade)
+
+  @@map("report_visualizations")
+  @@unique([reportDefinitionId, name])
+  @@index([reportDefinitionId])
+  @@index([type])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+# =============================================================================
+# DB-007-2: PERFORMANCE AIDS FOR ANALYTICS
+# =============================================================================
+
+# DB-007-2b: Materialized Daily Summary for performance optimization
+model AnalyticsDailySummary {
+  id                String   @id @default(cuid())
+  siteId            String
+  propertyId        String?
+  date              DateTime
+
+  # Event Counts by Category
+  totalEvents       Int      @default(0)
+  propertyViews     Int      @default(0)
+  bookingInterests  Int      @default(0)
+  bookings          Int      @default(0)
+  reviews           Int      @default(0)
+
+  # Revenue Metrics
+  totalRevenue      Decimal  @db.Decimal(15, 2) @default(0)
+  averageBookingValue Decimal @db.Decimal(10, 2) @default(0)
+
+  # Engagement Metrics
+  uniqueSessions    Int      @default(0)
+  uniqueUsers       Int      @default(0)
+  bounceRate        Decimal  @db.Decimal(5, 2) @default(0)
+  avgSessionDuration Int     @default(0) // in seconds
+
+  # Conversion Metrics
+  leadToBookingRate Decimal  @db.Decimal(5, 2) @default(0)
+  bookingConversionRate Decimal @db.Decimal(5, 2) @default(0)
+
+  # Performance Metrics
+  avgResponseTime   Int      @default(0) // in milliseconds
+  errorRate         Decimal  @db.Decimal(5, 2) @default(0)
+
+  # Additional Metrics (JSON for flexibility)
+  customMetrics     Json?
+
+  # Materialized View Metadata
+  lastUpdated       DateTime @default(now())
+
+  @@map("analytics_daily_summary")
+  @@unique([siteId, propertyId, date])
+  @@index([siteId, date(sort: Desc)])
+  @@index([propertyId, date(sort: Desc)])
+  @@index([date])
+  # Performance indexes for common queries
+  @@index([siteId, date, totalEvents(sort: Desc)])
+  @@index([siteId, date, totalRevenue(sort: Desc)])
+  @@index([propertyId, date, bookingConversionRate(sort: Desc)])
+}
+
+# DB-007-2c: Analytics Exports for generated file storage
+model AnalyticsExport {
+  id                String   @id @default(cuid())
+  siteId            String
+
+  # Export Configuration
+  type              ExportType
+  format            ExportFormat
+  config            Json     // Export configuration (filters, columns, etc.)
+
+  # Data Source
+  sourceType        String   // Table, view, or custom query
+  sourceConfig      Json     // Source configuration
+
+  # Export Details
+  status            ExportStatus @default(PENDING)
+  totalRecords      Int?
+  processedRecords  Int?
+  fileSize          Int?     // in bytes
+
+  # File Storage
+  filePath          String?
+  fileName          String?
+  fileUrl           String?
+  storageProvider   String?  // S3, Azure, local, etc.
+  storageMetadata   Json?    // Storage-specific metadata
+
+  # Execution Details
+  startedAt         DateTime?
+  completedAt       DateTime?
+  duration          Int?     // in milliseconds
+
+  # Access Control
+  expiresAt         DateTime? // File expiration
+  isPublic          Boolean  @default(false)
+  accessKey         String?  // For secure access
+
+  # Error Handling
+  errorMessage      String?
+  errorDetails      Json?
+  retryCount        Int      @default(0)
+
+  # Metadata
+  requestedBy       String?
+  requestedAt       DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  @@map("analytics_exports")
+  @@index([siteId])
+  @@index([type])
+  @@index([format])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@index([requestedBy])
+  @@index([expiresAt])
+  @@index([isPublic])
+  # Performance indexes
+  @@index([siteId, status, requestedAt(sort: Desc)])
+  @@index([status, completedAt(sort: Desc)])
+}
+
+# =============================================================================
+# DB-007: ANALYTICS ENUMS
+# =============================================================================
+
+enum AnalyticsCategory {
+  # Property Analytics
+  PROPERTY_PERFORMANCE
+  PROPERTY_VIEWS
+  PROPERTY_COMPARISON
+  OCCUPANCY_ANALYTICS
+  REVENUE_ANALYTICS
+
+  # Booking Analytics
+  BOOKING_FUNNEL
+  BOOKING_CONVERSION
+  CANCELLATION_ANALYTICS
+  PRICING_ANALYTICS
+  AVAILABILITY_ANALYTICS
+
+  # Guest Analytics
+  GUEST_BEHAVIOR
+  GUEST_SATISFACTION
+  GUEST_RETENTION
+  GUEST_DEMOGRAPHICS
+
+  # Marketing Analytics
+  CAMPAIGN_PERFORMANCE
+  LEAD_GENERATION
+  CONVERSION_ANALYTICS
+  TRAFFIC_SOURCES
+
+  # Operational Analytics
+  STAFF_PERFORMANCE
+  SERVICE_QUALITY
+  MAINTENANCE_ANALYTICS
+  INVENTORY_ANALYTICS
+
+  # Financial Analytics
+  REVENUE_TRACKING
+  COST_ANALYSIS
+  PROFITABILITY
+  FORECASTING
+
+  # System Analytics
+  PERFORMANCE_METRICS
+  ERROR_TRACKING
+  SECURITY_EVENTS
+  AUDIT_EVENTS
+
+  # General Analytics
+  USER_BEHAVIOR
+  SYSTEM_USAGE
+  CUSTOM_EVENTS
+}
+
+enum AnalyticsEventType {
+  # Property Events
+  PROPERTY_VIEWED
+  PROPERTY_SEARCHED
+  PROPERTY_COMPARED
+  PROPERTY_FAVORITED
+
+  # Booking Events
+  BOOKING_INITIATED
+  BOOKING_COMPLETED
+  BOOKING_CANCELLED
+  BOOKING_MODIFIED
+  PAYMENT_PROCESSED
+  PAYMENT_FAILED
+
+  # User Events
+  USER_REGISTERED
+  USER_LOGIN
+  USER_LOGOUT
+  PROFILE_UPDATED
+
+  # Interaction Events
+  FORM_SUBMITTED
+  BUTTON_CLICKED
+  PAGE_VIEWED
+  SEARCH_PERFORMED
+  FILTER_APPLIED
+
+  # System Events
+  ERROR_OCCURRED
+  PERFORMANCE_RECORDED
+  SECURITY_ALERT
+  DATA_EXPORTED
+
+  # Custom Events
+  CUSTOM_PROPERTY_EVENT
+  CUSTOM_BOOKING_EVENT
+  CUSTOM_USER_EVENT
+}
+
+enum EventSeverity {
+  DEBUG
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum ProcessingStage {
+  RAW
+  VALIDATED
+  ENRICHED
+  AGGREGATED
+  ARCHIVED
+}
+
+enum ReportCategory {
+  GENERAL
+  PROPERTY
+  BOOKING
+  GUEST
+  MARKETING
+  FINANCIAL
+  OPERATIONAL
+  COMPLIANCE
+  CUSTOM
+}
+
+enum ReportType {
+  TABULAR
+  SUMMARY
+  DETAILED
+  GRAPHICAL
+  DASHBOARD
+  COMPARATIVE
+  TREND
+  FORECAST
+}
+
+enum ScheduleType {
+  MANUAL
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  CUSTOM
+}
+
+enum OutputFormat {
+  PDF
+  EXCEL
+  CSV
+  JSON
+  HTML
+  WORD
+  POWERPOINT
+  IMAGE
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  TIMEOUT
+}
+
+enum VisualizationType {
+  TABLE
+  LINE_CHART
+  BAR_CHART
+  PIE_CHART
+  AREA_CHART
+  SCATTER_PLOT
+  HEATMAP
+  GAUGE
+  KPI
+  FUNNEL
+  MAP
+  CUSTOM
+}
+
+enum ExportType {
+  DATA_EXPORT
+  REPORT_EXPORT
+  ANALYTICS_EXPORT
+  BACKUP_EXPORT
+  COMPLIANCE_EXPORT
+  CUSTOM_EXPORT
+}
+
+enum ExportFormat {
+  CSV
+  EXCEL
+  JSON
+  XML
+  PDF
+  PARQUET
+  AVRO
+}
+
+enum ExportStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+# =============================================================================
+# EXISTING MODEL UPDATES FOR ANALYTICS ENHANCEMENT
+# =============================================================================
+
+# Note: The following existing models need to be updated in the main schema:
+# 1. Site model - add relationship to ReportDefinition
+# 2. User model - add relationship to ReportDefinition as creator
+# 3. Property model - add analytics-specific fields if needed
+
+# Example updates needed in main schema:
+# In Site model, add:
+# reports           ReportDefinition[]
+
+# In User model, add:
+# createdReports    ReportDefinition[] @relation("ReportCreator")

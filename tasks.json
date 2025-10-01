@@ -1,0 +1,2127 @@
+{
+  "phases": [
+    {
+      "phase": "Phase 1 - Database Updates",
+      "tasks": [
+        {
+          "id": "DB-001",
+          "title": "Align dashboard metrics persistence",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-001-1",
+              "title": "Model aggregated KPI query sources",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-001-1a",
+                  "title": "Confirm metrics coverage across `properties`, `booking_interests`, `property_views`, `system_health` tables",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-001-1b",
+                  "title": "Define consolidated site-scoped dashboard metrics view",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-001-2",
+              "title": "Optimize dashboard query indexes",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-001-2a",
+                  "title": "Add composite index on `booking_interests (siteId, status, submittedAt)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-001-2b",
+                  "title": "Create daily rollup index on `property_views (siteId, viewedAt)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-001-2c",
+                  "title": "Enforce unique service key on `system_health` table",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-002",
+          "title": "Finalize property and room schema",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-002-1",
+              "title": "Validate property, room, availability, and pricing tables",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-002-1a",
+                  "title": "Verify `properties` fields match admin scope (type, status, pricing metadata)",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-002-1b",
+                  "title": "Ensure `rooms` include capacity, amenities, media arrays",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-002-1c",
+                  "title": "Align `availability` records with date range and status columns",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-002-2",
+              "title": "Strengthen relational constraints and indexes",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-002-2a",
+                  "title": "Add foreign keys linking rooms, availability, and pricing to properties",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-002-2b",
+                  "title": "Index `properties` by `siteId`, `status`, and `isActive`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-002-2c",
+                  "title": "Create seasonal pricing index on `pricing (propertyId, season, effectiveFrom)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-003",
+          "title": "Implement booking interest lead storage",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-003-1",
+              "title": "Structure `booking_interests` table",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-003-1a",
+                  "title": "Capture customer contact, stay dates, guest counts, and notes fields",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-003-1b",
+                  "title": "Apply unique constraint on `referenceCode` with default `status` value",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-003-2",
+              "title": "Support follow-up tracking and performance",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-003-2a",
+                  "title": "Create `booking_interest_activity` history table",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-003-2b",
+                  "title": "Index `booking_interests` by `(siteId, status)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-003-2c",
+                  "title": "Add trigger updating `lastContactedAt` on status change",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-004",
+          "title": "Harden user and role management schema",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-004-1",
+              "title": "Confirm core authentication tables",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-004-1a",
+                  "title": "Ensure `users` table enforces site-scoped unique email and password hash storage",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-004-1b",
+                  "title": "Seed `roles` definitions with ADMIN, EDITOR, and VIEWER baseline permissions",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-004-1c",
+                  "title": "Implement `user_roles` junction table with composite primary key",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-004-2",
+              "title": "Augment session and audit persistence",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-004-2a",
+                  "title": "Review `sessions` and `refresh_tokens` schema for JWT lifecycle support",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-004-2b",
+                  "title": "Index `audit_logs` by `(entityType, entityId, occurredAt)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-004-2c",
+                  "title": "Add `user_activity` table capturing authentication events",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-005",
+          "title": "Design CMS content storage",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-005-1",
+              "title": "Align page, block, and version tables",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-005-1a",
+                  "title": "Ensure `cms_pages` capture slug, status, and publish metadata",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-005-1b",
+                  "title": "Link `content_blocks` to pages with ordering and block type metadata",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-005-1c",
+                  "title": "Create `content_versions` history table with diff payload support",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-005-2",
+              "title": "Optimize CMS data access",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-005-2a",
+                  "title": "Index `cms_pages` on `(siteId, status, slug)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-005-2b",
+                  "title": "Add GIN index for JSONB content fields",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-005-2c",
+                  "title": "Establish `seo_metadata` table keyed by page identifier",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-006",
+          "title": "Prepare media library persistence",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-006-1",
+              "title": "Confirm media metadata model",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-006-1a",
+                  "title": "Store file URI, mime type, size, dimensions, and checksum values",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-006-1b",
+                  "title": "Add `storageProvider`, `siteId`, and `uploadedBy` columns",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-006-2",
+              "title": "Support library organization",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-006-2a",
+                  "title": "Create `media_folders` with parent-child relationship mapping",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-006-2b",
+                  "title": "Add `media_tags` catalog and `media_tag_links` join table",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-006-2c",
+                  "title": "Model `media_thumbnails` referencing source media records",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-006-3",
+              "title": "Improve media lookup performance",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-006-3a",
+                  "title": "Create trigram index on `media.filename` for search support",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-006-3b",
+                  "title": "Index `media` by `(siteId, createdAt)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-006-3c",
+                  "title": "Add partial index for `media` on `status = 'ACTIVE'`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-007",
+          "title": "Enable analytics and reporting storage",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-007-1",
+              "title": "Create analytics and reporting tables",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-007-1a",
+                  "title": "Define `analytics_events` schema with JSONB payload",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-007-1b",
+                  "title": "Add `report_definitions` and `report_runs` tables",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-007-1c",
+                  "title": "Model `report_visualizations` for saved chart configurations",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-007-2",
+              "title": "Set up performance aids for analytics queries",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-007-2a",
+                  "title": "Partition `analytics_events` by month on `occurredAt`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-007-2b",
+                  "title": "Create materialized `analytics_daily_summary` table",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-007-2c",
+                  "title": "Define `analytics_exports` table storing generated files",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-008",
+          "title": "Set up configuration storage",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-008-1",
+              "title": "Model site, brand, integration, and security settings tables",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-008-1a",
+                  "title": "Use JSONB columns for flexible configuration payloads",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-008-1b",
+                  "title": "Add optimistic lock `version` column to settings tables",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-008-1c",
+                  "title": "Ensure each settings table includes `siteId` foreign keys",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-008-2",
+              "title": "Provide history and backup tracking",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-008-2a",
+                  "title": "Create `settings_snapshots` with backup metadata",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-008-2b",
+                  "title": "Add trigger logging configuration changes into `audit_logs`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-008-2c",
+                  "title": "Index settings snapshots by `(siteId, createdAt)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-009",
+          "title": "Strengthen system maintenance data layer",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-009-1",
+              "title": "Create health, log, and maintenance tracking tables",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-009-1a",
+                  "title": "Implement `system_health` per service status entries",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-009-1b",
+                  "title": "Define `system_logs` storing level, context, and payload",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-009-1c",
+                  "title": "Add `maintenance_jobs` table for backups and optimizations",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-009-2",
+              "title": "Enforce retention and queryability",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-009-2a",
+                  "title": "Set retention policy process for `system_logs`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-009-2b",
+                  "title": "Index `system_health` on `siteId` and `checkedAt`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-009-2c",
+                  "title": "Create view summarizing pending maintenance jobs",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DB-010",
+          "title": "Ensure tenancy and auditing consistency",
+          "agent_requirement": "DB-Specialist-Agent",
+          "subtasks": [
+            {
+              "id": "DB-010-1",
+              "title": "Verify site scoping across tables",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-010-1a",
+                  "title": "Audit tables to confirm `siteId` presence and foreign key constraints",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-010-1b",
+                  "title": "Align cascade rules with isolation requirements",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DB-010-2",
+              "title": "Standardize audit log schema and coverage",
+              "agent_requirement": "DB-Specialist-Agent",
+              "microtasks": [
+                {
+                  "id": "DB-010-2a",
+                  "title": "Unify `audit_logs` columns for actor, module, and entity references",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-010-2b",
+                  "title": "Index audit logs by `(siteId, module, occurredAt)`",
+                  "agent_requirement": "DB-Specialist-Agent"
+                },
+                {
+                  "id": "DB-010-2c",
+                  "title": "Backfill module identifiers for existing audit records",
+                  "agent_requirement": "DB-Specialist-Agent"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Phase 2 - Backend Development per Page",
+      "tasks": [
+        {
+          "id": "BE-001",
+          "title": "Implement dashboard analytics API suite",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-001-1",
+              "title": "Design dashboard metrics and DTO contracts",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-001-1a",
+                  "title": "Define `DashboardMetrics` and `Activity` interfaces per scope requirements",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-001-1b",
+                  "title": "Create query parameter validation for time range and site filters",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-001-2",
+              "title": "Build DashboardService aggregations",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-001-2a",
+                  "title": "Aggregate property availability, booking statistics, and view counts",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-001-2b",
+                  "title": "Integrate system health status into metrics responses",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-001-2c",
+                  "title": "Implement caching hooks for dashboard metrics retrieval",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-001-3",
+              "title": "Expose dashboard controller endpoints",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-001-3a",
+                  "title": "Wire GET `/api/v1/admin/dashboard/metrics` with RBAC checks",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-001-3b",
+                  "title": "Implement `/api/v1/admin/dashboard/recent-activity` with pagination",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-001-3c",
+                  "title": "Provide `/api/v1/admin/dashboard/export` streaming with audit logging",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-002",
+          "title": "Develop properties management backend",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-002-1",
+              "title": "Define property, room, availability, and pricing DTOs",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-002-1a",
+                  "title": "Create schema validation for property create and update payloads",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-002-1b",
+                  "title": "Build room DTOs covering capacity, amenities, and media arrays",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-002-1c",
+                  "title": "Model availability and pricing request payloads with date validation",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-002-2",
+              "title": "Implement PropertyService business logic",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-002-2a",
+                  "title": "Handle property CRUD operations with cascade updates",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-002-2b",
+                  "title": "Manage room lifecycle and amenity synchronization",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-002-2c",
+                  "title": "Integrate media upload references for property photos",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-002-3",
+              "title": "Create property controllers and routes",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-002-3a",
+                  "title": "Register admin property routes with pagination and filters",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-002-3b",
+                  "title": "Implement availability and pricing endpoints with validation",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-002-3c",
+                  "title": "Apply permission guards for EDITOR and ADMIN roles",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-003",
+          "title": "Deliver booking interest management services",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-003-1",
+              "title": "Implement public booking submission flow",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-003-1a",
+                  "title": "Validate public booking form inputs and apply rate limiting",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-003-1b",
+                  "title": "Generate unique reference codes and persist leads",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-003-1c",
+                  "title": "Log submission events for audit and analytics",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-003-2",
+              "title": "Build admin booking interest endpoints",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-003-2a",
+                  "title": "Implement list and detail endpoints with filtering and sorting",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-003-2b",
+                  "title": "Handle status changes and admin notes updates",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-003-2c",
+                  "title": "Create CSV and Excel export actions",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-003-3",
+              "title": "Integrate availability and follow-up workflow",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-003-3a",
+                  "title": "Connect property availability check API",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-003-3b",
+                  "title": "Trigger follow-up reminders based on `lastContactedAt`",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-003-3c",
+                  "title": "Ensure audit events for contact and confirm operations",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-004",
+          "title": "Implement users and roles backend",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-004-1",
+              "title": "Develop user lifecycle services",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-004-1a",
+                  "title": "Create user onboarding flow including invites and password setup",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-004-1b",
+                  "title": "Implement activate and deactivate endpoints",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-004-1c",
+                  "title": "Record login activity and enforce password policies",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-004-2",
+              "title": "Manage RBAC roles and permissions",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-004-2a",
+                  "title": "Expose role CRUD APIs with default permissions",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-004-2b",
+                  "title": "Assign and revoke roles via service layer",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-004-2c",
+                  "title": "Integrate permission checks into authorization middleware",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-004-3",
+              "title": "Provide session and security endpoints",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-004-3a",
+                  "title": "List active sessions per user",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-004-3b",
+                  "title": "Implement session revocation endpoint",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-004-3c",
+                  "title": "Audit security configuration changes and session events",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-005",
+          "title": "Build CMS content backend",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-005-1",
+              "title": "Define page and block data contracts",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-005-1a",
+                  "title": "Define page create and update payloads with SEO metadata",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-005-1b",
+                  "title": "Model content block types and ordering schema",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-005-1c",
+                  "title": "Validate content JSON structures per block type",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-005-2",
+              "title": "Implement CMS service and versioning",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-005-2a",
+                  "title": "Implement page CRUD with draft and published states",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-005-2b",
+                  "title": "Create versioning service capturing content diffs",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-005-2c",
+                  "title": "Handle publish flow with cache invalidation hooks",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-005-3",
+              "title": "Expose CMS route controllers",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-005-3a",
+                  "title": "Register page and block endpoints with RBAC enforcement",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-005-3b",
+                  "title": "Implement SEO metadata update endpoint",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-005-3c",
+                  "title": "Add error handling for invalid content states",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-006",
+          "title": "Implement media management backend",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-006-1",
+              "title": "Build upload and processing pipeline",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-006-1a",
+                  "title": "Integrate file storage adapter for uploads",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-006-1b",
+                  "title": "Generate thumbnails and persist transformation metadata",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-006-1c",
+                  "title": "Capture media metadata and checksum for duplicate detection",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-006-2",
+              "title": "Deliver library organization features",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-006-2a",
+                  "title": "Implement folder CRUD plus move and copy actions",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-006-2b",
+                  "title": "Add tagging endpoints with search filters",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-006-2c",
+                  "title": "Provide media stats endpoint for usage analytics",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-006-3",
+              "title": "Support optimization and cleanup operations",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-006-3a",
+                  "title": "Implement optimize and transcode endpoints",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-006-3b",
+                  "title": "Create cleanup job for unused media assets",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-006-3c",
+                  "title": "Audit all media operations for compliance",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-007",
+          "title": "Deliver reports and analytics services",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-007-1",
+              "title": "Implement analytics data ingestion",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-007-1a",
+                  "title": "Implement `/api/v1/analytics/events` endpoint",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-007-1b",
+                  "title": "Validate and normalize analytics event payloads",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-007-1c",
+                  "title": "Apply retention policy for analytics events",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-007-2",
+              "title": "Build custom report lifecycle",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-007-2a",
+                  "title": "Create report definition CRUD with filter builders",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-007-2b",
+                  "title": "Implement report execution and caching",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-007-2c",
+                  "title": "Support scheduling and notification for reports",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-007-3",
+              "title": "Expose visualization and export APIs",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-007-3a",
+                  "title": "Serve chart data for dashboard and analytics pages",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-007-3b",
+                  "title": "Enable visualization export to PDF or PNG",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-007-3c",
+                  "title": "Record export actions in audit logs",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-008",
+          "title": "Implement settings and configuration backend",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-008-1",
+              "title": "Deliver site and brand settings APIs",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-008-1a",
+                  "title": "Implement retrieval and update endpoints for site settings",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-008-1b",
+                  "title": "Add brand asset upload and color palette endpoints",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-008-1c",
+                  "title": "Support preview endpoint for pending configuration changes",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-008-2",
+              "title": "Build integration management workflow",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-008-2a",
+                  "title": "Implement integration CRUD endpoints",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-008-2b",
+                  "title": "Create connectivity test for integration entries",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-008-2c",
+                  "title": "Store sanitized integration credentials securely",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-008-3",
+              "title": "Expose security configuration endpoints",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-008-3a",
+                  "title": "Expose session listing and revocation APIs",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-008-3b",
+                  "title": "Add 2FA configuration endpoints",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-008-3c",
+                  "title": "Validate security policy updates with RBAC checks",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "BE-009",
+          "title": "Implement system and maintenance backend",
+          "agent_requirement": "Backend-API-Agent",
+          "subtasks": [
+            {
+              "id": "BE-009-1",
+              "title": "Develop system health and logging endpoints",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-009-1a",
+                  "title": "Aggregate service checks for `/api/v1/system/health`",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-009-1b",
+                  "title": "Provide paginated `/api/v1/system/logs` with filters",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-009-1c",
+                  "title": "Secure log clear operation with audit trail",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-009-2",
+              "title": "Implement backup and restore operations",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-009-2a",
+                  "title": "Implement backup job trigger and metadata storage",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-009-2b",
+                  "title": "Handle restore endpoint with safety validation",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-009-2c",
+                  "title": "List and download backup assets",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            },
+            {
+              "id": "BE-009-3",
+              "title": "Provide database maintenance commands",
+              "agent_requirement": "Backend-API-Agent",
+              "microtasks": [
+                {
+                  "id": "BE-009-3a",
+                  "title": "Wire database optimize endpoint with job status reporting",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-009-3b",
+                  "title": "Expose migration trigger with locking safeguards",
+                  "agent_requirement": "Backend-API-Agent"
+                },
+                {
+                  "id": "BE-009-3c",
+                  "title": "Restrict maintenance endpoints to SUPER_ADMIN role",
+                  "agent_requirement": "Backend-API-Agent"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Phase 3 - Integration Layer",
+      "tasks": [
+        {
+          "id": "IN-001",
+          "title": "Implement authentication and tenant middleware stack",
+          "agent_requirement": "Integration-Agent",
+          "subtasks": [
+            {
+              "id": "IN-001-1",
+              "title": "Build JWT validation pipeline",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-001-1a",
+                  "title": "Verify access tokens and refresh rotation logic",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-001-1b",
+                  "title": "Load user context with roles and permissions",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-001-1c",
+                  "title": "Handle token expiration and standardized error responses",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-001-2",
+              "title": "Propagate tenant-aware request context",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-001-2a",
+                  "title": "Attach `siteId` context from tokens to request scope",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-001-2b",
+                  "title": "Validate site access permissions against role grants",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-001-2c",
+                  "title": "Ensure database queries receive tenant context",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-001-3",
+              "title": "Deliver authorization guard utilities",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-001-3a",
+                  "title": "Implement `requirePermission` middleware",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-001-3b",
+                  "title": "Provide `requireRole` guard for privileged endpoints",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-001-3c",
+                  "title": "Integrate guards across route modules",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "IN-002",
+          "title": "Set up request validation and rate limiting",
+          "agent_requirement": "Integration-Agent",
+          "subtasks": [
+            {
+              "id": "IN-002-1",
+              "title": "Establish schema validation framework",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-002-1a",
+                  "title": "Adopt Zod schemas for API payload validation",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-002-1b",
+                  "title": "Centralize validation error handling responses",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-002-1c",
+                  "title": "Share DTO schemas across services for consistency",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-002-2",
+              "title": "Configure rate limiting strategy",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-002-2a",
+                  "title": "Configure rate limiting for public booking endpoints",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-002-2b",
+                  "title": "Add abuse protection for sensitive admin routes",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-002-2c",
+                  "title": "Expose rate limit headers to clients",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-002-3",
+              "title": "Normalize error and response handling",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-002-3a",
+                  "title": "Implement error translator matching `APIResponse` shape",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-002-3b",
+                  "title": "Log validation and throttling incidents",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-002-3c",
+                  "title": "Document shared error codes and guidance",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "IN-003",
+          "title": "Configure caching and performance layer",
+          "agent_requirement": "Integration-Agent",
+          "subtasks": [
+            {
+              "id": "IN-003-1",
+              "title": "Set up cache infrastructure",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-003-1a",
+                  "title": "Provision Redis client and connection health checks",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-003-1b",
+                  "title": "Define cache namespaces for dashboard metrics",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-003-1c",
+                  "title": "Implement cache busting strategy hooks",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-003-2",
+              "title": "Apply module-specific caching",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-003-2a",
+                  "title": "Cache property list responses per site filters",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-003-2b",
+                  "title": "Cache CMS published pages and invalidate on publish events",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-003-2c",
+                  "title": "Cache media metadata for frequent reads",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-003-3",
+              "title": "Instrument performance monitoring",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-003-3a",
+                  "title": "Add query timing metrics for dashboard endpoints",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-003-3b",
+                  "title": "Instrument cache hit and miss counters",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-003-3c",
+                  "title": "Alert on cache connectivity failures",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "IN-004",
+          "title": "Implement audit and event logging pipeline",
+          "agent_requirement": "Integration-Agent",
+          "subtasks": [
+            {
+              "id": "IN-004-1",
+              "title": "Standardize audit logging framework",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-004-1a",
+                  "title": "Define audit log payload format and severity levels",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-004-1b",
+                  "title": "Integrate audit hooks into CRUD services across modules",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-004-1c",
+                  "title": "Ensure audit entries capture site, user, and module identifiers",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-004-2",
+              "title": "Stream analytics events reliably",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-004-2a",
+                  "title": "Persist analytics events into `analytics_events` store",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-004-2b",
+                  "title": "Support asynchronous queue for heavy analytics events",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-004-2c",
+                  "title": "Deduplicate repeated analytics submissions",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-004-3",
+              "title": "Enhance operational logging",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-004-3a",
+                  "title": "Implement structured logger with correlation identifiers",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-004-3b",
+                  "title": "Capture request and response metadata for troubleshooting",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-004-3c",
+                  "title": "Forward critical logs to monitoring pipeline",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "IN-005",
+          "title": "Integrate external services and background jobs",
+          "agent_requirement": "Integration-Agent",
+          "subtasks": [
+            {
+              "id": "IN-005-1",
+              "title": "Abstract media storage adapters",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-005-1a",
+                  "title": "Implement storage provider interface for media uploads",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-005-1b",
+                  "title": "Configure S3 and local adapters per environment",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-005-1c",
+                  "title": "Handle signed URL generation for private assets",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-005-2",
+              "title": "Support integration connector workflows",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-005-2a",
+                  "title": "Implement integration registry for settings module",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-005-2b",
+                  "title": "Provide test harness for `/settings/integrations/:id/test` endpoint",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-005-2c",
+                  "title": "Securely store sanitized credentials via adapter",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            },
+            {
+              "id": "IN-005-3",
+              "title": "Coordinate background job scheduling",
+              "agent_requirement": "Integration-Agent",
+              "microtasks": [
+                {
+                  "id": "IN-005-3a",
+                  "title": "Set up job queue for media optimization and report generation",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-005-3b",
+                  "title": "Schedule dashboard summary refresh tasks",
+                  "agent_requirement": "Integration-Agent"
+                },
+                {
+                  "id": "IN-005-3c",
+                  "title": "Monitor job execution KPIs and failure alerts",
+                  "agent_requirement": "Integration-Agent"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Phase 4 - Testing & QA",
+      "tasks": [
+        {
+          "id": "QA-001",
+          "title": "Build unit test suites per service",
+          "agent_requirement": "QA-Agent",
+          "subtasks": [
+            {
+              "id": "QA-001-1",
+              "title": "Cover dashboard and analytics services",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-001-1a",
+                  "title": "Test DashboardService aggregations with seeded data",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-001-1b",
+                  "title": "Mock cache integration to verify fallback behavior",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-001-2",
+              "title": "Test property and booking services",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-001-2a",
+                  "title": "Cover property CRUD validation rules",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-001-2b",
+                  "title": "Test booking interest status transitions",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-001-2c",
+                  "title": "Validate availability checks with fixtures",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-001-3",
+              "title": "Exercise CMS, media, and settings services",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-001-3a",
+                  "title": "Unit test CMS versioning rollback logic",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-001-3b",
+                  "title": "Test media processing pipeline with sample files",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-001-3c",
+                  "title": "Verify settings service diff and preview functionality",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "QA-002",
+          "title": "Implement integration test scenarios",
+          "agent_requirement": "QA-Agent",
+          "subtasks": [
+            {
+              "id": "QA-002-1",
+              "title": "Validate end-to-end property lifecycle",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-002-1a",
+                  "title": "Scenario: create property, add room, publish availability",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-002-1b",
+                  "title": "Scenario: delete property and ensure cascading cleanup",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-002-2",
+              "title": "Cover booking interest flows",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-002-2a",
+                  "title": "Scenario: public submission through admin confirmation",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-002-2b",
+                  "title": "Scenario: rate limit behavior for repeated submissions",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-002-2c",
+                  "title": "Scenario: booking export file validation",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-002-3",
+              "title": "Test CMS publish and caching integration",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-002-3a",
+                  "title": "Scenario: create page, publish, verify cache invalidation",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-002-3b",
+                  "title": "Scenario: revert to previous content version",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-002-3c",
+                  "title": "Scenario: unauthorized page update is rejected",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "QA-003",
+          "title": "Establish API contract testing and mocks",
+          "agent_requirement": "QA-Agent",
+          "subtasks": [
+            {
+              "id": "QA-003-1",
+              "title": "Generate and maintain OpenAPI specifications",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-003-1a",
+                  "title": "Document endpoints across admin and public APIs",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-003-1b",
+                  "title": "Automate OpenAPI generation in CI workflow",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-003-2",
+              "title": "Provide mock services for integration partners",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-003-2a",
+                  "title": "Create mock server for public booking endpoints",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-003-2b",
+                  "title": "Mock external integration connectors for testing",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-003-2c",
+                  "title": "Validate contract tests against mocks and live endpoints",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-003-3",
+              "title": "Execute performance and load smoke tests",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-003-3a",
+                  "title": "Set up load tests for dashboard metrics endpoints",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-003-3b",
+                  "title": "Run concurrency tests on booking interest APIs",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-003-3c",
+                  "title": "Track performance metrics against SLA targets",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "QA-004",
+          "title": "Configure CI pipeline and quality gates",
+          "agent_requirement": "QA-Agent",
+          "subtasks": [
+            {
+              "id": "QA-004-1",
+              "title": "Set up continuous integration workflows",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-004-1a",
+                  "title": "Configure pipeline to run lint, unit, and integration suites",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-004-1b",
+                  "title": "Enforce coverage thresholds per module",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-004-1c",
+                  "title": "Publish test reports and artifacts from CI",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-004-2",
+              "title": "Add static analysis and security checks",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-004-2a",
+                  "title": "Integrate TypeScript strict mode and ESLint rules",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-004-2b",
+                  "title": "Add dependency vulnerability scanning",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-004-2c",
+                  "title": "Set up Prisma schema migration linting",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            },
+            {
+              "id": "QA-004-3",
+              "title": "Automate release readiness validation",
+              "agent_requirement": "QA-Agent",
+              "microtasks": [
+                {
+                  "id": "QA-004-3a",
+                  "title": "Automate regression suite before deployment approvals",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-004-3b",
+                  "title": "Create checklist workflow for manual QA sign-off",
+                  "agent_requirement": "QA-Agent"
+                },
+                {
+                  "id": "QA-004-3c",
+                  "title": "Archive test evidence for compliance tracking",
+                  "agent_requirement": "QA-Agent"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "Phase 5 - Deployment & Optimization",
+      "tasks": [
+        {
+          "id": "DV-001",
+          "title": "Implement containerization and runtime setup",
+          "agent_requirement": "DevOps-Agent",
+          "subtasks": [
+            {
+              "id": "DV-001-1",
+              "title": "Create Docker build workflow",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-001-1a",
+                  "title": "Create multi-stage Dockerfile for Node.js and Prisma",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-001-1b",
+                  "title": "Bake Prisma migration execution into image entrypoint",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-001-1c",
+                  "title": "Publish base container image to registry",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-001-2",
+              "title": "Define Docker Compose orchestration",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-001-2a",
+                  "title": "Compose services for API, PostgreSQL, and Redis",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-001-2b",
+                  "title": "Provide local development override configuration",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-001-2c",
+                  "title": "Document start and teardown scripts",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-001-3",
+              "title": "Harden runtime containers",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-001-3a",
+                  "title": "Set resource limits and container health checks",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-001-3b",
+                  "title": "Enable read-only root filesystem in production images",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-001-3c",
+                  "title": "Configure container logging drivers and rotation",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DV-002",
+          "title": "Establish configuration and secret management",
+          "agent_requirement": "DevOps-Agent",
+          "subtasks": [
+            {
+              "id": "DV-002-1",
+              "title": "Prepare environment configuration templates",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-002-1a",
+                  "title": "Produce `.env.example` covering required variables",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-002-1b",
+                  "title": "Automate config injection per environment stage",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-002-1c",
+                  "title": "Validate configuration at service startup",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-002-2",
+              "title": "Integrate secure secret storage",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-002-2a",
+                  "title": "Integrate cloud secret manager for sensitive values",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-002-2b",
+                  "title": "Refactor services to read secrets from manager at runtime",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-002-2c",
+                  "title": "Document secret rotation procedure",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-002-3",
+              "title": "Implement configuration deployment workflows",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-002-3a",
+                  "title": "Implement promotion pipeline for settings changes",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-002-3b",
+                  "title": "Create rollback strategy for configuration errors",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-002-3c",
+                  "title": "Track configuration versions per release",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DV-003",
+          "title": "Deploy observability and scaling foundations",
+          "agent_requirement": "DevOps-Agent",
+          "subtasks": [
+            {
+              "id": "DV-003-1",
+              "title": "Set up logging and tracing",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-003-1a",
+                  "title": "Integrate structured logging with correlation IDs",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-003-1b",
+                  "title": "Export logs to centralized observability stack",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-003-1c",
+                  "title": "Enable distributed tracing for key API flows",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-003-2",
+              "title": "Define metrics and alerting",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-003-2a",
+                  "title": "Expose Prometheus metrics for API and database performance",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-003-2b",
+                  "title": "Define alerts for SLA breaches and error spikes",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-003-2c",
+                  "title": "Monitor cache and database connection pools",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-003-3",
+              "title": "Plan scaling and resilience",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-003-3a",
+                  "title": "Configure horizontal scaling policies for API containers",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-003-3b",
+                  "title": "Test auto-scaling behavior under load",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-003-3c",
+                  "title": "Implement graceful shutdown and health probes",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "DV-004",
+          "title": "Automate releases and operational readiness",
+          "agent_requirement": "DevOps-Agent",
+          "subtasks": [
+            {
+              "id": "DV-004-1",
+              "title": "Establish CI/CD deployment pipeline",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-004-1a",
+                  "title": "Set up automated deployments to staging and production",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-004-1b",
+                  "title": "Include database migration gating step in pipeline",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-004-1c",
+                  "title": "Implement canary or blue-green deployment toggle",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-004-2",
+              "title": "Implement post-deploy verification",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-004-2a",
+                  "title": "Automate smoke tests immediately after deployment",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-004-2b",
+                  "title": "Collect system health snapshots post-release",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-004-2c",
+                  "title": "Log deployment metadata into audit system",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            },
+            {
+              "id": "DV-004-3",
+              "title": "Produce operational documentation",
+              "agent_requirement": "DevOps-Agent",
+              "microtasks": [
+                {
+                  "id": "DV-004-3a",
+                  "title": "Compile runbook for incident response",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-004-3b",
+                  "title": "Document backup and restore procedures",
+                  "agent_requirement": "DevOps-Agent"
+                },
+                {
+                  "id": "DV-004-3c",
+                  "title": "Publish maintenance schedule guidelines",
+                  "agent_requirement": "DevOps-Agent"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

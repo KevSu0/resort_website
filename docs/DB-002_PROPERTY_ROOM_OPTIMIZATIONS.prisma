@@ -1,0 +1,294 @@
+# =============================================================================
+# DB-002: PROPERTY AND ROOM SCHEMA OPTIMIZATIONS
+# =============================================================================
+# This file contains the optimized property and room schema enhancements
+# for resort management system performance and data integrity.
+
+# =============================================================================
+# ENHANCED PROPERTY MODEL
+# =============================================================================
+
+model Property {
+  id                String         @id @default(cuid())
+  siteId            String
+  name              String
+  description       String
+  type              PropertyType
+  category          String
+  status            PropertyStatus @default(DRAFT)
+  capacity          Int
+  basePrice         Decimal
+  currency          String         @default("USD")
+
+  # Enhanced location and physical attributes
+  address           Json
+  coordinates       Json?
+  size              Int?           // in square meters (added from booking schema)
+  floor             Int?           // floor number for multi-floor properties
+
+  # Enhanced bed configuration (from booking schema)
+  bedConfiguration  Json?          // e.g., { "king": 1, "queen": 2, "twin": 1 }
+
+  # Media and amenities
+  images            String[]
+  amenities         String[]
+  policies          Json?
+
+  # Operations and pricing metadata
+  checkInTime       String         @default("15:00")
+  checkOutTime      String         @default("11:00")
+  minStay           Int            @default(1)
+  maxStay           Int?
+  priceRange        Json?          // { "min": 100, "max": 500, "currency": "USD" }
+
+  # Status and ordering
+  isActive          Boolean        @default(true)
+  sortOrder         Int?
+  featuredRank      Int?           // for featured property ordering
+
+  # Metadata and timestamps
+  metadata          Json?          // additional admin metadata
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relationships
+  site              Site           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  rooms             Room[]
+  bookingInterests  BookingInterest[]
+  availability      Availability[]
+  pricing           Pricing[]
+  reviews           Review[]
+  propertyViews     PropertyView[]
+
+  @@map("properties")
+  # DB-002-2b: Enhanced property indexes for admin performance
+  @@index([siteId])                                    # Multi-tenant queries
+  @@index([type])                                      # Property type filtering
+  @@index([status])                                    # Status-based queries
+  @@index([isActive])                                  # Active property filtering
+  @@index([capacity])                                  # Capacity-based searches
+  @@index([basePrice])                                 # Price range queries
+  @@index([siteId, status, isActive])                  # Admin dashboard filtering
+  @@index([siteId, type, isActive])                    # Property listing pages
+  @@index([siteId, capacity, isActive])                # Capacity-based searches
+  @@index([siteId, basePrice, isActive])               # Price-based searches
+  @@index([featuredRank], map: "idx_property_featured")  # Featured property ordering
+  @@index([sortOrder], map: "idx_property_order")        # Admin ordering
+  @@index([siteId, sortOrder, isActive])               # Site-specific ordering
+  @@index([isActive, featuredRank(sort: Asc)])          # Featured property queries
+}
+
+# =============================================================================
+# ENHANCED ROOM MODEL
+# =============================================================================
+
+model Room {
+  id                String         @id @default(cuid())
+  propertyId        String
+  name              String
+  roomNumber        String?        # Unique room number within property
+  type              String
+  category          String?        # Room category (Deluxe, Standard, etc.)
+  capacity          Int
+  maxOccupancy      Int?           # Maximum occupancy (may differ from capacity)
+  size              Int?           # in square meters
+  floor             Int?           # Floor number
+
+  # Enhanced bed configuration (from booking schema)
+  bedType           String?        # Primary bed type
+  bedConfiguration  Json?          # Detailed bed configuration
+
+  # Pricing and availability
+  basePrice         Decimal
+  priceAdjustment   Decimal?       @default(0)  # Price adjustment multiplier
+
+  # Media and amenities
+  images            String[]
+  amenities         String[]
+  features          String[]       # Additional features (view, balcony, etc.)
+
+  # Status and ordering
+  isActive          Boolean        @default(true)
+  sortOrder         Int?
+  isFeatured        Boolean        @default(false)
+
+  # Room-specific metadata
+  metadata          Json?          # Additional room metadata
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relationships
+  property          Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  bookingInterests  BookingInterest[]
+  availability      Availability[]
+
+  @@map("rooms")
+  # Enhanced room indexes for performance
+  @@index([propertyId])                                   # Property-based queries
+  @@index([type])                                        # Room type filtering
+  @@index([capacity])                                    # Capacity-based searches
+  @@index([isActive])                                    # Active room filtering
+  @@index([sortOrder])                                   # Admin ordering
+  @@index([propertyId, isActive])                        # Active rooms per property
+  @@index([propertyId, type, isActive])                  # Room type searches per property
+  @@index([propertyId, capacity, isActive])              # Capacity searches per property
+  @@index([propertyId, basePrice, isActive])             # Price searches per property
+  @@index([propertyId, sortOrder, isActive])             # Ordered room listings
+  @@index([propertyId, roomNumber], map: "idx_room_number") # Room number lookup
+  @@index([propertyId, isFeatured, sortOrder])           # Featured rooms
+  @@unique([propertyId, roomNumber])                     # Unique room number per property
+}
+
+# =============================================================================
+# ENHANCED AVAILABILITY MODEL
+# =============================================================================
+
+model Availability {
+  id                String              @id @default(cuid())
+  propertyId        String
+  roomId            String?
+
+  # Date range handling (enhanced for bulk operations)
+  date              DateTime            # Single date availability
+  startDate         DateTime?           # For date range availability
+  endDate           DateTime?           # For date range availability
+
+  # Status and availability
+  available         Boolean             @default(true)
+  status            AvailabilityStatus  @default(AVAILABLE)
+  blockedReason     String?
+
+  # Capacity and pricing
+  bookedCount       Int                 @default(0)
+  maxBookings       Int                 @default(1)
+  priceOverride     Decimal?
+  minStay           Int?
+  maxStay           Int?
+
+  # Advanced availability rules
+  checkInAllowed    Boolean             @default(true)
+  checkOutAllowed   Boolean             @default(true)
+  minOccupancy      Int?
+  maxOccupancy      Int?
+
+  # Metadata and timestamps
+  metadata          Json?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  // Relationships
+  property          Property            @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  room              Room?               @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("availability")
+  # Enhanced availability indexes for performance
+  @@index([propertyId])                                   # Property availability queries
+  @@index([roomId])                                      # Room availability queries
+  @@index([date])                                        # Single date queries
+  @@index([startDate, endDate])                          # Date range queries
+  @@index([status])                                      # Status-based queries
+  @@index([available])                                   # Availability boolean queries
+  @@index([propertyId, date])                            # Property-specific date queries
+  @@index([roomId, date])                                # Room-specific date queries
+  @@index([propertyId, startDate, endDate])              # Property date range queries
+  @@index([roomId, startDate, endDate])                  # Room date range queries
+  @@index([propertyId, status, date])                    # Property status queries
+  @@index([roomId, status, date])                        # Room status queries
+  @@index([date, available])                             # Date availability lookup
+  @@index([propertyId, available, date])                 # Property availability lookup
+  @@index([roomId, available, date])                     # Room availability lookup
+  @@unique([propertyId, roomId, date])                   # Prevent duplicate availability records
+  @@unique([propertyId, roomId, startDate, endDate])     # Prevent duplicate range records
+}
+
+# =============================================================================
+# ENHANCED PRICING MODEL
+# =============================================================================
+
+model Pricing {
+  id                String         @id @default(cuid())
+  propertyId        String
+  roomId            String?
+  name              String
+  type              PricingType   @default(STANDARD)
+
+  # Pricing amounts
+  amount            Decimal
+  currency          String         @default("USD")
+  basePrice         Decimal?       # Reference base price
+
+  # Date effectiveness
+  effectiveFrom     DateTime
+  effectiveTo       DateTime?
+  season            String?        # Season identifier
+
+  # Stay requirements
+  minStay           Int?
+  maxStay           Int?
+  dayOfWeek         Int?           // 0-6 (Sunday to Saturday)
+
+  # Occupancy and conditions
+  minOccupancy      Int?
+  maxOccupancy      Int?
+  occupancyBased    Boolean        @default(false)
+
+  # Advanced pricing rules
+  conditions        Json?          # Pricing conditions and rules
+  restrictions      Json?          # Booking restrictions
+  metadata          Json?          # Additional pricing metadata
+
+  # Status
+  isActive          Boolean        @default(true)
+  priority          Int            @default(0)  # Priority for rule application
+
+  # Timestamps
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relationships
+  property          Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("pricing")
+  # DB-002-2c: Enhanced pricing indexes including seasonal pricing
+  @@index([propertyId])                                   # Property pricing queries
+  @@index([roomId])                                      # Room pricing queries
+  @@index([type])                                        # Pricing type filtering
+  @@index([effectiveFrom])                               # Start date queries
+  @@index([effectiveTo])                                 # End date queries
+  @@index([isActive])                                    # Active pricing rules
+  @@index([season])                                      # Seasonal pricing queries
+  @@index([propertyId, type])                            # Property type pricing
+  @@index([roomId, type])                                # Room type pricing
+  @@index([propertyId, effectiveFrom, effectiveTo])      # Property date range pricing
+  @@index([roomId, effectiveFrom, effectiveTo])          # Room date range pricing
+  @@index([propertyId, season, effectiveFrom])           # DB-002-2c: Seasonal pricing index
+  @@index([propertyId, isActive, effectiveFrom])         # Active property pricing
+  @@index([roomId, isActive, effectiveFrom])             # Active room pricing
+  @@index([propertyId, priority, effectiveFrom])         # Priority-based pricing
+  @@index([type, season, isActive])                      # Seasonal type pricing
+  @@index([dayOfWeek, isActive])                         # Day-specific pricing
+  @@index([effectiveFrom, effectiveTo, isActive])        # Date range active pricing
+}
+
+# =============================================================================
+# ADDITIONAL PERFORMANCE INDEXES FOR RESORT OPERATIONS
+# =============================================================================
+
+# Property performance analytics indexes
+@@index([siteId, propertyId, createdAt(sort: Desc)], map: "idx_property_site_created")
+@@index([propertyId, status, isActive], map: "idx_property_status_active")
+@@index([siteId, type, status, isActive], map: "idx_site_type_status_active")
+
+# Room performance analytics indexes
+@@index([propertyId, roomId, isActive], map: "idx_property_room_active")
+@@index([propertyId, type, capacity, isActive], map: "idx_property_type_capacity_active")
+
+# Availability performance indexes
+@@index([propertyId, date, available], map: "idx_property_date_available")
+@@index([roomId, date, available], map: "idx_room_date_available")
+@@index([date, status, available], map: "idx_date_status_available")
+
+# Pricing performance indexes
+@@index([propertyId, season, type, isActive], map: "idx_property_season_type_active")
+@@index([effectiveFrom, effectiveTo, type, isActive], map: "idx_date_range_type_active")
+@@index([season, effectiveFrom, isActive], map: "idx_season_date_active")

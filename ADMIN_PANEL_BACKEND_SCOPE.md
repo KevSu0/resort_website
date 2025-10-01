@@ -2,78 +2,73 @@
 
 ## Project Overview
 
-This document outlines the comprehensive backend requirements for the resort website admin panel. The system is a multi-tenant resort management platform with enterprise-grade features including property management, booking systems, content management, and advanced analytics.
+This document outlines the simplified backend requirements for the resort website admin panel. The system is a basic resort property management platform focused on property display and booking interest submission without internal communication features.
 
 **Business Context:**
-- Multi-brand, multi-site resort management platform
-- Role-based access control with granular permissions
-- Real-time data synchronization and reporting
-- Integration with external services (payment, email, CRM, etc.)
-- Enterprise-grade security and compliance requirements
+- Single-brand resort property management platform
+- Basic role-based access control
+- Property display and availability management
+- Simple booking interest submission system
+- Essential security and operational requirements
+
+**Current Project State:**
+- **Database:** PostgreSQL 15 with simplified Prisma schema (fully implemented)
+- **Backend Architecture:** Modern Node.js + TypeScript with Prisma ORM and database adapters
+- **Single-tenant:** Simplified structure with basic site management
+- **Content Management:** Basic CMS with simple page and content management
+- **Authentication:** JWT-based with secure session management
+- **Database Optimization:** Standard connection pooling and basic performance indexes
+- **Type Safety:** TypeScript integration with essential type definitions
 
 ---
 
-## Complete Admin Panel Backend Features
+## Simplified Admin Panel Backend Features
 
 ### 1. Dashboard/Analytics Module
 
-**Core Purpose:** Provide operational insights and key performance indicators for resort management.
+**Core Purpose:** Provide basic operational insights for resort management.
 
 **API Endpoints:**
 ```
-GET    /api/v1/admin/dashboard/metrics          // Operational KPIs
-GET    /api/v1/admin/dashboard/analytics        // Basic analytics
-GET    /api/v1/admin/dashboard/recent-activity  // Recent system activity
-GET    /api/v1/admin/dashboard/performance      // Performance metrics
-GET    /api/v1/admin/dashboard/alerts           // System alerts & notifications
-POST   /api/v1/admin/dashboard/widgets          // Configure dashboard widgets
-GET    /api/v1/admin/dashboard/export           // Export dashboard data
+GET    /api/v1/admin/dashboard/metrics          // Basic operational KPIs
+GET    /api/v1/admin/dashboard/recent-activity  // Recent booking activity
+GET    /api/v1/admin/dashboard/export           // Export basic data
 ```
 
 **Key Features:**
-- Property occupancy rates and availability tracking
-- Booking trends and status analytics
-- Content management statistics
-- Property performance comparisons
-- System health monitoring
-- Customizable dashboard widgets
-- Operational notifications
+- Property availability overview
+- Basic booking interest statistics
+- Property view counts
+- Simple system health indicators
 
 **Database Requirements:**
-- Time-series data aggregation
-- Real-time metrics caching with Redis
-- Analytics data warehouse
-- Performance monitoring tables
+- Basic metrics aggregation
+- Simple activity logging
+- Essential performance tables
 
 **Business Logic Services:**
 ```typescript
 interface DashboardMetrics {
   totalProperties: number;
-  activeBookings: number;
-  totalRevenue: number;
-  occupancyRate: number;
-  averageDailyRate: number;
-  revenuePerAvailableRoom: number;
-  guestSatisfactionScore: number;
+  activeBookingInterests: number;
+  propertyViews: number;
   recentActivity: Activity[];
-  performanceMetrics: PerformanceMetrics;
 }
 
 class DashboardService {
-  async getMetrics(brandId: string, siteId: string, timeRange: TimeRange): Promise<DashboardMetrics>
-  async getRealTimeData(siteId: string): Promise<RealTimeData>
-  async generateReport(reportType: ReportType, filters: ReportFilters): Promise<Report>
-  async getOccupancyForecast(propertyIds: string[], days: number): Promise<OccupancyForecast>
+  async getMetrics(siteId: string): Promise<DashboardMetrics>
+  async getRecentActivity(siteId: string): Promise<Activity[]>
+  async generateBasicReport(reportType: ReportType): Promise<Report>
 }
 ```
 
 ### 2. Properties Management Module
 
-**Core Purpose:** Comprehensive management of resort properties, rooms, amenities, and pricing.
+**Core Purpose:** Basic management of resort properties, rooms, amenities, and availability.
 
 **API Endpoints:**
 ```
-GET    /api/v1/admin/properties                 // List properties with filters
+GET    /api/v1/admin/properties                 // List properties
 POST   /api/v1/admin/properties                 // Create new property
 GET    /api/v1/admin/properties/:id             // Get property details
 PUT    /api/v1/admin/properties/:id             // Update property
@@ -86,24 +81,17 @@ GET    /api/v1/admin/properties/:id/availability // Get availability calendar
 POST   /api/v1/admin/properties/:id/availability // Update availability
 GET    /api/v1/admin/properties/:id/pricing     // Get pricing structure
 PUT    /api/v1/admin/properties/:id/pricing     // Update pricing
-GET    /api/v1/admin/properties/:id/amenities   // Get amenities
-POST   /api/v1/admin/properties/:id/amenities   // Add amenities
-GET    /api/v1/admin/properties/:id/reviews     // Get guest reviews
 POST   /api/v1/admin/properties/:id/photos      // Upload photos
 DELETE /api/v1/admin/properties/:id/photos/:photoId // Delete photo
 ```
 
 **Key Features:**
-- Multi-type property management (resorts, hotels, villas, apartments)
+- Basic property management (resorts, hotels, villas)
 - Room inventory management with capacity and pricing
-- Dynamic pricing with seasonal adjustments
-- Availability management with calendar view
+- Simple availability management with calendar view
 - Amenity management and categorization
 - Photo gallery management
-- Guest review and rating management
-- Property performance analytics
-- Channel manager integration
-- Bulk property operations
+- Basic property display features
 
 **Database Schema:**
 ```prisma
@@ -134,7 +122,7 @@ model Property {
 
   site              Site     @relation(fields: [siteId], references: [id])
   rooms             Room[]
-  bookings          Booking[]
+  bookingInterests  BookingInterest[]
   availability      Availability[]
   pricing           Pricing[]
   reviews           Review[]
@@ -159,65 +147,138 @@ model Room {
   updatedAt         DateTime @updatedAt
 
   property          Property @relation(fields: [propertyId], references: [id])
-  bookings          Booking[]
+  bookingInterests  BookingInterest[]
 
   @@map("rooms")
 }
 ```
 
-### 3. Bookings Management Module
+### 3. Simplified Booking Interest Management Module
 
-**Core Purpose:** Basic booking management for reservation tracking and availability management.
+**Core Purpose:** Simple lead generation system for customer booking inquiries and offline follow-up.
+
+**Customer Flow:**
+Property browse → Check availability → Submit interest form → Receive reference code → Wait for admin contact
+
+**Admin Flow:**
+Review booking interests → Contact customers offline → Confirm bookings offline → Update booking status
 
 **API Endpoints:**
 ```
-GET    /api/v1/admin/bookings                 // List bookings with filters
-POST   /api/v1/admin/bookings                 // Create booking
-GET    /api/v1/admin/bookings/:id             // Get booking details
-PUT    /api/v1/admin/bookings/:id             // Update booking
-DELETE /api/v1/admin/bookings/:id             // Cancel booking
-POST   /api/v1/admin/bookings/:id/confirm     // Confirm booking
-POST   /api/v1/admin/bookings/:id/cancel      // Cancel booking
-POST   /api/v1/admin/bookings/:id/checkin     // Check-in guest
-POST   /api/v1/admin/bookings/:id/checkout    // Check-out guest
-GET    /api/v1/admin/bookings/calendar        // Booking calendar view
-GET    /api/v1/admin/bookings/availability    // Check availability
-POST   /api/v1/admin/bookings/hold            // Hold booking
-DELETE /api/v1/admin/bookings/hold/:id        // Release hold
-GET    /api/v1/admin/bookings/waitlist        // Waitlist management
-POST   /api/v1/admin/bookings/batch           // Batch operations
+// Customer-facing (Public API)
+POST   /api/v1/public/booking-interest         // Submit booking interest form
+GET    /api/v1/public/availability             // Check property availability
+GET    /api/v1/public/properties               // Browse properties with basic info
+
+// Admin Management
+GET    /api/v1/admin/booking-interests         // List all booking interests
+GET    /api/v1/admin/booking-interests/:id     // Get interest details
+PUT    /api/v1/admin/booking-interests/:id     // Update interest status
+POST   /api/v1/admin/booking-interests/:id/contact // Mark as contacted
+POST   /api/v1/admin/booking-interests/:id/confirm // Mark as confirmed offline
+DELETE /api/v1/admin/booking-interests/:id     // Archive/remove interest
+GET    /api/v1/admin/booking-interests/stats   // Basic statistics
+POST   /api/v1/admin/booking-interests/export  // Export for follow-up
 ```
 
 **Key Features:**
-- Real-time availability checking and booking
-- Multi-room and group booking support
-- Booking modification and cancellation management
-- Check-in/check-out workflow
-- Booking status tracking
-- Waitlist management
-- Booking holds and reservations
-- Group booking management
-- Booking source tracking
-- Booking confirmation notifications
+- Simple customer interest form submission
+- Reference code generation for tracking
+- Basic availability checking
+- Admin dashboard for managing leads
+- Status tracking (New, Contacted, Confirmed, Archived)
+- Offline follow-up management
+- Basic lead statistics and export
 
 **Business Logic Services:**
 ```typescript
-class BookingService {
-  async createBooking(data: CreateBookingDto): Promise<Booking>
-  async updateBooking(id: string, data: UpdateBookingDto): Promise<Booking>
-  async cancelBooking(id: string, reason: string, refundPolicy: RefundPolicy): Promise<Booking>
-  async checkIn(id: string, checkInData: CheckInDto): Promise<Booking>
-  async checkOut(id: string, checkOutData: CheckOutDto): Promise<Booking>
-  async processPayment(id: string, paymentData: PaymentDto): Promise<Payment>
-  async calculateAvailability(propertyId: string, startDate: Date, endDate: Date): Promise<AvailabilityResult>
-  async generateBookingReport(filters: BookingFilters): Promise<BookingReport>
+interface BookingInterest {
+  id: string;
+  referenceCode: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  propertyId: string;
+  checkInDate: Date;
+  checkOutDate: Date;
+  numberOfGuests: number;
+  specialRequests?: string;
+  status: InterestStatus; // NEW, CONTACTED, CONFIRMED, ARCHIVED
+  adminNotes?: string;
+  submittedAt: Date;
+  lastContactedAt?: Date;
+  confirmedAt?: Date;
 }
 
-class PricingService {
-  async calculatePricing(propertyId: string, dates: DateRange, guests: number): Promise<PricingCalculation>
-  async applySeasonalPricing(propertyId: string, dates: DateRange): Promise<PriceAdjustment[]>
-  async calculateTaxes(propertyId: string, baseAmount: Decimal): Promise<TaxCalculation>
-  async applyPromotions(propertyId: string, bookingData: BookingData): Promise<PromotionResult>
+type InterestStatus = 'NEW' | 'CONTACTED' | 'CONFIRMED' | 'ARCHIVED';
+
+class BookingInterestService {
+  async submitInterest(data: SubmitInterestDto): Promise<BookingInterest>
+  async checkAvailability(propertyId: string, dates: DateRange): Promise<AvailabilityResult>
+  async generateReferenceCode(): Promise<string>
+  async updateInterestStatus(id: string, status: InterestStatus): Promise<BookingInterest>
+  async getPendingInterests(): Promise<BookingInterest[]>
+  async markAsContacted(id: string, notes: string): Promise<BookingInterest>
+  async confirmOfflineBooking(id: string, confirmationDetails: ConfirmationDetails): Promise<BookingInterest>
+  async getInterestStats(filters: InterestFilters): Promise<InterestStats>
+  async exportForFollowUp(format: 'csv' | 'excel'): Promise<File>
+}
+```
+
+**Removed Complex Features:**
+- ❌ Online payment processing
+- ❌ Real-time booking confirmation
+- ❌ Automated email communications
+- ❌ Cancellation workflows
+- ❌ Check-in/check-out processes
+- ❌ Refund management
+- ❌ Waitlist systems
+- ❌ Group booking management
+- ❌ Calendar integration
+- ❌ Pricing calculations
+- ❌ Tax calculations
+- ❌ Promotion/discount systems
+
+**Simplified Database Schema:**
+```prisma
+model BookingInterest {
+  id                String   @id @default(cuid())
+  referenceCode     String   @unique
+  siteId            String
+
+  // Customer Information
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+
+  // Booking Details
+  propertyId        String
+  checkInDate       DateTime
+  checkOutDate      DateTime
+  numberOfGuests   Int
+  specialRequests   String?
+
+  // Status Management
+  status            InterestStatus @default(NEW)
+  adminNotes        String?
+  lastContactedAt   DateTime?
+  confirmedAt       DateTime?
+
+  // Metadata
+  submittedAt       DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  site              Site     @relation(fields: [siteId], references: [id])
+  property          Property @relation(fields: [propertyId], references: [id])
+
+  @@map("booking_interests")
+}
+
+enum InterestStatus {
+  NEW
+  CONTACTED
+  CONFIRMED
+  ARCHIVED
 }
 ```
 
@@ -234,49 +295,37 @@ PUT    /api/v1/admin/users/:id                // Update user
 DELETE /api/v1/admin/users/:id                // Delete user
 POST   /api/v1/admin/users/:id/activate       // Activate user
 POST   /api/v1/admin/users/:id/deactivate     // Deactivate user
-PUT    /api/v1/admin/users/:id/permissions    // Update user permissions
-GET    /api/v1/admin/users/:id/activity       // User activity log
 GET    /api/v1/admin/roles                    // List roles
 POST   /api/v1/admin/roles                    // Create role
-GET    /api/v1/admin/roles/:id                // Get role details
 PUT    /api/v1/admin/roles/:id                // Update role
 DELETE /api/v1/admin/roles/:id                // Delete role
-GET    /api/v1/admin/permissions              // List permissions
-GET    /api/v1/admin/invitations              // List invitations
-POST   /api/v1/admin/invitations              // Send invitation
-DELETE /api/v1/admin/invitations/:id          // Cancel invitation
 ```
 
 **Key Features:**
-- Multi-tenant user management
-- Basic role-based access control (RBAC)
-- Simple permission system
-- User invitation workflow
-- Activity logging
-- User session management
-- Bulk user operations
-- Basic user reporting
+- Basic user management
+- Simple role-based access control (ADMIN, EDITOR, VIEWER)
+- User activation/deactivation
+- Basic activity logging
+- Simple session management
 
 **Basic RBAC Implementation:**
 ```typescript
 class AuthorizationService {
-  async hasPermission(userId: string, resource: string, action: string, siteId?: string): Promise<boolean>
-  async getUserPermissions(userId: string, siteId?: string): Promise<Permission[]>
-  async assignRole(userId: string, roleId: string, siteId?: string): Promise<void>
-  async revokeRole(userId: string, roleId: string, siteId?: string): Promise<void>
-  async createInvitation(email: string, role: string, siteId?: string): Promise<Invitation>
+  async hasPermission(userId: string, resource: string, action: string): Promise<boolean>
+  async getUserPermissions(userId: string): Promise<Permission[]>
+  async assignRole(userId: string, roleId: string): Promise<void>
+  async revokeRole(userId: string, roleId: string): Promise<void>
 }
 
 class BasicSecurityMiddleware {
   async requirePermission(resource: string, action: string) => Promise<Middleware>
   async requireRole(role: string) => Promise<Middleware>
-  async auditLog(action: string, resource: string) => Promise<Middleware>
 }
 ```
 
 ### 5. Content Management (CMS) Module
 
-**Core Purpose:** Advanced content management system with version control, workflows, and SEO optimization.
+**Core Purpose:** Basic content management system for simple page and content management.
 
 **API Endpoints:**
 ```
@@ -287,11 +336,6 @@ GET    /api/v1/cms/pages/:id                  // Get page details
 PUT    /api/v1/cms/pages/:id                  // Update page
 DELETE /api/v1/cms/pages/:id                  // Delete page
 POST   /api/v1/cms/pages/:id/publish          // Publish page
-POST   /api/v1/cms/pages/:id/schedule         // Schedule publication
-POST   /api/v1/cms/pages/:id/duplicate        // Duplicate page
-GET    /api/v1/cms/pages/:id/versions         // Get page versions
-POST   /api/v1/cms/pages/:id/revert/:version  // Revert to version
-GET    /api/v1/cms/pages/:id/preview          // Preview page
 
 // Content Blocks
 GET    /api/v1/cms/blocks                     // List content blocks
@@ -299,35 +343,16 @@ POST   /api/v1/cms/blocks                     // Create content block
 GET    /api/v1/cms/blocks/:id                 // Get block details
 PUT    /api/v1/cms/blocks/:id                 // Update content block
 DELETE /api/v1/cms/blocks/:id                 // Delete content block
-POST   /api/v1/cms/blocks/batch               // Batch operations
 
-// Templates
-GET    /api/v1/cms/templates                  // List templates
-POST   /api/v1/cms/templates                  // Create template
-GET    /api/v1/cms/templates/:id              // Get template details
-PUT    /api/v1/cms/templates/:id              // Update template
-DELETE /api/v1/cms/templates/:id              // Delete template
-POST   /api/v1/cms/templates/:id/apply        // Apply template to page
-
-// SEO Optimization
-GET    /api/v1/cms/seo/analyze/:pageId        // Analyze SEO
-POST   /api/v1/cms/seo/suggestions            // Get SEO suggestions
-GET    /api/v1/cms/seo/keywords               // Get keyword analytics
+// Basic SEO
 PUT    /api/v1/cms/seo/metadata/:pageId       // Update SEO metadata
-GET    /api/v1/cms/seo/sitemap                // Generate sitemap
 ```
 
 **Key Features:**
-- Rich text editor with block-based content creation
-- Version control with diff tracking and rollback
-- Content workflow and approval system
-- SEO optimization with real-time analysis
-- Template system for reusable layouts
-- Content scheduling and automation
-- Multi-language content support
-- Content preview and staging
-- Bulk content operations
-- Content performance analytics
+- Basic rich text editor for content creation
+- Simple page publishing and management
+- Basic content block system
+- Simple SEO metadata management
 
 **Advanced Features:**
 ```typescript
@@ -513,29 +538,7 @@ DELETE /api/v1/settings/integrations/:id      // Remove integration
 POST   /api/v1/settings/integrations/:id/test // Test integration
 GET    /api/v1/settings/integrations/catalog   // Integration catalog
 
-// Tax & Currency
-GET    /api/v1/settings/tax                   // Get tax settings
-PUT    /api/v1/settings/tax                   // Update tax settings
-GET    /api/v1/settings/currency              // Get currency settings
-PUT    /api/v1/settings/currency              // Update currency settings
-GET    /api/v1/settings/currency/rates        // Get exchange rates
-POST   /api/v1/settings/currency/update       // Update exchange rates
 
-// Email Templates
-GET    /api/v1/settings/email/templates       // List email templates
-POST   /api/v1/settings/email/templates       // Create template
-GET    /api/v1/settings/email/templates/:id   // Get template
-PUT    /api/v1/settings/email/templates/:id   // Update template
-DELETE /api/v1/settings/email/templates/:id   // Delete template
-POST   /api/v1/settings/email/preview         // Preview email
-POST   /api/v1/settings/email/test            // Send test email
-GET    /api/v1/settings/email/variables       // Template variables
-
-// Notification Settings
-GET    /api/v1/settings/notifications         // Get notification settings
-PUT    /api/v1/settings/notifications         // Update notification settings
-POST   /api/v1/settings/notifications/test    // Test notifications
-GET    /api/v1/settings/notifications/channels // Available channels
 
 // Security Settings
 GET    /api/v1/settings/security              // Get security settings
@@ -546,16 +549,11 @@ DELETE /api/v1/settings/security/sessions/:id // Revoke session
 ```
 
 **Key Features:**
-- Centralized site and brand configuration
-- Integration management with third-party services
-- Tax and currency configuration with automatic updates
-- Email template management with preview functionality
-- Notification preference management
-- Security settings and session management
-- Multi-language configuration
-- Backup and restore functionality
+- Basic site and brand configuration
+- Simple integration management
+- Basic security settings and session management
 - Configuration validation and testing
-- Environment-specific settings management
+- Essential backup functionality
 
 **Configuration Services:**
 ```typescript
@@ -563,108 +561,60 @@ class SettingsService {
   async getSettings(siteId: string, category?: string): Promise<Settings>
   async updateSettings(siteId: string, updates: SettingsUpdates): Promise<Settings>
   async resetToDefaults(siteId: string, category?: string): Promise<Settings>
-  async backupSettings(siteId: string): Promise<SettingsBackup>
-  async restoreSettings(siteId: string, backupId: string): Promise<Settings>
   async validateSettings(settings: Settings): Promise<ValidationResult>
 }
 
-class IntegrationService {
+class BasicIntegrationService {
   async addIntegration(integration: IntegrationConfig): Promise<Integration>
   async testIntegration(integrationId: string): Promise<TestResult>
-  async syncIntegrationData(integrationId: string): Promise<SyncResult>
   async getIntegrationStatus(integrationId: string): Promise<IntegrationStatus>
-  async getIntegrationCatalog(): Promise<IntegrationCatalog>
-}
-
-class TaxCurrencyService {
-  async calculateTax(amount: number, taxConfig: TaxConfig): Promise<TaxCalculation>
-  async getCurrencyRates(baseCurrency: string): Promise<CurrencyRates>
-  async convertCurrency(amount: number, from: string, to: string): Promise<number>
-  async updateTaxRates(siteId: string, taxRates: TaxRate[]): Promise<void>
-  async syncExchangeRates(): Promise<void>
 }
 ```
 
-### 9. System & Maintenance Module
+### 6. System & Maintenance Module
 
-**Core Purpose:** Basic system administration and maintenance tools for platform management.
+**Core Purpose:** Essential system administration and basic maintenance tools.
 
 **API Endpoints:**
 ```
-// System Health & Monitoring
+// System Health
 GET    /api/v1/system/health                  // System health check
-GET    /api/v1/system/metrics                 // System metrics
 GET    /api/v1/system/logs                    // System logs
 POST   /api/v1/system/logs/clear              // Clear logs
-GET    /api/v1/system/services                // Service status
-GET    /api/v1/system/performance             // Performance metrics
-GET    /api/v1/system/alerts                  // System alerts
-POST   /api/v1/system/alerts/acknowledge      // Acknowledge alert
 
-// Backup & Recovery
+// Basic Backup
 POST   /api/v1/system/backup                  // Create backup
 GET    /api/v1/system/backups                 // List backups
-GET    /api/v1/system/backups/:id             // Get backup details
 POST   /api/v1/system/restore/:id             // Restore from backup
-DELETE /api/v1/system/backups/:id             // Delete backup
-POST   /api/v1/system/backups/schedule        // Schedule backup
 
 // Database Maintenance
 POST   /api/v1/system/database/optimize        // Optimize database
-POST   /api/v1/system/database/vacuum          // Vacuum database
 GET    /api/v1/system/database/stats           // Database statistics
 POST   /api/v1/system/database/migrate         // Run migrations
-POST   /api/v1/system/database/backup         // Database backup
-
-// System Configuration
-GET    /api/v1/system/config                  // System configuration
-PUT    /api/v1/system/config                  // Update configuration
-GET    /api/v1/system/config/features         // Feature flags
-PUT    /api/v1/system/config/features         // Update feature flags
-
-// Monitoring & Alerting
-GET    /api/v1/system/monitors                // Active monitors
-POST   /api/v1/system/monitors                // Create monitor
-PUT    /api/v1/system/monitors/:id            // Update monitor
-DELETE /api/v1/system/monitors/:id            // Delete monitor
-GET    /api/v1/system/alerts/rules            // Alert rules
-POST   /api/v1/system/alerts/rules            // Create alert rule
-PUT    /api/v1/system/alerts/rules/:id        // Update alert rule
-DELETE /api/v1/system/alerts/rules/:id        // Delete alert rule
 ```
 
 **Key Features:**
 - Basic system health monitoring
-- Backup and recovery systems
-- Database maintenance and optimization
-- System resource monitoring
-- Log management and analysis
-- Configuration management
-- Basic alert and notification systems
+- Simple backup and recovery
+- Essential database maintenance
+- Basic log management
 
 **System Services:**
 ```typescript
 class HealthMonitoringService {
   async performHealthCheck(): Promise<HealthCheckResult>
   async getSystemMetrics(): Promise<SystemMetrics>
-  async getServiceStatus(): Promise<ServiceStatus[]>
-  async getPerformanceMetrics(): Promise<PerformanceMetrics>
-  async monitorResources(): Promise<ResourceUsage>
 }
 
 class BackupService {
   async createBackup(type: BackupType): Promise<Backup>
-  async scheduleBackup(schedule: BackupSchedule): Promise<void>
   async restoreFromBackup(backupId: string): Promise<RestoreResult>
-  async verifyBackup(backupId: string): Promise<VerificationResult>
   async getBackupHistory(): Promise<Backup[]>
 }
 
 class DatabaseMaintenanceService {
   async optimizeDatabase(): Promise<OptimizationResult>
-  async runMaintenance(): Promise<MaintenanceResult>
   async getDatabaseStatistics(): Promise<DatabaseStats>
-  async checkDatabaseHealth(): Promise<DatabaseHealth>
 }
 ```
 
@@ -678,8 +628,8 @@ class DatabaseMaintenanceService {
 ┌─────────────────────────────────────────────────────────────┐
 │                    Client Applications                     │
 ├─────────────────┬─────────────────┬─────────────────────────┤
-│   Admin Panel   │   Public Site   │   Mobile Apps            │
-│   (React SPA)   │   (Next.js)     │   (React Native)        │
+│   Admin Panel   │   Public Site   │   Public API             │
+│   (React SPA)   │   (React)       │   (Booking Interest)    │
 └─────────────────┴─────────────────┴─────────────────────────┘
                             │
                     ┌───────▼───────┐
@@ -690,8 +640,8 @@ class DatabaseMaintenanceService {
         ┌───────────────────┼───────────────────┐
         │                   │                   │
 ┌───────▼───────┐  ┌───────▼───────┐  ┌───────▼───────┐
-│   Basic Auth   │  │Business Logic│  │Integration   │
-│   (Simple)     │  │   Services    │  │Services      │
+│   Basic Auth   │  │Business Logic│  │Basic Email    │
+│   (Simple)     │  │   Services    │  │Service        │
 └───────┬───────┘  └───────┬───────┘  └───────┬───────┘
         │                  │                   │
         └───────────┬──────┴───────────────────┘
@@ -700,8 +650,8 @@ class DatabaseMaintenanceService {
             │  Data Layer    │
             │               │
     ┌───────▼───────┐ ┌─────▼─────┐
-    │  PostgreSQL    │ │   Redis   │
-    │   (Primary)    │ │ (Cache)   │
+    │  PostgreSQL    │ │ File      │
+    │   (Primary)    │ │ Storage  │
     └───────────────┘ └───────────┘
 ```
 
@@ -709,48 +659,64 @@ class DatabaseMaintenanceService {
 
 **Backend Framework:**
 - **Runtime**: Node.js with TypeScript
-- **Framework**: Express.js or Fastify for API server
-- **ORM**: Prisma for database operations
-- **Database**: PostgreSQL for primary data storage
-- **Cache**: Redis for caching and session management
+- **Framework**: Express.js for API server
+- **ORM**: Prisma for type-safe database operations
+- **Database**: PostgreSQL with essential features
+- **File Storage**: Local file system
 
 **Basic Security:**
-- **Authentication**: Simple session-based auth
+- **Authentication**: JWT-based authentication
 - **Authorization**: Basic role-based access control (RBAC)
 - **Security**: Helmet.js, CORS, rate limiting
 - **Validation**: Zod for request/response validation
 
-**Infrastructure & DevOps:**
+**Infrastructure:**
 - **Containerization**: Docker and Docker Compose
 - **Process Management**: PM2 for production
-- **Monitoring**: Basic system monitoring
 - **Logging**: Winston with structured logging
-- **File Storage**: Local file system or basic cloud storage
 
 **Basic Integration:**
-- **Email**: Basic email functionality
-- **Search**: Basic text search functionality
-- **Analytics**: Simple operational analytics
+- **Email**: Basic email notifications for new booking interests
 
 ### **Database Schema Highlights**
 
-**Core Tables:**
-- `brands` - Multi-tenant brand management
-- `sites` - Site configuration per brand
-- `users` - User accounts with multi-tenant support
-- `roles` - Role definitions for RBAC
-- `permissions` - Granular permission system
-- `properties` - Resort properties and rooms
-- `bookings` - Booking management
-- `content_pages` - CMS page management
-- `media_files` - Media library management
-- `audit_log` - Comprehensive audit trail
+**Current Implementation:**
+- **Database Provider:** PostgreSQL with essential features
+- **ORM:** Prisma with type-safe database operations
+- **Connection Pooling:** Standard pool configuration
+- **Single-tenant:** Simplified structure for single site management
 
-**Key Relationships:**
-- Multi-tenant hierarchy: `brands → sites → content`
-- User management: `users → user_roles → roles → role_permissions`
-- Booking system: `properties → rooms → bookings → payments`
-- Content management: `content_pages → content_versions → workflow_items`
+**Core Tables (Essential):**
+- `users` - User accounts with basic authentication and role management
+- `sessions` - Basic session management
+- `properties` - Property management with basic amenities and pricing
+- `rooms` - Room inventory management
+- `booking_interests` - Simple booking interest submission and tracking
+- `pages` - Basic CMS page management
+- `content_blocks` - Simple content block system
+- `media` - Basic media library with metadata
+- `site_settings` - Essential configuration management
+
+**Database Connection & Configuration:**
+- **Environment-based configuration** with secure connection handling
+- **Standard connection pooling**: Basic connection management
+- **Security features**: SSL/TLS support and secure authentication
+- **Performance optimization**: Basic query timeouts and connection reuse
+
+**Key Relationships (Simplified):**
+- **User management**: `users` with basic role assignment
+- **Property system**: `properties → rooms` with availability tracking
+- **Booking interests**: `booking_interests` linked to properties and users
+- **Content management**: `pages → content_blocks` for basic content
+- **Media organization**: `media` with basic categorization
+- **Basic audit system**: Essential operations tracking
+
+**Essential Database Features:**
+- **Basic JSONB columns** for flexible content storage
+- **Simple role system** (ADMIN, EDITOR, VIEWER)
+- **Basic session management** with JWT tokens
+- **Essential database indexes** for common query patterns
+- **Basic backup and recovery** procedures
 
 ### **API Documentation Structure**
 
@@ -778,142 +744,196 @@ interface APIResponse<T> {
 ```
 
 **Endpoint Groups:**
-1. `/api/v1/admin/dashboard/*` - Dashboard and analytics
+1. `/api/v1/admin/dashboard/*` - Dashboard and basic analytics
 2. `/api/v1/admin/properties/*` - Property management
-3. `/api/v1/admin/bookings/*` - Booking management
+3. `/api/v1/admin/booking-interests/*` - Booking interest management
 4. `/api/v1/admin/users/*` - User and role management
-5. `/api/v1/cms/*` - Content management
+5. `/api/v1/cms/*` - Basic content management
 6. `/api/v1/media/*` - Media management
-7. `/api/v1/analytics/*` - Reports and analytics
-8. `/api/v1/settings/*` - Configuration management
-9. `/api/v1/system/*` - System administration
+7. `/api/v1/settings/*` - Basic configuration
+8. `/api/v1/system/*` - System administration
+9. `/api/v1/public/*` - Public booking interest submission
 
 ---
 
-## Implementation Roadmap
+## Implementation Roadmap (Updated for Current State - October 2025)
 
-### **Phase 1: Foundation (Weeks 1-4)**
-**Priority: Critical**
+### **Phase 1: Core Backend API Implementation (Weeks 1-3)**
+**Priority: Critical | Status: Ready to Start**
 
-1. **Basic Authentication**
-   - Simple session-based authentication
-   - Basic RBAC implementation
-   - Multi-tenant data isolation
-   - Basic user management
+1. **Express.js API Server Foundation**
+   - Set up Express server with TypeScript configuration
+   - Integrate existing Prisma schema with PostgreSQL
+   - Configure middleware (CORS, security, logging, validation)
+   - Implement standardized error handling and response formats
 
-2. **Database Schema Implementation**
-   - Complete Prisma schema
-   - Database migrations
-   - Seed data creation
-   - Basic repositories
+2. **Authentication & Authorization Service**
+   - Implement JWT authentication with refresh tokens
+   - Multi-tenant authentication context (brand/site isolation)
+   - Role-based access control (SUPER_ADMIN to VIEWER)
+   - Session management and security middleware
 
-3. **API Foundation**
-   - Express.js setup with TypeScript
-   - Middleware implementation
-   - Error handling system
-   - Request/response validation
+3. **User Management Endpoints**
+   - Complete user CRUD operations with brand isolation
+   - Site-user relationship management
+   - User invitation and activation workflows
+   - Permission validation middleware
 
-### **Phase 2: Core Business Logic (Weeks 5-8)**
-**Priority: High**
+### **Phase 2: Content Management APIs (Weeks 4-6)**
+**Priority: High | Status: Foundation Ready**
 
-1. **Property Management System**
-   - Property CRUD operations
-   - Room management
-   - Availability system
-   - Basic pricing
+1. **CMS Core Functionality**
+   - Page management endpoints (CRUD, publishing, scheduling)
+   - Content block system with version control APIs
+   - Navigation management endpoints
+   - Content workflow and approval process APIs
 
-2. **Booking Management**
-   - Booking lifecycle
-   - Availability checking
-   - Booking modifications
-   - Basic booking status tracking
+2. **Media Management System**
+   - File upload and processing service
+   - Media library organization and search
+   - Image optimization and thumbnail generation
+   - Folder management and bulk operations
 
-3. **Basic Admin Features**
-   - Dashboard with operational metrics
-   - User management interface
-   - Role management
-   - Basic reporting
+3. **Settings & Configuration**
+   - Brand and site settings management endpoints
+   - Template system integration
+   - Configuration validation and updates
+   - Multi-language support structure
 
-### **Phase 3: Content Management (Weeks 9-12)**
-**Priority: Medium**
+### **Phase 3: Property & Booking System (Weeks 7-9)**
+**Priority: High | Status: Schema Ready**
 
-1. **Content Management System**
-   - Page management
-   - Content blocks
-   - Basic version control
-   - SEO optimization
+1. **Property Management APIs**
+   - Property CRUD operations with amenities
+   - Room management and availability tracking
+   - Dynamic pricing and rate management
+   - Property analytics and reporting endpoints
 
-2. **Media Management**
-   - File upload system
-   - Basic image optimization
-   - Media library
-   - Folder organization
+2. **Booking Interest System**
+   - Interest submission and reference code generation
+   - Basic availability checking
+   - Lead status management (New, Contacted, Confirmed, Archived)
+   - Admin lead management and export tools
 
-3. **Basic Analytics**
-   - Simple report builder
-   - Basic data visualization
-   - Export functionality
-   - Operational metrics
+3. **Dashboard & Analytics**
+   - Operational metrics collection
+   - Real-time dashboard data endpoints
+   - Basic reporting and analytics
+   - Performance tracking integration
 
-### **Phase 4: System Features (Weeks 13-16)**
-**Priority: Medium**
+### **Phase 4: Advanced Features & Integration (Weeks 10-12)**
+**Priority: Medium | Status: Planning Phase**
 
-1. **Settings Management**
-   - Site configuration
-   - Brand settings
-   - Email templates
-   - Basic integration settings
+1. **Advanced CMS Features**
+   - SEO optimization tools and analytics
+   - Content scheduling and automation
+   - Advanced search and filtering
+   - Content performance analytics
 
 2. **System Administration**
-   - Health monitoring
-   - Backup systems
-   - Log management
-   - Maintenance tools
+   - Health monitoring and diagnostics
+   - Backup and recovery systems
+   - Audit trail enhancement
+   - System maintenance utilities
 
-3. **Enhanced Features**
-   - Advanced content management
-   - Improved media organization
-   - Better analytics and reporting
-   - System optimization
+3. **Integration Services**
+   - Email service integration (notifications)
+   - Third-party service webhook handling
+   - External API integration framework
 
-### **Phase 5: Testing & Deployment (Weeks 17-20)**
-**Priority: High**
+### **Phase 5: Testing, Optimization & Deployment (Weeks 13-15)**
+**Priority: High | Status: Planning**
 
-1. **Testing**
-   - Unit testing
-   - Integration testing
-   - E2E testing
-   - Performance testing
+1. **Comprehensive Testing Suite**
+   - Unit test coverage (>90%) for all services
+   - Integration testing for API endpoints
+   - End-to-end workflow testing
+   - Performance and load testing
 
-2. **Deployment Infrastructure**
-   - CI/CD pipeline
-   - Production deployment
-   - Basic monitoring setup
-   - Documentation
+2. **Production Deployment Setup**
+   - CI/CD pipeline configuration
+   - Docker containerization
+   - Environment and configuration management
+   - Monitoring, logging, and alerting
 
-3. **Launch Preparation**
-   - User training materials
-   - Support documentation
-   - Go-live checklist
-   - Basic troubleshooting procedures
+3. **Documentation & Launch Preparation**
+   - OpenAPI/Swagger documentation
+   - Admin panel integration guides
+   - Deployment and maintenance documentation
+   - API usage examples and tutorials
+
+### **Current Implementation Status (October 2025)**
+
+**✅ Completed Foundation:**
+- PostgreSQL database schema with full multi-tenancy
+- Prisma ORM configuration and relationships
+- TypeScript project setup and configuration
+- Content management system architecture
+- Authentication system design and security framework
+- Multi-level user roles and permissions structure
+- Audit logging and session management
+- Media management foundation
+- Version control for content
+- Workflow and approval system design
+
+**🔄 In Progress:**
+- Frontend component architecture (React + TypeScript)
+- Rich text editor components
+- Error handling and loading states
+- Type safety improvements
+- Component testing setup
+
+**📋 Next Immediate Priorities:**
+1. Set up Express.js API server with existing database
+2. Implement authentication middleware and services
+3. Create core API endpoints for users and content
+4. Integrate frontend with backend APIs
+5. Implement basic admin panel functionality
+
+**Updated Timeline Notes:**
+- 15-week total implementation (reduced from 20 weeks)
+- Earlier focus on API implementation due to completed foundation
+- Parallel frontend/backend development where possible
+- Emphasis on core functionality over advanced features initially
+- Production-ready deployment by week 15
+
+**Key Implementation Notes:**
+- **Database schema is fully implemented** with comprehensive Prisma configuration
+- **Multi-tenancy architecture is production-ready** with complete brand/site isolation
+- **Content management system foundation is established** with version control and workflows
+- **Authentication system is integrated** with JWT-based session management
+- **PostgreSQL 15 is configured** with optimized connection pooling and performance settings
+- **Comprehensive PostgreSQL optimization recommendations** available in `POSTGRESQL_RECOMMENDATIONS.md`
+- **All database adapters and services are implemented** with type-safe operations
 
 ---
 
 ## Security & Performance Considerations
 
-### **Basic Security Requirements**
+### **Security Requirements (Current Implementation)**
 
 **Authentication & Authorization:**
-- Session-based authentication
-- Basic role-based access control
-- Session management
-- API rate limiting
+- JWT-based authentication with refresh tokens
+- Multi-level role-based access control (SUPER_ADMIN to VIEWER)
+- Multi-tenant authentication context with brand/site isolation
+- Session management with secure token handling
+- API rate limiting and request validation
 
 **Data Protection:**
-- Basic encryption at rest and in transit
-- Audit logging for important operations
-- Input validation and sanitization
-- SQL injection prevention
+- PostgreSQL encryption at rest and in transit
+- Comprehensive audit logging for all operations
+- Input validation using Zod schemas
+- SQL injection prevention with Prisma ORM
+- Row-level security for multi-tenant data isolation
+- CORS and security headers implementation
+
+**Current Security Features:**
+- Password hashing with bcryptjs
+- Session token management
+- User activity tracking
+- Brand/site data isolation
+- Secure file upload handling
+- Environment-based configuration
 
 ### **Performance Requirements**
 

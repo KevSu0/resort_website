@@ -1,0 +1,516 @@
+{
+  "phase": "Phase 2 - Backend Development per Page",
+  "tasks": [
+    {
+      "id": "API-001",
+      "title": "Express.js API Server Foundation",
+      "agent_requirement": "Backend-API-Agent",
+      "subtasks": [
+        {
+          "id": "API-001-1",
+          "title": "Set Up Express Server with TypeScript",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-001-1a",
+              "title": "Initialize Express.js project with TypeScript configuration",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-001-1b",
+              "title": "Configure middleware (CORS, security, logging, validation)",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-001-1c",
+              "title": "Implement standardized error handling",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-001-1d",
+              "title": "Set up API response format structure",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-001-2",
+          "title": "Integrate Prisma ORM",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-001-2a",
+              "title": "Connect Prisma client to PostgreSQL database",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-001-2b",
+              "title": "Set up database connection management",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-001-2c",
+              "title": "Configure database middleware",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "API-002",
+      "title": "Authentication & Authorization Service",
+      "agent_requirement": "Backend-API-Agent",
+      "subtasks": [
+        {
+          "id": "API-002-1",
+          "title": "JWT Authentication Implementation",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-002-1a",
+              "title": "Implement JWT token generation and validation",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-1b",
+              "title": "Create refresh token mechanism",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-1c",
+              "title": "Implement password hashing with bcryptjs",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-1d",
+              "title": "Create authentication middleware",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-002-2",
+          "title": "Role-Based Access Control (RBAC)",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-002-2a",
+              "title": "Implement role validation middleware",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-2b",
+              "title": "Create permission checking system",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-2c",
+              "title": "Set up multi-tenant authentication context",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-002-3",
+          "title": "Auth API Endpoints",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-002-3a",
+              "title": "POST /api/v1/auth/login - User login",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-3b",
+              "title": "POST /api/v1/auth/logout - User logout",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-3c",
+              "title": "POST /api/v1/auth/refresh - Refresh token",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-002-3d",
+              "title": "GET /api/v1/auth/me - Current user info",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "API-003",
+      "title": "Dashboard/Analytics Module API",
+      "agent_requirement": "Backend-API-Agent",
+      "subtasks": [
+        {
+          "id": "API-003-1",
+          "title": "Dashboard Metrics Service",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-003-1a",
+              "title": "Create DashboardService class",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-003-1b",
+              "title": "Implement metrics aggregation from multiple tables",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-003-1c",
+              "title": "Add property availability overview logic",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-003-1d",
+              "title": "Implement booking interest statistics",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-003-2",
+          "title": "Dashboard API Endpoints",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-003-2a",
+              "title": "GET /api/v1/admin/dashboard/metrics - Basic KPIs",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-003-2b",
+              "title": "GET /api/v1/admin/dashboard/recent-activity - Activity feed",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-003-2c",
+              "title": "GET /api/v1/admin/dashboard/export - Data export",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "API-004",
+      "title": "Properties Management Module API",
+      "agent_requirement": "Backend-API-Agent",
+      "subtasks": [
+        {
+          "id": "API-004-1",
+          "title": "Property CRUD Operations",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-004-1a",
+              "title": "Create PropertyService with full CRUD methods",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-1b",
+              "title": "Implement property validation logic",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-1c",
+              "title": "Add property filtering and search",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-1d",
+              "title": "Implement pagination for property lists",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-004-2",
+          "title": "Room Management",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-004-2a",
+              "title": "Create RoomService for room operations",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-2b",
+              "title": "Implement room capacity and pricing logic",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-2c",
+              "title": "Add room amenity management",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-004-3",
+          "title": "Availability and Pricing Management",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-004-3a",
+              "title": "Create AvailabilityService for calendar management",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-3b",
+              "title": "Implement availability checking logic",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-3c",
+              "title": "Add pricing rule management",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-004-4",
+          "title": "Property API Endpoints",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-004-4a",
+              "title": "GET /api/v1/admin/properties - List properties",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4b",
+              "title": "POST /api/v1/admin/properties - Create property",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4c",
+              "title": "GET /api/v1/admin/properties/:id - Get property details",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4d",
+              "title": "PUT /api/v1/admin/properties/:id - Update property",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4e",
+              "title": "DELETE /api/v1/admin/properties/:id - Delete property",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4f",
+              "title": "GET /api/v1/admin/properties/:id/rooms - Get property rooms",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4g",
+              "title": "POST /api/v1/admin/properties/:id/rooms - Add room",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4h",
+              "title": "GET /api/v1/admin/properties/:id/availability - Get availability",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-004-4i",
+              "title": "POST /api/v1/admin/properties/:id/availability - Update availability",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "API-005",
+      "title": "Booking Interest Management Module API",
+      "agent_requirement": "Backend-API-Agent",
+      "subtasks": [
+        {
+          "id": "API-005-1",
+          "title": "Booking Interest Service",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-005-1a",
+              "title": "Create BookingInterestService class",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-1b",
+              "title": "Implement reference code generation",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-1c",
+              "title": "Add lead status management logic",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-1d",
+              "title": "Implement interest filtering and search",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-005-2",
+          "title": "Public Booking API",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-005-2a",
+              "title": "POST /api/v1/public/booking-interest - Submit interest form",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-2b",
+              "title": "GET /api/v1/public/availability - Check availability",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-2c",
+              "title": "GET /api/v1/public/properties - Browse properties",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-005-3",
+          "title": "Admin Booking Management API",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-005-3a",
+              "title": "GET /api/v1/admin/booking-interests - List interests",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-3b",
+              "title": "GET /api/v1/admin/booking-interests/:id - Get interest details",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-3c",
+              "title": "PUT /api/v1/admin/booking-interests/:id - Update status",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-3d",
+              "title": "POST /api/v1/admin/booking-interests/:id/contact - Mark contacted",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-005-3e",
+              "title": "POST /api/v1/admin/booking-interests/export - Export leads",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "API-006",
+      "title": "Users & Roles Management Module API",
+      "agent_requirement": "Backend-API-Agent",
+      "subtasks": [
+        {
+          "id": "API-006-1",
+          "title": "User Management Service",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-006-1a",
+              "title": "Create UserService with CRUD operations",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-1b",
+              "title": "Implement user validation and security",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-1c",
+              "title": "Add user invitation system",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-1d",
+              "title": "Implement user activation/deactivation",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-006-2",
+          "title": "Role Management Service",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-006-2a",
+              "title": "Create RoleService for role management",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-2b",
+              "title": "Implement permission assignment",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-2c",
+              "title": "Add role hierarchy validation",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        },
+        {
+          "id": "API-006-3",
+          "title": "User Management API Endpoints",
+          "agent_requirement": "Backend-API-Agent",
+          "microtasks": [
+            {
+              "id": "API-006-3a",
+              "title": "GET /api/v1/admin/users - List users",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-3b",
+              "title": "POST /api/v1/admin/users - Create user",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-3c",
+              "title": "GET /api/v1/admin/users/:id - Get user details",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-3d",
+              "title": "PUT /api/v1/admin/users/:id - Update user",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-3e",
+              "title": "POST /api/v1/admin/users/:id/activate - Activate user",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-3f",
+              "title": "GET /api/v1/admin/roles - List roles",
+              "agent_requirement": "Backend-API-Agent"
+            },
+            {
+              "id": "API-006-3g",
+              "title": "POST /api/v1/admin/roles - Create role",
+              "agent_requirement": "Backend-API-Agent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

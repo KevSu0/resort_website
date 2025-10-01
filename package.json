@@ -31,7 +31,12 @@
     "docker:migrate": "docker-compose run --rm migrate",
     "docker:seed": "docker-compose run --rm app npm run db:seed",
     "docker:studio": "docker-compose run --rm app npx prisma studio",
-    "docker:clean": "docker-compose down -v --remove-orphans && docker system prune -f"
+    "docker:clean": "docker-compose down -v --remove-orphans && docker system prune -f",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:build": "cd backend && npm run build",
+    "backend:start": "cd backend && npm start",
+    "backend:test": "cd backend && npm test",
+    "backend:install": "cd backend && npm install"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
