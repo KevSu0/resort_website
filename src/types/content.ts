@@ -19,7 +19,12 @@ export const ContentBlockType = z.enum([
   'accordion',
   'tab',
   'form',
-  'spacer'
+  'spacer',
+  'text',
+  'hero',
+  'features',
+  'cta',
+  'map'
 ]);
 
 export type ContentBlockType = z.infer<typeof ContentBlockType>;
@@ -28,9 +33,9 @@ export type ContentBlockType = z.infer<typeof ContentBlockType>;
 export const ContentBlockSchema = z.object({
   id: z.string().uuid(),
   type: ContentBlockType,
-  content: z.record(z.any()),
-  attributes: z.record(z.any()).optional(),
-  children: z.array(z.any()).optional(),
+  content: z.record(z.string(), z.unknown()),
+  attributes: z.record(z.string(), z.unknown()).optional(),
+  children: z.array(z.unknown()).optional(),
   order: z.number(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime()
@@ -45,7 +50,7 @@ export const ContentVersionSchema = z.object({
   version: z.number(),
   title: z.string(),
   blocks: z.array(ContentBlockSchema),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   createdBy: z.string(),
   createdAt: z.string().datetime(),
   publishedAt: z.string().datetime().optional(),
@@ -73,7 +78,7 @@ export const ContentSchema = z.object({
   featured: z.boolean().default(false),
   currentVersion: z.number().default(1),
   versions: z.array(ContentVersionSchema),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   createdBy: z.string(),
   updatedBy: z.string().optional(),
   publishedAt: z.string().datetime().optional(),
@@ -95,7 +100,7 @@ export const ContentTemplateSchema = z.object({
   variables: z.array(z.object({
     name: z.string(),
     type: z.enum(['text', 'image', 'link', 'color', 'number']),
-    defaultValue: z.any(),
+    defaultValue: z.unknown(),
     required: z.boolean().default(false)
   })).default([]),
   isActive: z.boolean().default(true),
@@ -169,7 +174,7 @@ export const FormFieldSchema = z.object({
   conditional: z.object({
     field: z.string(),
     operator: z.enum(['equals', 'not_equals', 'contains', 'not_contains', 'greater_than', 'less_than']),
-    value: z.any()
+    value: z.unknown()
   }).optional(),
   order: z.number()
 });
@@ -273,9 +278,29 @@ export const ContentCommentSchema = z.object({
   authorName: z.string(),
   content: z.string(),
   resolved: z.boolean().default(false),
-  replies: z.array(z.any()).default([]),
+  replies: z.array(z.unknown()).default([]),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime()
 });
 
 export type ContentComment = z.infer<typeof ContentCommentSchema>;
+
+// Additional types for content block service
+export interface CreateContentBlockData {
+  siteId: string;
+  pageId?: string;
+  name: string;
+  type: ContentBlockType;
+  content: Record<string, unknown>;
+  configuration?: Record<string, unknown>;
+  order?: number;
+  container?: string;
+}
+
+export interface UpdateContentBlockData {
+  content?: Record<string, unknown>;
+  configuration?: Record<string, unknown>;
+  order?: number;
+  container?: string;
+  isActive?: boolean;
+}

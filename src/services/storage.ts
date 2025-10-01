@@ -1,4 +1,5 @@
 import { type Property, type RoomType, type Place, type Enquiry, type Offer, type PromoCode, type Referrer } from '../types';
+import { logger } from '../lib/logger';
 
 export class LocalStorageService {
   private readonly STORAGE_KEYS = {
@@ -17,7 +18,13 @@ export class LocalStorageService {
       const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : defaultValue;
     } catch (error) {
-      console.error(`Error reading from localStorage:`, error);
+      logger.error('Error reading from localStorage', {
+        module: 'LocalStorageService',
+        function: 'getStorageData',
+        error: error instanceof Error ? error.message : String(error),
+        key,
+        category: 'storage'
+      });
       return defaultValue;
     }
   }
@@ -26,10 +33,21 @@ export class LocalStorageService {
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
-      console.error(`Error writing to localStorage:`, error);
+      logger.error('Error writing to localStorage', {
+        module: 'LocalStorageService',
+        function: 'setStorageData',
+        error: error instanceof Error ? error.message : String(error),
+        key,
+        category: 'storage'
+      });
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         // Handle storage quota exceeded
-        console.warn('LocalStorage quota exceeded. Consider clearing old data.');
+        logger.warn('LocalStorage quota exceeded. Consider clearing old data', {
+          module: 'LocalStorageService',
+          function: 'setStorageData',
+          key,
+          category: 'storage'
+        });
       }
     }
   }
@@ -185,7 +203,12 @@ export class LocalStorageService {
         }
       });
     } catch (error) {
-      console.error('Error importing data:', error);
+      logger.error('Error importing data', {
+        module: 'LocalStorageService',
+        function: 'importData',
+        error: error instanceof Error ? error.message : String(error),
+        category: 'storage'
+      });
       throw new Error('Invalid data format');
     }
   }

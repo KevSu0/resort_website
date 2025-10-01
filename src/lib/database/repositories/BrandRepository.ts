@@ -1,5 +1,5 @@
 import { BaseRepository } from './BaseRepository';
-import { IDatabaseAdapter } from '../interfaces/IDatabaseAdapter';
+import { IDatabaseAdapter, PaginationOptions, QueryOptions, QueryResult } from '../interfaces/IDatabaseAdapter';
 import { ITenantContext } from '../../tenant/TenantContext';
 
 export interface Brand {
@@ -13,7 +13,7 @@ export interface Brand {
   accentColor?: string;
   domain?: string;
   subdomain?: string;
-  settings?: Record<string, any>;
+  settings?: Record<string, unknown>;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -29,7 +29,7 @@ export interface CreateBrandData {
   accentColor?: string;
   domain?: string;
   subdomain?: string;
-  settings?: Record<string, any>;
+  settings?: Record<string, unknown>;
   isActive?: boolean;
 }
 
@@ -42,8 +42,13 @@ export interface UpdateBrandData {
   accentColor?: string;
   domain?: string;
   subdomain?: string;
-  settings?: Record<string, any>;
+  settings?: Record<string, unknown>;
   isActive?: boolean;
+}
+
+export interface BrandWithSiteCount extends Brand {
+  siteCount: number;
+  activeSiteCount: number;
 }
 
 /**
@@ -74,9 +79,9 @@ export class BrandRepository extends BaseRepository<Brand> {
    * Find active brands only
    */
   async findActive(
-    pagination?: any,
-    options?: any
-  ): Promise<any> {
+    pagination?: PaginationOptions,
+    options?: QueryOptions
+  ): Promise<QueryResult<Brand>> {
     return await this.findMany('is_active = true', [], pagination, options);
   }
 
@@ -186,9 +191,9 @@ export class BrandRepository extends BaseRepository<Brand> {
    * Get brands with their site counts
    */
   async findBrandsWithSiteCount(
-    pagination?: any,
-    options?: any
-  ): Promise<any> {
+    pagination?: PaginationOptions,
+    options?: QueryOptions
+  ): Promise<QueryResult<BrandWithSiteCount>> {
     const sql = `
       SELECT
         b.*,
@@ -200,7 +205,7 @@ export class BrandRepository extends BaseRepository<Brand> {
       ORDER BY b.created_at DESC
     `;
 
-    return await this.queryWithPagination(sql, [], pagination, options);
+    return await this.queryWithPagination<BrandWithSiteCount>(sql, [], pagination, options);
   }
 
   /**
@@ -208,9 +213,9 @@ export class BrandRepository extends BaseRepository<Brand> {
    */
   async searchBrands(
     query: string,
-    pagination?: any,
-    options?: any
-  ): Promise<any> {
+    pagination?: PaginationOptions,
+    options?: QueryOptions
+  ): Promise<QueryResult<Brand>> {
     const sql = `
       SELECT * FROM brands
       WHERE
@@ -223,13 +228,13 @@ export class BrandRepository extends BaseRepository<Brand> {
     `;
 
     const searchParam = `%${query}%`;
-    return await this.queryWithPagination(sql, [searchParam], pagination, options);
+    return await this.queryWithPagination<Brand>(sql, [searchParam], pagination, options);
   }
 
   /**
    * Get brand settings
    */
-  async getBrandSettings(brandId: string): Promise<Record<string, any>> {
+  async getBrandSettings(brandId: string): Promise<Record<string, unknown>> {
     const sql = `
       SELECT key, value, description, is_public
       FROM brand_settings
@@ -237,7 +242,7 @@ export class BrandRepository extends BaseRepository<Brand> {
     `;
 
     const results = await this.query(sql, [brandId]);
-    const settings: Record<string, any> = {};
+    const settings: Record<string, unknown> = {};
 
     results.data.forEach(setting => {
       settings[setting.key] = {
@@ -256,7 +261,7 @@ export class BrandRepository extends BaseRepository<Brand> {
   async updateBrandSetting(
     brandId: string,
     key: string,
-    value: any,
+    value: unknown,
     description?: string,
     isPublic?: boolean
   ): Promise<void> {

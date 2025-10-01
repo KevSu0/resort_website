@@ -3,11 +3,12 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2, Duplicate, Edit, Eye, EyeOff, ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { GripVertical, Trash2, Copy, Edit, Eye, EyeOff, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 
 import { Button } from '../../ui/button';
-import { RichContentEditor } from './RichContentEditor';
-import { BlockTemplate, RichContentNode } from '../../../types/cms';
+import { UnifiedRichTextEditor } from '@/components/editor';
+import type { JSONContent } from '@tiptap/react';
+import type { RichContentNode } from '../../../types/cms';
 import { useToast } from '../../../hooks/useToast';
 
 interface ContentBlock {
@@ -18,7 +19,7 @@ interface ContentBlock {
   visible: boolean;
   locked: boolean;
   order: number;
-  settings?: Record<string, any>;
+  settings?: Record<string, unknown>;
 }
 
 interface BlockEditorProps {
@@ -68,18 +69,32 @@ const SortableBlock: React.FC<{
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const handleContentChange = useCallback((content: RichContentNode) => {
-    onBlockChange(block.id, { content });
+  const handleContentChange = useCallback((content: string | JSONContent) => {
+    // Convert the content to match the expected RichContentNode type
+    const convertedContent = typeof content === 'string'
+      ? {
+          id: `content-${Date.now()}`,
+          type: 'doc',
+          content: [{
+            id: `para-${Date.now()}`,
+            type: 'paragraph',
+            content: [{
+              id: `text-${Date.now()}`,
+              type: 'text',
+              text: content
+            }]
+          }]
+        } as unknown as RichContentNode
+      : content as unknown as RichContentNode;
+    
+    onBlockChange(block.id, { content: convertedContent });
   }, [block.id, onBlockChange]);
 
   const handleVisibilityToggle = useCallback(() => {
     onBlockChange(block.id, { visible: !block.visible });
   }, [block.id, block.visible, onBlockChange]);
 
-  const handleLockToggle = useCallback(() => {
-    onBlockChange(block.id, { locked: !block.locked });
-  }, [block.id, block.locked, onBlockChange]);
-
+  
   return (
     <div
       ref={setNodeRef}
@@ -158,7 +173,7 @@ const SortableBlock: React.FC<{
               title="Duplicate block"
               className="h-8 w-8 p-0"
             >
-              <Duplicate className="h-4 w-4" />
+              <Copy className="h-4 w-4" />
             </Button>
 
             <Button
@@ -183,18 +198,19 @@ const SortableBlock: React.FC<{
               {/* Render preview content */}
               <div dangerouslySetInnerHTML={{
                 __html: JSON.stringify(block.content)
-              }} />
+              }} as any />
             </div>
           ) : (
-            <RichContentEditor
-              content={block.content as any}
+            <UnifiedRichTextEditor
+              content={block.content as unknown as JSONContent}
               onChange={handleContentChange}
               brandId={brandId}
               siteId={siteId}
               editable={!block.locked}
-              showToolbar={isEditing}
+              toolbar={isEditing}
               showBlockSelector={false}
               placeholder={`Edit ${block.name} content...`}
+              mode="cms"
             />
           )}
         </div>
@@ -225,7 +241,6 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
   showBlockControls = true,
   enableLivePreview = false,
 }) => {
-  const [isAddingBlock, setIsAddingBlock] = useState(false);
   const { addToast } = useToast();
 
   const sensors = useSensors(
@@ -235,7 +250,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     })
   );
 
-  const handleDragEnd = useCallback((event: any) => {
+  const handleDragEnd = useCallback((event: { active: { id: string }; over: { id: string } }) => {
     const { active, over } = event;
 
     if (active.id !== over.id) {
@@ -258,30 +273,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     onChange(newBlocks);
   }, [blocks, onChange]);
 
-  const handleBlockAdd = useCallback((blockTemplate: BlockTemplate) => {
-    const newBlock: ContentBlock = {
-      id: `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      type: blockTemplate.id,
-      name: blockTemplate.name,
-      content: blockTemplate.initialContent,
-      visible: true,
-      locked: false,
-      order: blocks.length,
-      settings: blockTemplate.schema,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-
-    const newBlocks = [...blocks, newBlock];
-    onChange(newBlocks);
-    setIsAddingBlock(false);
-
-    addToast({
-      type: 'success',
-      message: `${blockTemplate.name} block added`,
-    });
-  }, [blocks, onChange, addToast]);
-
+  
   const handleBlockDelete = useCallback((blockId: string) => {
     const newBlocks = blocks.filter((block) => block.id !== blockId);
     onChange(newBlocks);

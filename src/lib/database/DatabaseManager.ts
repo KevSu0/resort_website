@@ -1,6 +1,7 @@
-import { IDatabaseAdapter, DatabaseConnectionConfig, DatabaseCapabilities } from './interfaces/IDatabaseAdapter';
+import type { IDatabaseAdapter, DatabaseConnectionConfig, DatabaseCapabilities } from './interfaces/IDatabaseAdapter';
 import { PostgreSQLAdapter } from './adapters/PostgreSQLAdapter';
 import { PrismaAdapter } from './adapters/PrismaAdapter';
+import { logger } from '../logger';
 
 export type DatabaseType = 'postgresql' | 'prisma-postgres' | 'mysql' | 'sqlite';
 
@@ -55,9 +56,16 @@ export class DatabaseManager {
       this.adapters.set(adapterKey, adapter);
       this.defaultAdapter = adapterKey;
 
-      console.log(`Database manager initialized with ${config.type} adapter`);
+      logger.logDatabaseConnection(
+        { type: config.type, host: config.connection.host, database: config.connection.database },
+        { module: 'DatabaseManager', function: 'initialize' }
+      );
     } catch (error) {
-      console.error(`Failed to initialize database adapter:`, error);
+      logger.logDatabaseError(
+        error instanceof Error ? error : new Error(String(error)),
+        'initialize',
+        { module: 'DatabaseManager', function: 'initialize', adapterType: config.type }
+      );
       throw error;
     }
   }
@@ -69,13 +77,17 @@ export class DatabaseManager {
     name: string,
     config: DatabaseManagerConfig
   ): Promise<void> {
+     
     const adapterKey = this.generateAdapterKey(config.type, config.connection);
     const adapter = this.createAdapter(config.type);
 
     await adapter.connect(config.connection);
     this.adapters.set(name, adapter);
 
-    console.log(`Added database connection '${name}' with ${config.type} adapter`);
+    logger.logDatabaseConnection(
+      { name, type: config.type, host: config.connection.host, database: config.connection.database },
+      { module: 'DatabaseManager', function: 'addConnection' }
+    );
   }
 
   /**
@@ -110,7 +122,11 @@ export class DatabaseManager {
       const adapter = this.getAdapter(name);
       return await adapter.healthCheck();
     } catch (error) {
-      console.error(`Health check failed for database '${name || 'default'}':`, error);
+      logger.logDatabaseError(
+        error instanceof Error ? error : new Error(String(error)),
+        'healthCheck',
+        { module: 'DatabaseManager', function: 'healthCheck', databaseName: name || 'default' }
+      );
       return false;
     }
   }
@@ -144,7 +160,11 @@ export class DatabaseManager {
         this.defaultAdapter = null;
       }
 
-      console.log(`Closed database connection '${adapterKey}'`);
+      logger.info(`Closed database connection '${adapterKey}'`, {
+        module: 'DatabaseManager',
+        function: 'closeConnection',
+        connectionKey: adapterKey
+      });
     }
   }
 
@@ -156,9 +176,17 @@ export class DatabaseManager {
       async ([name, adapter]) => {
         try {
           await adapter.disconnect();
-          console.log(`Closed database connection '${name}'`);
+          logger.info(`Closed database connection '${name}'`, {
+            module: 'DatabaseManager',
+            function: 'closeAllConnections',
+            connectionName: name
+          });
         } catch (error) {
-          console.error(`Error closing database connection '${name}':`, error);
+          logger.logDatabaseError(
+            error instanceof Error ? error : new Error(String(error)),
+            'closeConnection',
+            { module: 'DatabaseManager', function: 'closeAllConnections', connectionName: name }
+          );
         }
       }
     );
@@ -167,7 +195,10 @@ export class DatabaseManager {
     this.adapters.clear();
     this.defaultAdapter = null;
 
-    console.log('All database connections closed');
+    logger.info('All database connections closed', {
+      module: 'DatabaseManager',
+      function: 'closeAllConnections'
+    });
   }
 
   /**
@@ -189,7 +220,11 @@ export class DatabaseManager {
       await adapter.disconnect();
       return isHealthy;
     } catch (error) {
-      console.error('Database connection test failed:', error);
+      logger.logDatabaseError(
+        error instanceof Error ? error : new Error(String(error)),
+        'testConnection',
+        { module: 'DatabaseManager', function: 'testConnection', adapterType: config.type }
+      );
       return false;
     }
   }
@@ -206,6 +241,7 @@ export class DatabaseManager {
       healthy: boolean;
     }>;
   } {
+     
     const connections = Array.from(this.adapters.entries()).map(([name, adapter]) => ({
       name,
       type: this.getAdapterType(name) as DatabaseType,
@@ -222,11 +258,11 @@ export class DatabaseManager {
   /**
    * Execute a query on a specific connection
    */
-  async query<T = any>(
+  async query<T = unknown>(
     sql: string,
-    params?: any[],
-    options?: { connection?: string } & any
-  ): Promise<any> {
+    params?: unknown[],
+    options?: { connection?: string } & Record<string, unknown>
+  ): Promise<unknown> {
     const adapter = this.getAdapter(options?.connection);
     return await adapter.query<T>(sql, params, options);
   }
@@ -235,7 +271,7 @@ export class DatabaseManager {
    * Execute a transaction across multiple operations
    */
   async transaction<T>(
-    callback: (tx: any) => Promise<T>,
+    callback: (tx: Record<string, unknown>) => Promise<T>,
     options?: { connection?: string }
   ): Promise<T> {
     const adapter = this.getAdapter(options?.connection);
@@ -306,7 +342,15 @@ export class DatabaseManager {
         }
 
         const waitTime = backoff === 'exponential' ? delay * Math.pow(2, attempt - 1) : delay * attempt;
-        console.warn(`Database operation failed (attempt ${attempt}/${attempts}), retrying in ${waitTime}ms:`, lastError.message);
+        logger.warn(`Database operation failed (attempt ${attempt}/${attempts}), retrying in ${waitTime}ms`, {
+          module: 'DatabaseManager',
+          function: 'withRetry',
+          attempt,
+          totalAttempts: attempts,
+          waitTime,
+          error: lastError.message,
+          category: 'retry'
+        });
         await this.sleep(waitTime);
       }
     }

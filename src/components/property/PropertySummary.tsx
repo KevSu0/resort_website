@@ -8,7 +8,7 @@ interface PropertySummaryProps {
   property: Property;
 }
 
-export const PropertySummary: React.FC<PropertySummaryProps> = ({ property }) => {
+export function PropertySummary({ property }: PropertySummaryProps) {
   // Get the lowest room price
   const lowestPrice = property.rooms.length > 0
     ? Math.min(...property.rooms.map(room => room.baseRate || 0))
@@ -115,7 +115,7 @@ export const PropertySummary: React.FC<PropertySummaryProps> = ({ property }) =>
       </div>
     </Link>
   );
-};
+}
 
 // Helper function to get icon for amenity
 const getAmenityIcon = (amenity: string) => {

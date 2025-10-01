@@ -7,7 +7,7 @@ interface BreadcrumbItem {
   href?: string;
 }
 
-export const Breadcrumbs: React.FC<{ property?: Property }> = ({ property }) => {
+export function Breadcrumbs({ property }: { property?: Property }) {
   const location = useLocation();
 
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
@@ -70,4 +70,4 @@ export const Breadcrumbs: React.FC<{ property?: Property }> = ({ property }) => 
       </ol>
     </nav>
   );
-};
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '../lib/logger';
 
 interface LoadingState {
   [key: string]: boolean;
@@ -77,7 +78,13 @@ export const useAsyncOperation = () => {
       const result = await operation();
       return result;
     } catch (error) {
-      console.error(`Async operation [${loadingKey}] failed:`, error);
+      logger.error(`Async operation [${loadingKey}] failed`, {
+        module: 'useLoading',
+        function: 'executeAsync',
+        loadingKey,
+        error: error instanceof Error ? error.message : String(error),
+        category: 'async'
+      });
       return null;
     } finally {
       stopLoading(loadingKey);

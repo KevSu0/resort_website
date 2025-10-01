@@ -1,5 +1,6 @@
 import { type Property, type RoomType, type Place, type Offer, type PromoCode, type Referrer } from '@/types';
 import { storageService } from '@/services/storage';
+import { logger } from '../lib/logger';
 
 // Mock Properties
 export const mockProperties: (Property & { rooms: RoomType[]; places: Place[] })[] = [
@@ -573,7 +574,11 @@ export const initializeMockData = (): void => {
     storageService.saveReferrers(mockReferrers);
   }
 
-  console.log('Mock data initialized successfully');
+  logger.info('Mock data initialized successfully', {
+    module: 'MockData',
+    function: 'initializeMockData',
+    category: 'initialization'
+  });
 };
 
 // Generate unique reference code for enquiries

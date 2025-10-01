@@ -9,7 +9,7 @@ interface PropertyCardProps {
   onClick?: () => void;
 }
 
-export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
+export function PropertyCard({ property, onClick }: PropertyCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 

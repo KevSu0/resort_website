@@ -17,7 +17,7 @@ interface HighlightItem {
   statLabel?: string;
 }
 
-export const Highlights: React.FC = () => {
+export function Highlights() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -146,4 +146,4 @@ export const Highlights: React.FC = () => {
       </div>
     </section>
   );
-};
+}

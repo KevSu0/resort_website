@@ -17,8 +17,8 @@ export interface User {
   passwordHash: string;
   resetToken?: string;
   resetTokenExpires?: Date;
-  preferences?: Record<string, any>;
-  metadata?: Record<string, any>;
+  preferences?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
   brandId: string;

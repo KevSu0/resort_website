@@ -1,5 +1,5 @@
-import { IDatabaseAdapter } from './interfaces/IDatabaseAdapter';
-import { ITenantContext } from '../tenant/TenantContext';
+import type { IDatabaseAdapter } from './interfaces/IDatabaseAdapter';
+import type { ITenantContext } from '../tenant/TenantContext';
 import { BrandRepository } from './repositories/BrandRepository';
 import { SiteRepository } from './repositories/SiteRepository';
 import { UserRepository } from './repositories/UserRepository';
@@ -10,6 +10,7 @@ import { MediaRepository } from './repositories/MediaRepository';
 import { WorkflowRepository } from './repositories/WorkflowRepository';
 import { ContentVersionRepository } from './repositories/ContentVersionRepository';
 import { AuditLogRepository } from './repositories/AuditLogRepository';
+import { logger } from '../logger';
 
 /**
  * Repository Factory
@@ -19,7 +20,7 @@ import { AuditLogRepository } from './repositories/AuditLogRepository';
  */
 
 export class RepositoryFactory {
-  private static instances: Map<string, any> = new Map();
+  private static instances: Map<string, unknown> = new Map();
 
   constructor(
     private databaseAdapter: IDatabaseAdapter,
@@ -176,7 +177,7 @@ export class RepositoryFactory {
   /**
    * Get all repository instances (useful for testing)
    */
-  getAllRepositories(): Record<string, any> {
+  getAllRepositories(): Record<string, unknown> {
     return {
       brand: this.getBrandRepository(),
       site: this.getSiteRepository(),
@@ -205,9 +206,18 @@ export class RepositoryFactory {
         throw new Error('Database connection is not healthy');
       }
 
-      console.log('Repository factory initialized successfully');
+      logger.info('Repository factory initialized successfully', {
+        module: 'RepositoryFactory',
+        function: 'initialize',
+        category: 'database'
+      });
     } catch (error) {
-      console.error('Failed to initialize repository factory:', error);
+      logger.error('Failed to initialize repository factory', {
+        module: 'RepositoryFactory',
+        function: 'initialize',
+        error: error instanceof Error ? error.message : String(error),
+        category: 'database'
+      });
       throw error;
     }
   }
@@ -287,13 +297,13 @@ export class RepositoryRegistry {
   async getHealthStatus(): Promise<Record<string, boolean>> {
     const status: Record<string, boolean> = {};
 
-    for (const [name, factory] of this.factories) {
+    for (const [name, factory] of RepositoryRegistry.factories) {
       try {
         // Access the database adapter through one of the repositories
         const repository = factory.getBrandRepository();
         const isHealthy = await repository['databaseAdapter'].healthCheck();
         status[name] = isHealthy;
-      } catch (error) {
+      } catch {
         status[name] = false;
       }
     }

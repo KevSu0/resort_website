@@ -1,23 +1,14 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
-
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
-
-export interface Toast {
-  id: string;
-  type: ToastType;
-  title: string;
-  message?: string;
-  duration?: number;
-}
+import { Toast, updateToastsState, addToastListener, getCurrentToasts } from './toast.utils';
 
 interface ToastProps {
   toast: Toast;
   onDismiss: (id: string) => void;
 }
 
-const ToastComponent: React.FC<ToastProps> = ({ toast, onDismiss }) => {
+function ToastComponent({ toast, onDismiss }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onDismiss(toast.id);
@@ -75,53 +66,21 @@ const ToastComponent: React.FC<ToastProps> = ({ toast, onDismiss }) => {
       </div>
     </div>
   );
-};
+}
 
-let toastCount = 0;
-
-export const useToast = () => {
+export function ToastContainer() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = (toast: Omit<Toast, 'id'>) => {
-    const id = `toast-${++toastCount}`;
-    const newToast: Toast = { ...toast, id };
-    setToasts(prev => [...prev, newToast]);
-    return id;
-  };
+  useEffect(() => {
+    // Subscribe to internal toast changes
+    const removeListener = addToastListener(() => {
+      setToasts(getCurrentToasts());
+    });
 
-  const dismissToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  };
+    setToasts(getCurrentToasts());
 
-  const success = (title: string, message?: string) => {
-    return addToast({ type: 'success', title, message });
-  };
-
-  const error = (title: string, message?: string) => {
-    return addToast({ type: 'error', title, message });
-  };
-
-  const warning = (title: string, message?: string) => {
-    return addToast({ type: 'warning', title, message });
-  };
-
-  const info = (title: string, message?: string) => {
-    return addToast({ type: 'info', title, message });
-  };
-
-  return {
-    toasts,
-    success,
-    error,
-    warning,
-    info,
-    dismiss: dismissToast,
-    add: addToast
-  };
-};
-
-export const ToastContainer: React.FC = () => {
-  const { toasts, dismiss } = useToast();
+    return removeListener;
+  }, []);
 
   if (typeof document === 'undefined') {
     return null;
@@ -129,32 +88,12 @@ export const ToastContainer: React.FC = () => {
 
   return createPortal(
     <div className="fixed top-4 right-4 z-50 space-y-2">
-      {toasts.map((toast) => (
-        <ToastComponent key={toast.id} toast={toast} onDismiss={dismiss} />
+      {toasts.map((toast: Toast) => (
+        <ToastComponent key={toast.id} toast={toast} onDismiss={(id) => {
+          updateToastsState(getCurrentToasts().filter(t => t.id !== id));
+        }} />
       ))}
     </div>,
     document.body
   );
-};
-
-// Global toast instance for non-component usage
-let globalToast: ReturnType<typeof useToast> | null = null;
-
-export const toast = {
-  success: (title: string, message?: string) => globalToast?.success(title, message),
-  error: (title: string, message?: string) => globalToast?.error(title, message),
-  warning: (title: string, message?: string) => globalToast?.warning(title, message),
-  info: (title: string, message?: string) => globalToast?.info(title, message)
-};
-
-// Hook to set global toast instance
-export const useGlobalToast = () => {
-  const toastInstance = useToast();
-  useEffect(() => {
-    globalToast = toastInstance;
-    return () => {
-      globalToast = null;
-    };
-  }, [toastInstance]);
-  return toastInstance;
-};
+}

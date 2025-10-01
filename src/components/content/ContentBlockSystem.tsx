@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { Plus, GripVertical, Trash2, Edit, Eye, EyeOff } from 'lucide-react'
-import { RichTextEditor } from '@/components/editor/RichTextEditor'
+import { RichTextEditor } from '@/components/editor'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -34,8 +34,8 @@ export interface ContentBlockData {
   id: string
   type: 'text' | 'image' | 'hero' | 'features' | 'testimonials' | 'cta' | 'gallery' | 'video' | 'form' | 'custom'
   name: string
-  content: any
-  configuration: any
+  content: Record<string, unknown>
+  configuration: Record<string, unknown>
   isActive: boolean
   order: number
   container?: string
@@ -65,11 +65,9 @@ const BLOCK_TYPES = [
 function ContentBlockEditor({
   block,
   onChange,
-  onClose,
 }: {
   block: ContentBlockData
   onChange: (block: ContentBlockData) => void
-  onClose: () => void
 }) {
   const updateBlock = useCallback((updates: Partial<ContentBlockData>) => {
     onChange({ ...block, ...updates })
@@ -95,6 +93,7 @@ function ContentBlockEditor({
                 content={block.content?.html || ''}
                 onChange={(html) => updateBlock({ content: { html } })}
                 placeholder="Enter your text content here..."
+                mode="simple"
               />
             </div>
           </div>

@@ -1,4 +1,6 @@
-interface CacheEntry<T = any> {
+import { logger } from '../lib/logger';
+
+interface CacheEntry<T = unknown> {
   data: T;
   timestamp: number;
   ttl: number;
@@ -43,7 +45,9 @@ class CacheService {
     if (this.memoryCache.size >= maxSize) {
       // Remove oldest entry
       const oldestKey = this.memoryCache.keys().next().value;
-      this.memoryCache.delete(oldestKey);
+      if (oldestKey) {
+        this.memoryCache.delete(oldestKey);
+      }
     }
 
     this.memoryCache.set(key, entry);
@@ -54,7 +58,12 @@ class CacheService {
         const serializedEntry = JSON.stringify(entry);
         localStorage.setItem(storageKey, serializedEntry);
       } catch (error) {
-        console.warn('Failed to persist cache to localStorage:', error);
+        logger.logCacheError(
+          error instanceof Error ? error : new Error(String(error)),
+          'persistToStorage',
+          key,
+          { module: 'CacheService', function: 'set', storageKey }
+        );
       }
     }
   }
@@ -88,7 +97,12 @@ class CacheService {
           }
         }
       } catch (error) {
-        console.warn('Failed to read from localStorage:', error);
+        logger.logCacheError(
+          error instanceof Error ? error : new Error(String(error)),
+          'readFromStorage',
+          key,
+          { module: 'CacheService', function: 'get', storageKey }
+        );
       }
     }
 
@@ -116,7 +130,7 @@ class CacheService {
   }
 
   // Clear all cache
-  clear(options: { persistToStorage?: boolean; storagePrefix?: string } = {}): void {
+  clear(options: CacheOptions & { storagePrefix?: string } = {}): void {
     const { persistToStorage = false, storagePrefix = 'cache_' } = options;
 
     this.memoryCache.clear();
@@ -139,7 +153,6 @@ class CacheService {
   }
 
   private cleanup(): void {
-    const now = Date.now();
     for (const [key, entry] of this.memoryCache.entries()) {
       if (this.isExpired(entry)) {
         this.memoryCache.delete(key);
@@ -197,7 +210,13 @@ class CacheService {
       // If fetch fails and we have stale data, return it
       const staleData = this.getStale<T>(key, options);
       if (staleData !== null) {
-        console.warn('Returning stale data due to fetch error:', error);
+        logger.warn('Returning stale data due to fetch error', {
+          module: 'CacheService',
+          function: 'getOrSet',
+          key,
+          error: error instanceof Error ? error.message : String(error),
+          category: 'cache'
+        });
         return staleData;
       }
       throw error;
@@ -224,7 +243,12 @@ class CacheService {
           return storageEntry.data;
         }
       } catch (error) {
-        console.warn('Failed to read stale data from localStorage:', error);
+        logger.logCacheError(
+          error instanceof Error ? error : new Error(String(error)),
+          'readStaleFromStorage',
+          key,
+          { module: 'CacheService', function: 'getStale', storageKey }
+        );
       }
     }
 
@@ -258,7 +282,12 @@ class CacheService {
         const data = await fetcher();
         this.set(key, data, options);
       } catch (error) {
-        console.warn(`Failed to warm cache for key ${key}:`, error);
+        logger.logCacheError(
+          error instanceof Error ? error : new Error(String(error)),
+          'warmCache',
+          key,
+          { module: 'CacheService', function: 'warmCache' }
+        );
       }
     });
 
@@ -267,7 +296,7 @@ class CacheService {
 
   // Cache invalidation patterns
 
-  invalidateByPattern(pattern: RegExp, options: CacheOptions = {}): void {
+  invalidateByPattern(pattern: RegExp, options: CacheOptions & { storagePrefix?: string } = {}): void {
     const { persistToStorage = false, storagePrefix = 'cache_' } = options;
 
     // Remove from memory cache

@@ -7,7 +7,7 @@ interface RoomComparisonProps {
   rooms: RoomType[];
 }
 
-export const RoomComparison: React.FC<RoomComparisonProps> = ({ rooms }) => {
+export function RoomComparison({ rooms }: RoomComparisonProps) {
   const [selectedRooms, setSelectedRooms] = useState<RoomType[]>([]);
 
   const toggleRoomSelection = (room: RoomType) => {
@@ -130,4 +130,4 @@ export const RoomComparison: React.FC<RoomComparisonProps> = ({ rooms }) => {
       )}
     </div>
   );
-};
+}

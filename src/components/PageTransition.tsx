@@ -4,10 +4,10 @@ interface PageTransitionProps {
   children: ReactNode;
 }
 
-export const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
+export function PageTransition({ children }: PageTransitionProps) {
   return (
     <div className="animate-fade-in">
       {children}
     </div>
   );
-};
+}

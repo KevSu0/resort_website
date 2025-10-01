@@ -20,7 +20,7 @@ export interface DatabaseConnectionConfig {
 }
 
 export interface QueryOptions {
-  transaction?: any;
+  transaction?: DatabaseTransaction;
   cache?: boolean;
   cacheKey?: string;
   cacheTTL?: number;
@@ -34,7 +34,7 @@ export interface PaginationOptions {
   orderDirection?: 'asc' | 'desc';
 }
 
-export interface QueryResult<T = any> {
+export interface QueryResult<T = unknown> {
   data: T[];
   total?: number;
   page?: number;
@@ -45,7 +45,7 @@ export interface QueryResult<T = any> {
 export interface DatabaseTransaction {
   commit(): Promise<void>;
   rollback(): Promise<void>;
-  query<T = any>(sql: string, params?: any[]): Promise<QueryResult<T>>;
+  query<T = unknown>(sql: string, params?: unknown[]): Promise<QueryResult<T>>;
 }
 
 export interface IDatabaseAdapter {
@@ -67,14 +67,14 @@ export interface IDatabaseAdapter {
   /**
    * Execute a raw SQL query
    */
-  query<T = any>(sql: string, params?: any[], options?: QueryOptions): Promise<QueryResult<T>>;
+  query<T = unknown>(sql: string, params?: unknown[], options?: QueryOptions): Promise<QueryResult<T>>;
 
   /**
    * Execute a query with pagination
    */
-  queryWithPagination<T = any>(
+  queryWithPagination<T = unknown>(
     sql: string,
-    params?: any[],
+    params?: unknown[],
     pagination?: PaginationOptions,
     options?: QueryOptions
   ): Promise<QueryResult<T>>;
@@ -82,12 +82,12 @@ export interface IDatabaseAdapter {
   /**
    * Execute a query that returns a single record
    */
-  queryOne<T = any>(sql: string, params?: any[], options?: QueryOptions): Promise<T | null>;
+  queryOne<T = unknown>(sql: string, params?: unknown[], options?: QueryOptions): Promise<T | null>;
 
   /**
    * Execute a query that returns a scalar value
    */
-  queryScalar<T = any>(sql: string, params?: any[], options?: QueryOptions): Promise<T | null>;
+  queryScalar<T = unknown>(sql: string, params?: unknown[], options?: QueryOptions): Promise<T | null>;
 
   /**
    * Execute multiple queries in a transaction
@@ -97,38 +97,38 @@ export interface IDatabaseAdapter {
   /**
    * Insert a record into a table
    */
-  insert<T = any>(table: string, data: Partial<T>, options?: QueryOptions): Promise<T>;
+  insert<T = Record<string, unknown>>(table: string, data: Partial<T>, options?: QueryOptions): Promise<T>;
 
   /**
    * Insert multiple records into a table
    */
-  insertMany<T = any>(table: string, data: Partial<T>[], options?: QueryOptions): Promise<T[]>;
+  insertMany<T = Record<string, unknown>>(table: string, data: Partial<T>[], options?: QueryOptions): Promise<T[]>;
 
   /**
    * Update records in a table
    */
-  update<T = any>(
+  update<T = Record<string, unknown>>(
     table: string,
     data: Partial<T>,
     where: string,
-    params?: any[],
+    params?: unknown[],
     options?: QueryOptions
   ): Promise<T[]>;
 
   /**
    * Delete records from a table
    */
-  delete(table: string, where: string, params?: any[], options?: QueryOptions): Promise<number>;
+  delete(table: string, where: string, params?: unknown[], options?: QueryOptions): Promise<number>;
 
   /**
    * Count records in a table
    */
-  count(table: string, where?: string, params?: any[], options?: QueryOptions): Promise<number>;
+  count(table: string, where?: string, params?: unknown[], options?: QueryOptions): Promise<number>;
 
   /**
    * Check if a record exists
    */
-  exists(table: string, where: string, params?: any[], options?: QueryOptions): Promise<boolean>;
+  exists(table: string, where: string, params?: unknown[], options?: QueryOptions): Promise<boolean>;
 
   /**
    * Get the last inserted ID
@@ -143,7 +143,7 @@ export interface IDatabaseAdapter {
   /**
    * Escape values
    */
-  escapeValue(value: any): any;
+  escapeValue(value: unknown): unknown;
 
   /**
    * Begin a transaction

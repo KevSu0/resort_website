@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type { SyntheticEvent } from 'react';
 import { IMAGE_PLACEHOLDER } from '@/constants/images';
+import { logger } from '../lib/logger';
 
 // Utility for combining CSS classes
 export function cn(...inputs: ClassValue[]) {
@@ -152,7 +153,13 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     await navigator.clipboard.writeText(text);
     return true;
   } catch (err) {
-    console.error('Failed to copy text: ', err);
+    logger.error('Failed to copy text to clipboard', {
+      module: 'Utils',
+      function: 'copyToClipboard',
+      error: err instanceof Error ? err.message : String(err),
+      textLength: text.length,
+      category: 'utility'
+    });
     return false;
   }
 }

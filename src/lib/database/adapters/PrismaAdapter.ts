@@ -1,5 +1,5 @@
-import { PrismaClient } from '../../generated/prisma';
-import {
+import { PrismaClient } from '@prisma/client';
+import type {
   IDatabaseAdapter,
   DatabaseConnectionConfig,
   QueryOptions,
@@ -8,6 +8,26 @@ import {
   DatabaseTransaction,
   DatabaseCapabilities,
 } from '../interfaces/IDatabaseAdapter';
+
+/**
+ * Strongly typed parameter replacement
+ */
+type TypedParameterArray = Array<string | number | boolean | Date | null | undefined>;
+
+
+
+/**
+ * Strongly typed where clause result
+ */
+interface ParsedWhereClause {
+  [field: string]: 
+    | string 
+    | number 
+    | boolean 
+    | Date
+    | { equals?: unknown; contains?: unknown; startsWith?: unknown; endsWith?: unknown; gt?: unknown; gte?: unknown; lt?: unknown; lte?: unknown; in?: unknown[] }
+    | undefined;
+}
 
 /**
  * Prisma Database Adapter
@@ -58,14 +78,15 @@ export class PrismaAdapter implements IDatabaseAdapter {
     try {
       await this.prisma.$queryRaw`SELECT 1`;
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
 
-  async query<T = any>(
+  async query<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: TypedParameterArray = [],
+     
     options: QueryOptions = {}
   ): Promise<QueryResult<T>> {
     if (!this.prisma) {
@@ -93,9 +114,9 @@ export class PrismaAdapter implements IDatabaseAdapter {
     }
   }
 
-  async queryWithPagination<T = any>(
+  async queryWithPagination<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: TypedParameterArray = [],
     pagination: PaginationOptions = {},
     options: QueryOptions = {}
   ): Promise<QueryResult<T>> {
@@ -125,18 +146,18 @@ export class PrismaAdapter implements IDatabaseAdapter {
     };
   }
 
-  async queryOne<T = any>(
+  async queryOne<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: TypedParameterArray = [],
     options: QueryOptions = {}
   ): Promise<T | null> {
     const result = await this.query<T>(sql + ' LIMIT 1', params, options);
     return result.data[0] || null;
   }
 
-  async queryScalar<T = any>(
+  async queryScalar<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: TypedParameterArray = [],
     options: QueryOptions = {}
   ): Promise<T | null> {
     const result = await this.queryOne(sql, params, options);
@@ -153,7 +174,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
       throw new Error('Database not connected');
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx: import('@prisma/client').PrismaClient) => {
       const txAdapter: DatabaseTransaction = {
         async commit(): Promise<void> {
           // Prisma handles commit automatically
@@ -162,7 +183,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
           // Prisma handles rollback automatically on error
           throw new Error('Transaction rollback initiated');
         },
-        async query<U = any>(sql: string, params: any[] = []): Promise<QueryResult<U>> {
+        async query<U = unknown>(sql: string, params: TypedParameterArray = []): Promise<QueryResult<U>> {
           const result = await tx.$queryRawUnsafe(sql, ...params);
           const data = Array.isArray(result) ? result : [result];
           return {
@@ -176,19 +197,24 @@ export class PrismaAdapter implements IDatabaseAdapter {
     });
   }
 
-  async insert<T = any>(table: string, data: Partial<T>, options: QueryOptions = {}): Promise<T> {
+  async insert<T = unknown>(
+    table: string,
+    data: Partial<T>,
+    options: QueryOptions = {}
+  ): Promise<T> {
     if (!this.prisma) {
       throw new Error('Database not connected');
     }
 
     // Use Prisma's dynamic model access if available, otherwise fall back to raw query
     try {
-      // Try to use Prisma model first
-      const model = (this.prisma as any)[table];
-      if (model && typeof model.create === 'function') {
-        return await model.create({ data });
+      // Try to use Prisma model first with proper typing
+      const prismaClient = this.prisma as unknown as Record<string, unknown>;
+      const model = prismaClient[table];
+      if (model && typeof model === 'object' && model !== null && 'create' in model && typeof model.create === 'function') {
+        return await (model.create as { (args: { data: Partial<T> }): Promise<T> })({ data });
       }
-    } catch (error) {
+    } catch {
       // Fall back to raw query if Prisma model doesn't exist
     }
 
@@ -203,11 +229,11 @@ export class PrismaAdapter implements IDatabaseAdapter {
       RETURNING *
     `;
 
-    const result = await this.query<T>(sql, values, options);
+    const result = await this.query<T>(sql, values as TypedParameterArray, options);
     return result.data[0] as T;
   }
 
-  async insertMany<T = any>(
+  async insertMany<T = unknown>(
     table: string,
     dataArray: Partial<T>[],
     options: QueryOptions = {}
@@ -220,13 +246,14 @@ export class PrismaAdapter implements IDatabaseAdapter {
 
     // Try to use Prisma's createMany if available
     try {
-      const model = (this.prisma as any)[table];
-      if (model && typeof model.createMany === 'function') {
-        await model.createMany({ data: dataArray });
+      const prismaClient = this.prisma as unknown as Record<string, unknown>;
+      const model = prismaClient[table];
+      if (model && typeof model === 'object' && model !== null && 'createMany' in model && typeof model.createMany === 'function') {
+        await (model.createMany as { (args: { data: Partial<T>[] }): Promise<{ count: number }> })({ data: dataArray });
         // Return the inserted data (Prisma doesn't return it in createMany)
         return dataArray as T[];
       }
-    } catch (error) {
+    } catch {
       // Fall back to raw query
     }
 
@@ -243,15 +270,15 @@ export class PrismaAdapter implements IDatabaseAdapter {
       RETURNING *
     `;
 
-    const result = await this.query<T>(sql, values, options);
+    const result = await this.query<T>(sql, values as TypedParameterArray, options);
     return result.data;
   }
 
-  async update<T = any>(
+  async update<T = unknown>(
     table: string,
     data: Partial<T>,
     where: string,
-    params: any[] = [],
+    params: TypedParameterArray = [],
     options: QueryOptions = {}
   ): Promise<T[]> {
     if (!this.prisma) {
@@ -260,15 +287,17 @@ export class PrismaAdapter implements IDatabaseAdapter {
 
     // Try to use Prisma model first
     try {
-      const model = (this.prisma as any)[table];
-      if (model && typeof model.updateMany === 'function') {
+      const prismaClient = this.prisma as unknown as Record<string, unknown>;
+      const model = prismaClient[table];
+      if (model && typeof model === 'object' && model !== null && 'updateMany' in model && typeof model.updateMany === 'function') {
         // Parse where clause for Prisma (this is simplified)
         const whereClause = this.parseWhereClause(where, params);
-        await model.updateMany({ data, where: whereClause });
+        await (model.updateMany as { (args: { data: Partial<T>; where: ParsedWhereClause }): Promise<{ count: number }> })({ data, where: whereClause });
         // Return updated data (simplified)
-        return await this.query<T>(`SELECT * FROM ${this.escapeIdentifier(table)} WHERE ${where}`, params);
+        const result = await this.query<T>(`SELECT * FROM ${this.escapeIdentifier(table)} WHERE ${where}`, params);
+        return result.data;
       }
-    } catch (error) {
+    } catch {
       // Fall back to raw query
     }
 
@@ -287,14 +316,14 @@ export class PrismaAdapter implements IDatabaseAdapter {
     `;
 
     const allParams = [...values, ...params];
-    const result = await this.query<T>(sql, allParams, options);
+    const result = await this.query<T>(sql, allParams as TypedParameterArray, options);
     return result.data;
   }
 
   async delete(
     table: string,
     where: string,
-    params: any[] = [],
+    params: TypedParameterArray = [],
     options: QueryOptions = {}
   ): Promise<number> {
     if (!this.prisma) {
@@ -303,13 +332,14 @@ export class PrismaAdapter implements IDatabaseAdapter {
 
     // Try to use Prisma model first
     try {
-      const model = (this.prisma as any)[table];
-      if (model && typeof model.deleteMany === 'function') {
+      const prismaClient = this.prisma as unknown as Record<string, unknown>;
+      const model = prismaClient[table];
+      if (model && typeof model === 'object' && model !== null && 'deleteMany' in model && typeof model.deleteMany === 'function') {
         const whereClause = this.parseWhereClause(where, params);
-        const result = await model.deleteMany({ where: whereClause });
+        const result = await (model.deleteMany as { (args: { where: ParsedWhereClause }): Promise<{ count: number }> })({ where: whereClause });
         return result.count;
       }
-    } catch (error) {
+    } catch {
       // Fall back to raw query
     }
 
@@ -322,7 +352,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
   async count(
     table: string,
     where: string = '1=1',
-    params: any[] = [],
+    params: TypedParameterArray = [],
     options: QueryOptions = {}
   ): Promise<number> {
     const sql = `SELECT COUNT(*) as count FROM ${this.escapeIdentifier(table)} WHERE ${where}`;
@@ -333,7 +363,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
   async exists(
     table: string,
     where: string,
-    params: any[] = [],
+    params: TypedParameterArray = [],
     options: QueryOptions = {}
   ): Promise<boolean> {
     const sql = `SELECT 1 FROM ${this.escapeIdentifier(table)} WHERE ${where} LIMIT 1`;
@@ -341,7 +371,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
     return result !== null;
   }
 
-  async getLastInsertId(table?: string): Promise<string | number> {
+  async getLastInsertId(): Promise<string | number> {
     const sql = 'SELECT lastval() as id';
     const result = await this.queryOne<{ id: string | number }>(sql);
     return result?.id || 0;
@@ -351,7 +381,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
     return `"${identifier.replace(/"/g, '""')}"`;
   }
 
-  escapeValue(value: any): any {
+  escapeValue<T>(value: T): T {
     // Prisma handles value escaping automatically
     return value;
   }
@@ -361,7 +391,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
       throw new Error('Database not connected');
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx: import('@prisma/client').PrismaClient) => {
       return {
         async commit(): Promise<void> {
           // Prisma handles commit automatically
@@ -370,7 +400,7 @@ export class PrismaAdapter implements IDatabaseAdapter {
           // Prisma handles rollback automatically on error
           throw new Error('Transaction rollback initiated');
         },
-        async query<T = any>(sql: string, params: any[] = []): Promise<QueryResult<T>> {
+        async query<T = unknown>(sql: string, params: TypedParameterArray = []): Promise<QueryResult<T>> {
           const result = await tx.$queryRawUnsafe(sql, ...params);
           const data = Array.isArray(result) ? result : [result];
           return {
@@ -406,10 +436,10 @@ export class PrismaAdapter implements IDatabaseAdapter {
   /**
    * Parse a SQL WHERE clause into a Prisma where object (simplified implementation)
    */
-  private parseWhereClause(where: string, params: any[]): any {
+  private parseWhereClause(where: string, params: TypedParameterArray): ParsedWhereClause {
     // This is a simplified parser - in a real implementation,
     // you'd want a more sophisticated WHERE clause parser
-    const conditions: any = {};
+    const conditions: ParsedWhereClause = {};
 
     // Simple handling for basic conditions like "id = $1"
     const matches = where.match(/(\w+)\s*=\s*\$(\d+)/g);
@@ -417,7 +447,11 @@ export class PrismaAdapter implements IDatabaseAdapter {
       matches.forEach(match => {
         const [, field, paramIndex] = match.match(/(\w+)\s*=\s*\$(\d+)/) || [];
         if (field && paramIndex) {
-          conditions[field] = params[parseInt(paramIndex) - 1];
+          const paramValue = params[parseInt(paramIndex) - 1];
+          // Only add non-null values to the where clause
+          if (paramValue !== null && paramValue !== undefined) {
+            conditions[field] = paramValue;
+          }
         }
       });
     }

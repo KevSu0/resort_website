@@ -463,7 +463,7 @@ export const BlockSelector: React.FC<BlockSelectorProps> = ({
     } catch (error) {
       addToast({
         type: 'error',
-        message: 'Failed to add block',
+        message: `Failed to add block: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     }
   };

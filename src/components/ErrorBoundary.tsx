@@ -1,7 +1,6 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 import { Button } from './ui/button';
-import { useToast } from './ui/toast';
 
 interface Props {
   children: ReactNode;
@@ -91,44 +90,4 @@ export class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
-}
-
-// Hook-based error boundary for functional components
-export const useErrorHandler = () => {
-  const toast = useToast();
-
-  const handleError = (error: Error, context?: string) => {
-    console.error('Error caught by handler:', error, { context });
-
-    toast.error(
-      'An error occurred',
-      error.message || 'Please try again or contact support'
-    );
-
-    // In production, send error to error tracking service
-    if (process.env.NODE_ENV === 'production') {
-      // sendErrorToTrackingService(error, context);
-    }
-  };
-
-  return { handleError };
-};
-
-// HOC for adding error handling to components
-export function withErrorHandling<P extends object>(
-  Component: React.ComponentType<P>
-) {
-  return function WithErrorHandling(props: P) {
-    return (
-      <ErrorBoundary
-        fallback={
-          <div className="p-4 text-center">
-            <p className="text-gray-600">This component failed to load.</p>
-          </div>
-        }
-      >
-        <Component {...props} />
-      </ErrorBoundary>
-    );
-  };
 }

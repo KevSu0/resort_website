@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
 import { Loading, LoadingOverlay } from './Loading';
 import { cn } from '../lib/utils';
 
@@ -14,13 +14,6 @@ interface LoadingContextType {
 
 const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 
-export const useLoadingContext = () => {
-  const context = useContext(LoadingContext);
-  if (!context) {
-    throw new Error('useLoadingContext must be used within LoadingProvider');
-  }
-  return context;
-};
 
 interface LoadingProviderProps {
   children: React.ReactNode;

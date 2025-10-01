@@ -3,7 +3,7 @@ import { useEditor, EditorContent, JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
-import Table from '@tiptap/extension-table';
+import { Table } from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '../../ui/button';
-import { MediaAsset, RichContentNode } from '../../../types/cms';
+import { MediaAsset } from '../../../types/cms';
 import { MediaManager } from './MediaManager';
 import { BlockSelector } from './BlockSelector';
 import { useToast } from '../../../hooks/useToast';
@@ -48,7 +48,7 @@ interface RichContentEditorProps {
   editable?: boolean;
   showToolbar?: boolean;
   showBlockSelector?: boolean;
-  extensions?: any[];
+  extensions?: unknown[];
   autoFocus?: boolean;
   maxLength?: number;
 }
@@ -159,7 +159,7 @@ export const RichContentEditor: React.FC<RichContentEditorProps> = ({
     }
   }, [editor, linkUrl]);
 
-  const handleBlockInsert = useCallback((blockTemplate: any) => {
+  const handleBlockInsert = useCallback((blockTemplate: { content: string }) => {
     if (editor && blockTemplate.content) {
       editor.chain().focus().insertContent(blockTemplate.content).run();
     }

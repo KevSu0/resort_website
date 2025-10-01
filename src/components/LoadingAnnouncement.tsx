@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useLoadingAnnouncement, useLoadingFocus } from '../hooks/useLoadingAnnouncement';
 
 interface LoadingAnnouncementProps {
   message?: string;
@@ -71,5 +70,3 @@ export const ReducedMotionLoading: React.FC<{
 
   return <>{children}</>;
 };
-
-export { useLoadingAnnouncement, useLoadingFocus };

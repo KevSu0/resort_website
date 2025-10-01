@@ -8,9 +8,9 @@ interface FeaturedPropertiesProps {
   onPropertyClick?: (property: Property) => void;
 }
 
-export const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({
+export function FeaturedProperties({
   onPropertyClick,
-}) => {
+}: FeaturedPropertiesProps) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 

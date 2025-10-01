@@ -13,7 +13,7 @@ import { NearbyPlaces } from '../components/property/NearbyPlaces';
 import { RoomTypes } from '../components/property/RoomTypes';
 import { Button } from '../components/ui/button';
 
-export const PropertyDetailPage: React.FC = () => {
+export function PropertyDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const [property, setProperty] = useState<Property | null>(null);
   const [rooms, setRooms] = useState<RoomType[]>([]);
@@ -47,7 +47,7 @@ export const PropertyDetailPage: React.FC = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Property Not Found</h1>
           <Button
             asChild
-            variant="primary"
+            variant="default"
             leftIcon={<ArrowLeft className="w-4 h-4" />}
           >
             <Link to="/">

@@ -85,7 +85,7 @@ describe('DatabaseService', () => {
         const error = new Error('Could not open DB');
 
         const openSpy = jest.spyOn(indexedDB, 'open').mockImplementation(() => {
-            const mockRequest = new EventTarget() as any;
+            const mockRequest = new EventTarget() as IDBOpenDBRequest;
             mockRequest.error = error;
             setTimeout(() => {
                 if (mockRequest.onerror) {

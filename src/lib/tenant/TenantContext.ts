@@ -1,9 +1,30 @@
+import { logger } from '../logger';
+
 /**
  * Tenant Context Management
  *
  * Handles multi-tenant context resolution, isolation, and propagation
  * throughout the application lifecycle.
  */
+
+// Database adapter interface
+interface IDatabaseAdapter {
+  queryOne(sql: string, params: unknown[]): Promise<unknown>;
+}
+
+// Cache adapter interface
+interface ICacheAdapter {
+  get(key: string): Promise<unknown>;
+  set(key: string, value: unknown, ttl: number): Promise<void>;
+}
+
+// Request interface
+interface TenantRequest {
+  hostname?: string;
+  headers?: Record<string, unknown>;
+  query?: Record<string, unknown>;
+  path?: string;
+}
 
 export interface TenantInfo {
   id: string;
@@ -14,7 +35,7 @@ export interface TenantInfo {
   domain?: string;
   subdomain?: string;
   isActive: boolean;
-  settings?: Record<string, any>;
+  settings?: Record<string, unknown>;
 }
 
 export interface UserTenantContext {
@@ -28,14 +49,14 @@ export interface UserTenantContext {
 
 export interface TenantResolutionStrategy {
   type: 'domain' | 'subdomain' | 'header' | 'query' | 'path';
-  config: Record<string, any>;
+  config: Record<string, unknown>;
 }
 
 export interface ITenantContext {
   /**
    * Resolve tenant from request context
    */
-  resolveTenant(request: any): Promise<TenantInfo | null>;
+  resolveTenant(request: TenantRequest): Promise<TenantInfo | null>;
 
   /**
    * Get current tenant context
@@ -83,8 +104,8 @@ export class TenantContext implements ITenantContext {
   private userContexts: Map<string, UserTenantContext[]> = new Map();
 
   constructor(
-    private databaseAdapter: any,
-    private cacheAdapter: any,
+    private databaseAdapter: IDatabaseAdapter,
+    private cacheAdapter: ICacheAdapter,
     private config: {
       defaultResolutionStrategy: TenantResolutionStrategy;
       fallbackTenant?: string;
@@ -93,7 +114,7 @@ export class TenantContext implements ITenantContext {
     }
   ) {}
 
-  async resolveTenant(request: any): Promise<TenantInfo | null> {
+  async resolveTenant(request: TenantRequest): Promise<TenantInfo | null> {
     // Try different resolution strategies in order
     const strategies = [
       this.config.defaultResolutionStrategy,
@@ -110,7 +131,13 @@ export class TenantContext implements ITenantContext {
           return tenant;
         }
       } catch (error) {
-        console.warn(`Tenant resolution failed for strategy ${strategy.type}:`, error);
+        logger.warn(`Tenant resolution failed for strategy ${strategy.type}`, {
+          module: 'TenantContext',
+          function: 'resolveTenant',
+          strategy: strategy.type,
+          error: error instanceof Error ? error.message : String(error),
+          category: 'tenant'
+        });
       }
     }
 
@@ -127,7 +154,7 @@ export class TenantContext implements ITenantContext {
   }
 
   private async resolveTenantWithStrategy(
-    request: any,
+    request: TenantRequest,
     strategy: TenantResolutionStrategy
   ): Promise<TenantInfo | null> {
     let tenantId: string | null = null;
@@ -142,18 +169,26 @@ export class TenantContext implements ITenantContext {
         break;
 
       case 'header':
-        tenantId = request.headers?.[strategy.config.header.toLowerCase()];
-        break;
+        {
+          const headers = request.headers;
+          tenantId = (headers?.[strategy.config.header.toLowerCase()] as string) || null;
+          break;
+        }
 
       case 'query':
-        tenantId = request.query?.[strategy.config.param];
-        break;
+        {
+          const query = request.query;
+          tenantId = (query?.[strategy.config.param] as string) || null;
+          break;
+        }
 
       case 'path':
-        const pathSegments = request.path?.split('/') || [];
-        const tenantIndex = strategy.config.segmentIndex || 1;
-        tenantId = pathSegments[tenantIndex];
-        break;
+        {
+          const pathSegments = request.path?.split('/') || [];
+          const tenantIndex = (strategy.config.segmentIndex as number) || 1;
+          tenantId = pathSegments[tenantIndex];
+          break;
+        }
     }
 
     if (!tenantId) {

@@ -6,10 +6,10 @@ interface AmenitiesDisplayProps {
   className?: string;
 }
 
-export const AmenitiesDisplay: React.FC<AmenitiesDisplayProps> = ({
+export function AmenitiesDisplay({
   amenities,
   className = ''
-}) => {
+}: AmenitiesDisplayProps) {
   const getAmenityIcon = (amenity: string) => {
     const iconMap: Record<string, React.ReactNode> = {
       'Free WiFi': <Wifi className="w-5 h-5" />,
@@ -135,4 +135,4 @@ export const AmenitiesDisplay: React.FC<AmenitiesDisplayProps> = ({
       )}
     </div>
   );
-};
+}

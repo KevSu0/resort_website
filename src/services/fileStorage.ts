@@ -1,4 +1,5 @@
 import { DatabaseService } from './databaseService';
+import { logger } from '../lib/logger';
 
 export interface StorageUsageBreakdown {
   media: number;
@@ -40,7 +41,13 @@ export class FileStorageService {
           try {
             return { storeName, size: await this.getStoreSize(db, storeName) };
           } catch (error) {
-            console.error(`Failed to measure store ${storeName}:`, error);
+            logger.error(`Failed to measure store ${storeName}`, {
+              module: 'FileStorageService',
+              function: 'getStorageUsage',
+              error: error instanceof Error ? error.message : String(error),
+              storeName,
+              category: 'storage'
+            });
             return { storeName, size: 0 };
           }
         }),
@@ -61,7 +68,12 @@ export class FileStorageService {
 
       return { used, quota, breakdown };
     } catch (error) {
-      console.error('Failed to get storage usage:', error);
+      logger.error('Failed to get storage usage', {
+        module: 'FileStorageService',
+        function: 'getStorageUsage',
+        error: error instanceof Error ? error.message : String(error),
+        category: 'storage'
+      });
       return { used: 0, breakdown };
     }
   }
@@ -92,7 +104,12 @@ export class FileStorageService {
       }
       return json.length * 2;
     } catch (error) {
-      console.warn('Could not estimate record size', error);
+      logger.warn('Could not estimate record size', {
+        module: 'FileStorageService',
+        function: 'estimateRecordSize',
+        error: error instanceof Error ? error.message : String(error),
+        category: 'storage'
+      });
       return 0;
     }
   }
@@ -109,7 +126,12 @@ export class FileStorageService {
       const estimate = await storage.estimate();
       return estimate.quota ?? undefined;
     } catch (error) {
-      console.warn('Failed to estimate storage quota', error);
+      logger.warn('Failed to estimate storage quota', {
+        module: 'FileStorageService',
+        function: 'estimateQuota',
+        error: error instanceof Error ? error.message : String(error),
+        category: 'storage'
+      });
       return undefined;
     }
   }

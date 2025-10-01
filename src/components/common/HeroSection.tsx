@@ -7,7 +7,7 @@ interface HeroSectionProps {
   onBrowseProperties?: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onBrowseProperties }) => {
+export function HeroSection({ onBrowseProperties }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Hero background images - using landscape URLs from mock data
@@ -109,7 +109,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onBrowseProperties }) 
       </div>
     </section>
   );
-};
+}
 
 // Helper function for scrolling
 const scrollToSection = (sectionId: string) => {

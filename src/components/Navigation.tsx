@@ -4,7 +4,7 @@ import { Menu, X, Phone, Mail, MapPin, ArrowLeft } from 'lucide-react';
 import { config } from '../config';
 import { Button } from '@/components/ui/button';
 
-export const Navigation: React.FC = () => {
+export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();

@@ -1,3 +1,5 @@
+import { logger } from '../lib/logger';
+
 export interface ObjectStoreIndexDefinition {
   name: string;
   keyPath: string | string[];
@@ -82,7 +84,13 @@ export class DatabaseService {
       };
 
       request.onblocked = () => {
-        console.warn('Database upgrade blocked. Close other tabs using this application.');
+        logger.warn('Database upgrade blocked. Close other tabs using this application', {
+          module: 'DatabaseService',
+          function: 'initialize',
+          dbName: this.dbName,
+          version: this.version,
+          category: 'database'
+        });
       };
     });
   }
@@ -121,7 +129,7 @@ export class DatabaseService {
 
     if (existingStores.has('enquiries')) {
       try {
-        const enquiries = await this.getAllRecords<any>('enquiries');
+        const enquiries = await this.getAllRecords<Record<string, unknown>>('enquiries');
         enquiries.forEach(enquiry => {
           if (!enquiry || typeof enquiry !== 'object') {
             return;

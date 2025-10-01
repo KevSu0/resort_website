@@ -13,8 +13,6 @@ import {
   Link,
   Image,
   Code,
-  Type,
-  Palette,
   Undo,
   Redo
 } from 'lucide-react';
@@ -27,14 +25,6 @@ interface RichTextEditorProps {
   enableMedia?: boolean;
 }
 
-interface TextFormat {
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  color: string;
-  fontSize: string;
-  fontFamily: string;
-}
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
@@ -134,13 +124,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [linkUrl, selectedText, handleContentChange]);
 
-  // Insert image
-  const insertImage = useCallback((imageUrl: string, altText: string = '') => {
-    const html = `<img src="${imageUrl}" alt="${altText}" style="max-width: 100%; height: auto;" />`;
-    document.execCommand('insertHTML', false, html);
-    handleContentChange();
-  }, [handleContentChange]);
-
+  
   // Handle paste events
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     e.preventDefault();

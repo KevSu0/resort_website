@@ -10,14 +10,14 @@ interface LoadingProps {
   color?: 'primary' | 'secondary' | 'luxury' | 'success';
 }
 
-export const Loading: React.FC<LoadingProps> = ({
+export function Loading({
   size = 'md',
   text,
   className = '',
   fullScreen = false,
   variant = 'default',
   color = 'primary'
-}) => {
+}: LoadingProps) {
   const sizeClasses = {
     xs: 'h-3 w-3',
     sm: 'h-4 w-4',
@@ -112,30 +112,32 @@ export const Loading: React.FC<LoadingProps> = ({
       </div>
     </div>
   );
-};
+}
 
 // Page level loading component
-export const PageLoading: React.FC<{ text?: string; variant?: LoadingProps['variant'] }> = ({
+export function PageLoading({
   text = 'Loading...',
   variant = 'default'
-}) => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <Loading size="xl" text={text} variant={variant} fullScreen={false} />
-  </div>
-);
+}: { text?: string; variant?: LoadingProps['variant'] }) {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <Loading size="xl" text={text} variant={variant} fullScreen={false} />
+    </div>
+  );
+}
 
 // Enhanced skeleton loading components with shimmer effect
-export const Skeleton: React.FC<{
-  className?: string;
-  variant?: 'default' | 'shimmer' | 'pulse';
-  width?: string;
-  height?: string;
-}> = ({
+export function Skeleton({
   className = '',
   variant = 'shimmer',
   width,
   height
-}) => {
+}: {
+  className?: string;
+  variant?: 'default' | 'shimmer' | 'pulse';
+  width?: string;
+  height?: string;
+}) {
   const baseClasses = 'rounded bg-gray-200';
   const animationClasses = {
     default: 'animate-pulse',
@@ -154,11 +156,12 @@ export const Skeleton: React.FC<{
       style={style}
     />
   );
-};
+}
 
 // Property Card Skeleton
-export const PropertyCardSkeleton: React.FC = () => (
-  <div className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
+export function PropertyCardSkeleton() {
+  return (
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
     {/* Image skeleton */}
     <div className="relative h-64">
       <Skeleton className="h-full w-full" variant="shimmer" />
@@ -206,11 +209,13 @@ export const PropertyCardSkeleton: React.FC = () => (
       </div>
     </div>
   </div>
-);
+  );
+}
 
 // Image Gallery Skeleton
-export const ImageGallerySkeleton: React.FC = () => (
-  <div className="space-y-4">
+export function ImageGallerySkeleton() {
+  return (
+    <div className="space-y-4">
     {/* Main image */}
     <div className="relative aspect-video overflow-hidden rounded-xl">
       <Skeleton className="h-full w-full" variant="shimmer" />
@@ -234,11 +239,13 @@ export const ImageGallerySkeleton: React.FC = () => (
       ))}
     </div>
   </div>
-);
+  );
+}
 
 // Hero Section Skeleton
-export const HeroSkeleton: React.FC = () => (
-  <div className="relative h-screen min-h-[600px]">
+export function HeroSkeleton() {
+  return (
+    <div className="relative h-screen min-h-[600px]">
     {/* Background image skeleton */}
     <Skeleton className="h-full w-full" variant="shimmer" />
 
@@ -254,11 +261,13 @@ export const HeroSkeleton: React.FC = () => (
       </div>
     </div>
   </div>
-);
+  );
+}
 
 // Form Skeleton with enhanced styling
-export const FormSkeleton: React.FC<{ fields?: number }> = ({ fields = 4 }) => (
-  <div className="space-y-6 animate-pulse">
+export function FormSkeleton({ fields = 4 }: { fields?: number }) {
+  return (
+    <div className="space-y-6 animate-pulse">
     {Array.from({ length: fields }).map((_, i) => (
       <div key={i} className="space-y-2">
         <Skeleton className="h-4 w-24" />
@@ -272,19 +281,21 @@ export const FormSkeleton: React.FC<{ fields?: number }> = ({ fields = 4 }) => (
       <Skeleton className="h-10 w-32 rounded-lg" />
     </div>
   </div>
-);
+  );
+}
 
 // Table Skeleton with enhanced styling
-export const TableSkeleton: React.FC<{
-  rows?: number;
-  columns?: number;
-  showHeader?: boolean
-}> = ({
+export function TableSkeleton({
   rows = 5,
   columns = 4,
   showHeader = true
-}) => (
-  <div className="space-y-3 animate-pulse">
+}: {
+  rows?: number;
+  columns?: number;
+  showHeader?: boolean
+}) {
+  return (
+    <div className="space-y-3 animate-pulse">
     {/* Header */}
     {showHeader && (
       <div className="flex items-center space-x-4 p-4 border-b bg-gray-50">
@@ -303,11 +314,13 @@ export const TableSkeleton: React.FC<{
       </div>
     ))}
   </div>
-);
+  );
+}
 
 // Review/Rating Skeleton
-export const ReviewSkeleton: React.FC = () => (
-  <div className="space-y-4 p-6 bg-white rounded-xl border animate-pulse">
+export function ReviewSkeleton() {
+  return (
+    <div className="space-y-4 p-6 bg-white rounded-xl border animate-pulse">
     {/* Header */}
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-3">
@@ -331,11 +344,13 @@ export const ReviewSkeleton: React.FC = () => (
       <Skeleton className="h-4 w-3/4" />
     </div>
   </div>
-);
+  );
+}
 
 // Contact Form Skeleton
-export const ContactFormSkeleton: React.FC = () => (
-  <div className="max-w-2xl mx-auto space-y-8 animate-pulse">
+export function ContactFormSkeleton() {
+  return (
+    <div className="max-w-2xl mx-auto space-y-8 animate-pulse">
     {/* Form header */}
     <div className="text-center space-y-4">
       <Skeleton className="h-8 w-64 mx-auto" />
@@ -366,15 +381,17 @@ export const ContactFormSkeleton: React.FC = () => (
     </div>
   </div>
 );
+}
 
 // Loading Overlay for specific sections
-export const LoadingOverlay: React.FC<{
+export function LoadingOverlay({ isLoading, text, children, className = '' }: {
   isLoading: boolean;
   text?: string;
   children: React.ReactNode;
   className?: string;
-}> = ({ isLoading, text, children, className = '' }) => (
-  <div className={cn('relative', className)}>
+}) {
+  return (
+    <div className={cn('relative', className)}>
     {children}
     {isLoading && (
       <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl">
@@ -382,16 +399,19 @@ export const LoadingOverlay: React.FC<{
       </div>
     )}
   </div>
-);
+  );
+}
 
 // Inline Loading for buttons
-export const InlineLoading: React.FC<{
+export function InlineLoading({ isLoading, children, className = '' }: {
   isLoading: boolean;
   children: React.ReactNode;
   className?: string;
-}> = ({ isLoading, children, className = '' }) => (
-  <div className={cn('flex items-center gap-2', className)}>
+}) {
+  return (
+    <div className={cn('flex items-center gap-2', className)}>
     {isLoading && <Loading size="sm" variant="dots" />}
     <span className={cn(isLoading && 'opacity-50')}>{children}</span>
-  </div>
-);
+    </div>
+  );
+}

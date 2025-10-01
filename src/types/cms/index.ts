@@ -4,9 +4,9 @@ import { z } from 'zod';
 export const ContentBlockSchema = z.object({
   id: z.string().uuid(),
   type: z.string(),
-  content: z.any(),
-  attributes: z.record(z.any()).optional(),
-  children: z.array(z.any()).optional(),
+  content: z.record(z.string(), z.unknown()), // Replaces z.any()
+  attributes: z.record(z.string(), z.unknown()).optional(), // Replaces z.record(z.any())
+  children: z.array(z.unknown()).optional(), // Replaces z.array(z.any())
   order: z.number(),
   created_at: z.date(),
   updated_at: z.date(),
@@ -36,17 +36,17 @@ export interface RichContentNode {
   id: string;
   type: string;
   content?: string;
-  attrs?: Record<string, any>;
+  attrs?: Record<string, unknown>; // Replaces Record<string, any>
   children?: RichContentNode[];
   marks?: Array<{
     type: string;
-    attrs?: Record<string, any>;
+    attrs?: Record<string, unknown>; // Replaces Record<string, any>
   }>;
 }
 
 export interface EditorExtension {
   name: string;
-  extension: any;
+  extension: unknown; // Replaces any - more specific than any but still flexible
   toolbar?: boolean;
   priority?: number;
 }
@@ -60,7 +60,7 @@ export interface MediaAsset {
   mime_type: string;
   alt?: string;
   caption?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>; // Replaces Record<string, any>
 }
 
 export interface BlockTemplate {
@@ -69,7 +69,7 @@ export interface BlockTemplate {
   description: string;
   category: string;
   icon: string;
-  schema: any;
+  schema: unknown; // Replaces any - schema can be complex
   initialContent: RichContentNode;
   preview?: string;
 }
@@ -95,7 +95,7 @@ export interface TemplateVariable {
   label: string;
   description?: string;
   required?: boolean;
-  default?: any;
+  default?: unknown; // Replaces any
   validation?: {
     min?: number;
     max?: number;
@@ -114,7 +114,7 @@ export interface FormField {
   placeholder?: string;
   validation?: FieldValidation;
   conditional?: ConditionalLogic;
-  attributes?: Record<string, any>;
+  attributes?: Record<string, unknown>; // Replaces Record<string, any>
   order: number;
 }
 
@@ -130,7 +130,7 @@ export interface FieldValidation {
 export interface ConditionalLogic {
   field: string;
   operator: 'equals' | 'not_equals' | 'contains' | 'starts_with' | 'ends_with' | 'greater_than' | 'less_than';
-  value: any;
+  value: unknown; // Replaces any
   action: 'show' | 'hide' | 'enable' | 'disable' | 'require' | 'optional';
 }
 
@@ -184,7 +184,7 @@ export interface ComponentLibrary {
   description: string;
   category: string;
   icon: string;
-  component: React.ComponentType<any>;
+  component: React.ComponentType<Record<string, unknown>>;
   props: ComponentProp[];
   variants?: ComponentVariant[];
   examples?: ComponentExample[];
@@ -194,21 +194,21 @@ export interface ComponentProp {
   name: string;
   type: string;
   required: boolean;
-  default?: any;
+  default?: unknown; // Replaces any
   description: string;
   control?: string;
 }
 
 export interface ComponentVariant {
   name: string;
-  props: Record<string, any>;
+  props: Record<string, unknown>; // Replaces Record<string, any>
   description?: string;
 }
 
 export interface ComponentExample {
   name: string;
   code: string;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>; // Replaces Record<string, any>
   description?: string;
 }
 

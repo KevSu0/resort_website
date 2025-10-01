@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { ContentBlock, Page, Site } from '@prisma/client';
+import { ContentBlock } from '@prisma/client';
 import { CreateContentBlockData, UpdateContentBlockData, ContentBlockType } from '../types/content';
+import { logger } from '../lib/logger';
 
 export class ContentBlockService {
   constructor(private prisma: PrismaClient) {}
@@ -339,7 +340,7 @@ export class ContentBlockService {
   /**
    * Get content block template
    */
-  getContentBlockTemplate(type: ContentBlockType): any {
+  getContentBlockTemplate(type: ContentBlockType): unknown {
     const templates = {
       text: {
         content: {
@@ -521,7 +522,12 @@ export class ContentBlockService {
   private async validateSiteAccess(siteId: string): Promise<void> {
     // In a real implementation, this would validate tenant access
     // For now, we'll assume access is validated by middleware
-    console.log(`Validating access to site: ${siteId}`);
+    logger.debug(`Validating access to site: ${siteId}`, {
+      module: 'ContentBlockService',
+      function: 'validateSiteAccess',
+      siteId,
+      category: 'security'
+    });
   }
 
   /**

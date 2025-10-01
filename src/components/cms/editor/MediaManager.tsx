@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { X, Upload, Search, Grid, List, Image as ImageIcon, FileVideo, FileText, Filter } from 'lucide-react';
+import { X, Upload, Search, Grid, List, Image as ImageIcon, FileVideo, FileText } from 'lucide-react';
 
 import { Button } from '../../ui/button';
 import { MediaAsset } from '../../../types/cms';
@@ -51,7 +51,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     } catch (error) {
       addToast({
         type: 'error',
-        message: 'Failed to load media files',
+        message: `Failed to load media files: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       } catch (error) {
         addToast({
           type: 'error',
-          message: `Failed to upload ${file.name}`,
+          message: `Failed to upload ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         });
         return null;
       }
@@ -247,7 +247,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
           <div className="flex items-center gap-2">
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
+              onChange={(e) => setFilterType(e.target.value as 'all' | 'image' | 'video' | 'document')}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Types</option>
@@ -260,8 +260,8 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
                 const [sort, order] = e.target.value.split('-');
-                setSortBy(sort as any);
-                setSortOrder(order as any);
+                setSortBy(sort as 'name' | 'date' | 'size');
+                setSortOrder(order as 'asc' | 'desc');
               }}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >

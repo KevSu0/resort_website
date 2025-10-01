@@ -1,7 +1,7 @@
-import { ContentTemplate, TemplateVariable } from '../../types/cms';
+import { logger } from '../../lib/logger';
 
 export interface TemplateContext {
-  [key: string]: any;
+  [key: string]: unknown;
   brand?: {
     id: string;
     name: string;
@@ -38,7 +38,7 @@ export interface TemplateContext {
     now: Date;
     format: string;
   };
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface TemplateError {
@@ -53,14 +53,14 @@ export interface TemplateRenderOptions {
   allowUnsafe?: boolean;
   maxDepth?: number;
   timeout?: number;
-  helpers?: Record<string, Function>;
+  helpers?: Record<string, (...args: unknown[]) => unknown>;
   partials?: Record<string, string>;
 }
 
 class TemplateEngine {
-  private helpers: Record<string, Function> = {
+  private helpers: Record<string, (...args: unknown[]) => unknown> = {
     // Date helpers
-    formatDate: (date: Date | string, format: string = 'YYYY-MM-DD') => {
+    formatDate: (date: Date | string) => {
       const d = new Date(date);
       return d.toLocaleDateString();
     },
@@ -78,20 +78,20 @@ class TemplateEngine {
       if (!str) return '';
       return str.length > length ? str.substring(0, length) + '...' : str;
     },
-    default: (value: any, defaultValue: any) => value !== null && value !== undefined ? value : defaultValue,
+    default: (value: unknown, defaultValue: unknown) => value !== null && value !== undefined ? value : defaultValue,
 
     // Conditional helpers
-    eq: (a: any, b: any) => a === b,
-    ne: (a: any, b: any) => a !== b,
+    eq: (a: unknown, b: unknown) => a === b,
+    ne: (a: unknown, b: unknown) => a !== b,
     gt: (a: number, b: number) => a > b,
     lt: (a: number, b: number) => a < b,
     gte: (a: number, b: number) => a >= b,
     lte: (a: number, b: number) => a <= b,
 
     // Array helpers
-    length: (arr: any[] | string) => arr?.length || 0,
-    first: (arr: any[]) => arr?.[0],
-    last: (arr: any[]) => arr?.[arr?.length - 1],
+    length: (arr: unknown[] | string) => arr?.length || 0,
+    first: (arr: unknown[]) => arr?.[0],
+    last: (arr: unknown[]) => arr?.[arr?.length - 1],
     join: (arr: string[], separator: string = ', ') => arr?.join(separator),
 
     // Math helpers
@@ -111,7 +111,7 @@ class TemplateEngine {
     },
 
     // JSON helpers
-    json: (obj: any, pretty: boolean = false) => {
+    json: (obj: unknown, pretty: boolean = false) => {
       try {
         return JSON.stringify(obj, null, pretty ? 2 : 0);
       } catch {
@@ -120,8 +120,13 @@ class TemplateEngine {
     },
 
     // Debug helper
-    debug: (value: any) => {
-      console.debug('Template Debug:', value);
+    debug: (value: unknown) => {
+      logger.debug('Template Debug', {
+        module: 'TemplateEngine',
+        function: 'debug',
+        value,
+        category: 'template'
+      });
       return '';
     },
   };
@@ -137,9 +142,7 @@ class TemplateEngine {
   render(template: string, context: TemplateContext, options: TemplateRenderOptions = {}): string {
     const {
       strict = false,
-      allowUnsafe = false,
       maxDepth = 10,
-      timeout = 5000,
       helpers = {},
       partials = {},
     } = options;
@@ -183,7 +186,7 @@ class TemplateEngine {
     return result;
   }
 
-  private renderHelper(expression: string, context: TemplateContext, helpers: Record<string, Function>): string {
+  private renderHelper(expression: string, context: TemplateContext, helpers: Record<string, (...args: unknown[]) => unknown>): string {
     const [helperName, ...args] = expression.trim().split(/\s+/);
     const helper = helpers[helperName];
 
@@ -207,18 +210,24 @@ class TemplateEngine {
     try {
       return String(helper(...processedArgs));
     } catch (error) {
-      console.error(`Error in helper "${helperName}":`, error);
+      logger.error(`Error in helper "${helperName}"`, {
+        module: 'TemplateEngine',
+        function: 'renderHelper',
+        helperName,
+        error: error instanceof Error ? error.message : String(error),
+        category: 'template'
+      });
       return '';
     }
   }
 
   private getVariableValue(path: string, context: TemplateContext, strict: boolean = false): string {
     const keys = path.split('.');
-    let value: any = context;
+    let value: unknown = context;
 
     for (const key of keys) {
       if (value && typeof value === 'object' && key in value) {
-        value = value[key];
+        value = (value as Record<string, unknown>)[key];
       } else {
         if (strict) {
           throw new Error(`Variable "${path}" not found in context`);
@@ -233,7 +242,7 @@ class TemplateEngine {
   private renderBlocks(
     template: string,
     context: TemplateContext,
-    helpers: Record<string, Function>,
+    helpers: Record<string, (...args: unknown[]) => unknown>,
     partials: Record<string, string>,
     strict: boolean,
     maxDepth: number
@@ -330,7 +339,7 @@ class TemplateEngine {
     return result;
   }
 
-  registerHelper(name: string, helper: Function): void {
+  registerHelper(name: string, helper: (...args: unknown[]) => unknown): void {
     this.helpers[name] = helper;
   }
 
@@ -378,7 +387,7 @@ class TemplateEngine {
     const variables = new Set<string>();
 
     // Extract simple variables
-    const simpleVars = template.match(/\{\{([^#\/][^}]*)\}\}/g) || [];
+    const simpleVars = template.match(/\{\{([^#/][^}]*)\}\}/g) || [];
     simpleVars.forEach(match => {
       const variable = match.replace(/[{}]/g, '').trim();
       // Exclude helpers and complex expressions
@@ -407,7 +416,7 @@ class TemplateEngine {
     return Array.from(helpers);
   }
 
-  createTemplateFromSchema(schema: any): string {
+  createTemplateFromSchema(schema: unknown): string {
     // Convert a JSON schema to a template string
     // This is useful for generating templates from structured data
     if (typeof schema === 'string') {
@@ -419,14 +428,16 @@ class TemplateEngine {
     }
 
     if (typeof schema === 'object' && schema !== null) {
-      const template = schema.template || '';
-      const variables = schema.variables || {};
+      const schemaObj = schema as Record<string, unknown>;
+      const template = (schemaObj.template as string) || '';
+      const variables = (schemaObj.variables as Record<string, unknown>) || {};
 
       let result = template;
-      Object.entries(variables).forEach(([key, config]: [string, any]) => {
+      Object.entries(variables).forEach(([key, config]: [string, unknown]) => {
         const placeholder = `{{${key}}}`;
-        if (config.default) {
-          result = result.replace(placeholder, `{{${key} | default '${config.default}'}}`);
+        const configObj = config as Record<string, unknown>;
+        if (configObj.default) {
+          result = result.replace(placeholder, `{{${key} | default '${configObj.default}'}}`);
         }
       });
 

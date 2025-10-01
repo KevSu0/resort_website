@@ -7,10 +7,10 @@ interface LayoutProps {
   showFooter?: boolean;
 }
 
-export const Layout: React.FC<LayoutProps> = ({
+export function Layout({
   children,
   showFooter = true
-}) => {
+}: LayoutProps) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navigation />

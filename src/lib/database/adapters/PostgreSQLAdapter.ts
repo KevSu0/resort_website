@@ -1,4 +1,4 @@
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 import {
   IDatabaseAdapter,
   DatabaseConnectionConfig,
@@ -63,14 +63,15 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
       } finally {
         client.release();
       }
-    } catch (error) {
+    } catch {
       return false;
     }
   }
 
-  async query<T = any>(
+  async query<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: unknown[] = [],
+     
     options: QueryOptions = {}
   ): Promise<QueryResult<T>> {
     if (!this.pool) {
@@ -89,9 +90,9 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     }
   }
 
-  async queryWithPagination<T = any>(
+  async queryWithPagination<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: unknown[] = [],
     pagination: PaginationOptions = {},
     options: QueryOptions = {}
   ): Promise<QueryResult<T>> {
@@ -121,22 +122,22 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     };
   }
 
-  async queryOne<T = any>(
+  async queryOne<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: unknown[] = [],
     options: QueryOptions = {}
   ): Promise<T | null> {
     const result = await this.query<T>(sql, params, options);
     return result.data[0] || null;
   }
 
-  async queryScalar<T = any>(
+  async queryScalar<T = unknown>(
     sql: string,
-    params: any[] = [],
+    params: unknown[] = [],
     options: QueryOptions = {}
   ): Promise<T | null> {
     const result = await this.queryOne<{ value: T }>(sql, params, options);
-    return result ? (result as any).value || result : null;
+    return result ? (result as Record<string, unknown>).value || result : null;
   }
 
   async transaction<T>(callback: (tx: DatabaseTransaction) => Promise<T>): Promise<T> {
@@ -155,7 +156,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
         async rollback(): Promise<void> {
           await client.query('ROLLBACK');
         },
-        async query<U = any>(sql: string, params: any[] = []): Promise<QueryResult<U>> {
+        async query<U = unknown>(sql: string, params: unknown[] = []): Promise<QueryResult<U>> {
           const result = await client.query(sql, params);
           return {
             data: result.rows,
@@ -175,7 +176,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     }
   }
 
-  async insert<T = any>(table: string, data: Partial<T>, options: QueryOptions = {}): Promise<T> {
+  async insert<T = unknown>(table: string, data: Partial<T>, options: QueryOptions = {}): Promise<T> {
     const columns = Object.keys(data);
     const values = Object.values(data);
     const placeholders = values.map((_, index) => `$${index + 1}`).join(', ');
@@ -190,7 +191,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     return result.data[0] as T;
   }
 
-  async insertMany<T = any>(
+  async insertMany<T = unknown>(
     table: string,
     dataArray: Partial<T>[],
     options: QueryOptions = {}
@@ -213,11 +214,11 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     return result.data;
   }
 
-  async update<T = any>(
+  async update<T = unknown>(
     table: string,
     data: Partial<T>,
     where: string,
-    params: any[] = [],
+    params: unknown[] = [],
     options: QueryOptions = {}
   ): Promise<T[]> {
     const columns = Object.keys(data);
@@ -241,7 +242,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
   async delete(
     table: string,
     where: string,
-    params: any[] = [],
+    params: unknown[] = [],
     options: QueryOptions = {}
   ): Promise<number> {
     const sql = `DELETE FROM ${this.escapeIdentifier(table)} WHERE ${where}`;
@@ -252,7 +253,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
   async count(
     table: string,
     where: string = '1=1',
-    params: any[] = [],
+    params: unknown[] = [],
     options: QueryOptions = {}
   ): Promise<number> {
     const sql = `SELECT COUNT(*) as count FROM ${this.escapeIdentifier(table)} WHERE ${where}`;
@@ -263,7 +264,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
   async exists(
     table: string,
     where: string,
-    params: any[] = [],
+    params: unknown[] = [],
     options: QueryOptions = {}
   ): Promise<boolean> {
     const sql = `SELECT 1 FROM ${this.escapeIdentifier(table)} WHERE ${where} LIMIT 1`;
@@ -286,7 +287,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     return `"${identifier.replace(/"/g, '""')}"`;
   }
 
-  escapeValue(value: any): any {
+  escapeValue<T>(value: T): T {
     // pg library automatically escapes values, so we just return the value
     return value;
   }
@@ -308,7 +309,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
         await client.query('ROLLBACK');
         client.release();
       },
-      async query<T = any>(sql: string, params: any[] = []): Promise<QueryResult<T>> {
+      async query<T = unknown>(sql: string, params: unknown[] = []): Promise<QueryResult<T>> {
         const result = await client.query(sql, params);
         return {
           data: result.rows,

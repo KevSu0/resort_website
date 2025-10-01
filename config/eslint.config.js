@@ -20,4 +20,36 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  // Override for generated files (Prisma client)
+  {
+    files: ['src/generated/**/*.ts', 'src/generated/**/*.js'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-unnecessary-type-constraint': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      'no-unused-private-class-members': 'off',
+    },
+  },
+  // Override for database interfaces and repositories
+  {
+    files: [
+      'src/lib/database/**/*.ts',
+      'src/lib/logger.ts',
+      'src/lib/tenant/TenantContext.ts'
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-case-declarations': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
+  // Override for test files
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ])

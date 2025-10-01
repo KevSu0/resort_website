@@ -13,8 +13,8 @@ export interface Site {
   subdomain?: string;
   language: string;
   timezone: string;
-  theme?: Record<string, any>;
-  settings?: Record<string, any>;
+  theme?: Record<string, unknown>;
+  settings?: Record<string, unknown>;
   isActive: boolean;
   isDefault: boolean;
   createdAt: Date;

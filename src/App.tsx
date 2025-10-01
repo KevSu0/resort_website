@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingProvider, RouteLoading } from './components/LoadingProvider';
 import { LoadingAnnouncement } from './components/LoadingAnnouncement';
-import { ToastContainer, useGlobalToast } from './components/ui/toast';
+import { ToastContainer } from './components/ui/toast';
+import { useGlobalToast } from './hooks/useGlobalToast';
 import { HomePage } from './pages/HomePage';
 import { PropertyDetailPage } from './pages/PropertyDetailPage';
 

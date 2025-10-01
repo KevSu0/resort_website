@@ -1,5 +1,6 @@
-import { collection, addDoc, query, where, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, orderBy, limit, getDocs, Timestamp, QueryConstraint } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { logger } from '../lib/logger';
 
 export interface AuditLog {
   id?: string;
@@ -8,7 +9,7 @@ export interface AuditLog {
   action: string;
   resource: string;
   resourceId?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
   timestamp: Timestamp;
@@ -39,7 +40,12 @@ class AuditService {
       const docRef = await addDoc(collection(db, this.COLLECTION_NAME), auditEntry);
       return docRef.id;
     } catch (error) {
-      console.error('Error logging audit entry:', error);
+      logger.error('Error logging audit entry', {
+        module: 'AuditService',
+        function: 'logAuditEntry',
+        error: error instanceof Error ? error.message : String(error),
+        category: 'audit'
+      });
       throw new Error(`Failed to log audit entry: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -48,7 +54,7 @@ class AuditService {
     userId: string,
     action: string,
     resource: string,
-    details?: Record<string, any>,
+    details?: Record<string, unknown>,
     severity: AuditLog['severity'] = 'info'
   ): Promise<string> {
     return this.logAuditEntry({
@@ -66,7 +72,7 @@ class AuditService {
   async logSecurityEvent(
     userId: string,
     action: string,
-    details?: Record<string, any>,
+    details?: Record<string, unknown>,
     severity: AuditLog['severity'] = 'warning'
   ): Promise<string> {
     return this.logAuditEntry({
@@ -86,8 +92,8 @@ class AuditService {
     action: 'CREATE' | 'UPDATE' | 'DELETE',
     resource: string,
     resourceId: string,
-    oldValue?: any,
-    newValue?: any
+    oldValue?: unknown,
+    newValue?: unknown
   ): Promise<string> {
     return this.logAuditEntry({
       userId,
@@ -109,7 +115,7 @@ class AuditService {
   async getAuditLogs(filter: AuditFilter = {}): Promise<AuditLog[]> {
     try {
       let q = collection(db, this.COLLECTION_NAME);
-      const constraints: any[] = [];
+      const constraints: QueryConstraint[] = [];
 
       if (filter.userId) {
         constraints.push(where('userId', '==', filter.userId));
@@ -147,7 +153,13 @@ class AuditService {
         ...doc.data()
       } as AuditLog));
     } catch (error) {
-      console.error('Error fetching audit logs:', error);
+      logger.error('Error fetching audit logs', {
+        module: 'AuditService',
+        function: 'getAuditLogs',
+        error: error instanceof Error ? error.message : String(error),
+        filter,
+        category: 'audit'
+      });
       throw new Error(`Failed to fetch audit logs: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -188,7 +200,14 @@ class AuditService {
         ...doc.data()
       } as AuditLog));
     } catch (error) {
-      console.error('Error fetching data changes:', error);
+      logger.error('Error fetching data changes', {
+        module: 'AuditService',
+        function: 'getDataChangesForResource',
+        error: error instanceof Error ? error.message : String(error),
+        resource,
+        resourceId,
+        category: 'audit'
+      });
       throw new Error(`Failed to fetch data changes: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -234,7 +253,13 @@ class AuditService {
 
       return analytics;
     } catch (error) {
-      console.error('Error generating analytics:', error);
+      logger.error('Error generating analytics', {
+        module: 'AuditService',
+        function: 'getAnalytics',
+        error: error instanceof Error ? error.message : String(error),
+        timeRange,
+        category: 'audit'
+      });
       throw new Error(`Failed to generate analytics: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -257,14 +282,16 @@ class AuditService {
     return sessionId;
   }
 
-  private getChangedFields(oldValue: any, newValue: any): string[] {
+  private getChangedFields(oldValue: unknown, newValue: unknown): string[] {
     if (!oldValue || !newValue) return [];
 
+    const oldObj = oldValue as Record<string, unknown>;
+    const newObj = newValue as Record<string, unknown>;
     const changedFields: string[] = [];
-    const allKeys = new Set([...Object.keys(oldValue), ...Object.keys(newValue)]);
+    const allKeys = new Set([...Object.keys(oldObj), ...Object.keys(newObj)]);
 
     allKeys.forEach(key => {
-      if (oldValue[key] !== newValue[key]) {
+      if (oldObj[key] !== newObj[key]) {
         changedFields.push(key);
       }
     });
@@ -292,10 +319,22 @@ class AuditService {
       // 2. Or implement a server-side cleanup job
       // For now, return the count of logs that would be deleted
 
-      console.log(`Would delete ${querySnapshot.docs.length} old audit logs`);
+      logger.info(`Would delete ${querySnapshot.docs.length} old audit logs`, {
+        module: 'AuditService',
+        function: 'cleanupOldLogs',
+        olderThanDays,
+        count: querySnapshot.docs.length,
+        category: 'maintenance'
+      });
       return querySnapshot.docs.length;
     } catch (error) {
-      console.error('Error cleaning up old logs:', error);
+      logger.error('Error cleaning up old logs', {
+        module: 'AuditService',
+        function: 'cleanupOldLogs',
+        error: error instanceof Error ? error.message : String(error),
+        olderThanDays,
+        category: 'audit'
+      });
       throw new Error(`Failed to cleanup old logs: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -307,7 +346,13 @@ class AuditService {
       const csvContent = this.convertLogsToCSV(logs);
       return new Blob([csvContent], { type: 'text/csv' });
     } catch (error) {
-      console.error('Error exporting logs:', error);
+      logger.error('Error exporting logs', {
+        module: 'AuditService',
+        function: 'exportLogs',
+        error: error instanceof Error ? error.message : String(error),
+        filter,
+        category: 'audit'
+      });
       throw new Error(`Failed to export logs: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

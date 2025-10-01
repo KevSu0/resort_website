@@ -8,7 +8,7 @@ interface ImageGalleryProps {
   propertyName: string;
 }
 
-export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName }) => {
+export function ImageGallery({ images, propertyName }: ImageGalleryProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -161,4 +161,4 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, propertyName
       )}
     </div>
   );
-};
+}

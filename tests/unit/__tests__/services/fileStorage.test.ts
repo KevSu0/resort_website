@@ -18,7 +18,7 @@ describe('FileStorageService', () => {
 
     afterEach(async () => {
         // Clean up the specific database instance
-        const dbName = (databaseService as any).dbName;
+        const dbName = (databaseService as { dbName: string }).dbName;
         databaseService.close();
         await new Promise<void>(resolve => {
             const req = indexedDB.deleteDatabase(dbName);

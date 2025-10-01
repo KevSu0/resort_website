@@ -3,7 +3,7 @@ import { PropertySummary } from './PropertySummary';
 import { type Property } from '@/types';
 import { storageService } from '@/services/storage';
 
-export const PropertyShowcase: React.FC = () => {
+export function PropertyShowcase() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 

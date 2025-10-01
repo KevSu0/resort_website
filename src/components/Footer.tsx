@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
 import { config } from '../config';
 
-export const Footer: React.FC = () => {
+export function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       {/* Main Footer Content */}

@@ -8,10 +8,10 @@ interface NearbyPlacesProps {
   className?: string;
 }
 
-export const NearbyPlaces: React.FC<NearbyPlacesProps> = ({
+export function NearbyPlaces({
   places,
   className = ''
-}) => {
+}: NearbyPlacesProps) {
   if (!places.length) {
     return (
       <div className={`text-center py-8 ${className}`}>
@@ -91,4 +91,4 @@ export const NearbyPlaces: React.FC<NearbyPlacesProps> = ({
       </div>
     </div>
   );
-};
+}

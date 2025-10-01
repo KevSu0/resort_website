@@ -10,7 +10,7 @@ import { type Property } from '../types';
 import { initializeMockData } from '../data/mockData';
 import { config } from '../config';
 
-export const HomePage: React.FC = () => {
+export function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {

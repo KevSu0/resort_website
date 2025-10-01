@@ -9,10 +9,10 @@ interface RoomTypesProps {
   className?: string;
 }
 
-export const RoomTypes: React.FC<RoomTypesProps> = ({
+export function RoomTypes({
   rooms,
   className = ''
-}) => {
+}: RoomTypesProps) {
   const getAmenityIcon = (amenity: string) => {
     const iconMap: Record<string, React.ReactNode> = {
       'King Size Bed': <Heart className="w-4 h-4" />,
@@ -215,4 +215,4 @@ export const RoomTypes: React.FC<RoomTypesProps> = ({
       <RoomComparison rooms={rooms} />
     </div>
   );
-};
+}

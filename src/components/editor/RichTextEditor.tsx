@@ -2,7 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
-import Table from '@tiptap/extension-table'
+import { Table } from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
@@ -13,7 +13,6 @@ import { useState } from 'react'
 import {
   Bold,
   Italic,
-  Underline,
   List,
   ListOrdered,
   Quote,
@@ -26,9 +25,6 @@ import {
   Table as TableIcon,
   Undo,
   Redo,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
   ChevronDown
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -54,7 +50,6 @@ const lowlight = createLowlight()
 interface RichTextEditorProps {
   content?: string
   onChange?: (content: string) => void
-  placeholder?: string
   className?: string
   editable?: boolean
   toolbar?: boolean
@@ -64,7 +59,6 @@ interface RichTextEditorProps {
 export function RichTextEditor({
   content = '',
   onChange,
-  placeholder = 'Start writing...',
   className,
   editable = true,
   toolbar = true,
@@ -80,6 +74,9 @@ export function RichTextEditor({
     extensions: [
       StarterKit.configure({
         codeBlock: false,
+        placeholder: {
+          emptyEditorClass: 'is-editor-empty',
+        },
       }),
       Image.configure({
         HTMLAttributes: {

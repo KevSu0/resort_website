@@ -1,18 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useEditor, EditorContent, BubbleMenu, FloatingMenu } from '@tiptap/react';
+import React, { useCallback, useEffect } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
-import Table from '@tiptap/extension-table';
+import { Table } from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { lowlight } from 'lowlight';
-import { BlockType, ContentBlock } from '@/types/content';
+import { createLowlight } from 'lowlight';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Bold,
   Italic,
@@ -27,8 +25,7 @@ import {
   Link as LinkIcon,
   Table as TableIcon,
   Undo,
-  Redo,
-  MoreHorizontal
+  Redo
 } from 'lucide-react';
 
 interface RichContentEditorProps {
@@ -48,9 +45,7 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
   editable = true,
   placeholder = 'Start writing...',
   className = '',
-  showMenuBar = true,
-  showBubbleMenu = true,
-  showFloatingMenu = true
+  showMenuBar = true
 }) => {
   const editor = useEditor({
     extensions: [
@@ -92,7 +87,7 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
         },
       }),
       CodeBlockLowlight.configure({
-        lowlight,
+        lowlight: createLowlight(),
         HTMLAttributes: {
           class: 'bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto',
         },
@@ -111,10 +106,7 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
     },
   });
 
-  const [imageDialogOpen, setImageDialogOpen] = useState(false);
-  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
-  const [tableDialogOpen, setTableDialogOpen] = useState(false);
-
+  
   const addImage = useCallback(() => {
     const url = window.prompt('Enter image URL:');
     if (url && editor) {
@@ -174,24 +166,7 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
     }
   }, [editor]);
 
-  const toggleHeaderColumn = useCallback(() => {
-    if (editor) {
-      editor.chain().focus().toggleHeaderColumn().run();
-    }
-  }, [editor]);
-
-  const toggleHeaderRow = useCallback(() => {
-    if (editor) {
-      editor.chain().focus().toggleHeaderRow().run();
-    }
-  }, [editor]);
-
-  const toggleHeaderCell = useCallback(() => {
-    if (editor) {
-      editor.chain().focus().toggleHeaderCell().run();
-    }
-  }, [editor]);
-
+  
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
@@ -339,6 +314,7 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
         </Card>
       )}
 
+      {/* BubbleMenu temporarily disabled
       {showBubbleMenu && editable && (
         <BubbleMenu
           editor={editor}
@@ -371,7 +347,9 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
           </Button>
         </BubbleMenu>
       )}
+      */}
 
+      {/* FloatingMenu temporarily disabled
       {showFloatingMenu && editable && (
         <FloatingMenu
           editor={editor}
@@ -445,6 +423,7 @@ const RichContentEditor: React.FC<RichContentEditorProps> = ({
           </div>
         </FloatingMenu>
       )}
+      */}
 
       <div className="min-h-[200px] border rounded-lg">
         <EditorContent editor={editor} />
